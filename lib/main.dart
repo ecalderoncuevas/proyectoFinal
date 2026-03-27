@@ -5,6 +5,7 @@ import 'package:proyecto_final_synquid/pantallas/pantalla_forgot_password.dart';
 import 'package:proyecto_final_synquid/pantallas/pantalla_login.dart';
 import 'package:proyecto_final_synquid/pantallas/pantalla_register.dart';
 import 'package:proyecto_final_synquid/pantallas/pantalla_validation.dart';
+import 'package:proyecto_final_synquid/pantallas/pantalla_validation_email.dart';
 import 'pantallas/pantalla_Welcome.dart';
 import 'theme/app_theme.dart';
 import 'pantallas/pantalla_Select_Institucion_Estudiante.dart';
@@ -33,7 +34,7 @@ class SynquidApp extends StatelessWidget {
         brightness: Brightness.dark,
         scaffoldBackgroundColor: AppColors.darkBg,
       ),
-      home: const PantallaForgotPassword(), 
+      home: const PantallaValidationEmail(), 
     );
   }
 }
