@@ -1,23 +1,38 @@
 import 'package:flutter/material.dart';
-import 'package:proyecto_final_synquid/pantallas/pantalla_inicio.dart';
-import 'package:proyecto_final_synquid/pantallas/pantalla_Welcome.dart';
+import 'package:flutter/services.dart';
+import 'package:proyecto_final_synquid/pantallas/pantalla_login.dart';
+import 'package:proyecto_final_synquid/pantallas/pantalla_validation.dart';
+import 'pantallas/pantalla_Welcome.dart';
+import 'theme/app_theme.dart';
+import 'pantallas/pantalla_Select_Institucion_Estudiante.dart';
+import 'pantallas/pantalla_Select_Institucion_Cole.dart';
 
 void main() {
-  runApp(const MyApp());
+  WidgetsFlutterBinding.ensureInitialized();
+  SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
+  runApp(const SynquidApp());
 }
 
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+class SynquidApp extends StatelessWidget {
+  const SynquidApp({super.key});
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
+      title: 'Synquid',
+      debugShowCheckedModeBanner: false,
+      themeMode: ThemeMode.dark,
       theme: ThemeData(
-        colorScheme: .fromSeed(seedColor: Colors.deepPurple),
+        brightness: Brightness.light,
+        scaffoldBackgroundColor: AppColors.lightBg,
       ),
-      home: pantallas()
+      darkTheme: ThemeData(
+        brightness: Brightness.dark,
+        scaffoldBackgroundColor: AppColors.darkBg,
+      ),
+      home: const PantallaValidation(), //  SelectInstitucionEstudiante, SelectInstitucionCole
     );
   }
 }
 
+//PantallaValidation
