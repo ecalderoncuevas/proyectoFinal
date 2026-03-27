@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:proyecto_final_synquid/pantallas/pantalla_change_password.dart';
+import 'package:proyecto_final_synquid/pantallas/pantalla_forgot_password.dart';
 import 'package:proyecto_final_synquid/pantallas/pantalla_login.dart';
 import 'package:proyecto_final_synquid/pantallas/pantalla_register.dart';
 import 'package:proyecto_final_synquid/pantallas/pantalla_validation.dart';
@@ -32,7 +33,7 @@ class SynquidApp extends StatelessWidget {
         brightness: Brightness.dark,
         scaffoldBackgroundColor: AppColors.darkBg,
       ),
-      home: const PantallaChangePassword(), 
+      home: const PantallaForgotPassword(), 
     );
   }
 }
