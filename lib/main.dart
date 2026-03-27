@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:proyecto_final_synquid/pantallas/pantalla_login.dart';
+import 'package:proyecto_final_synquid/pantallas/pantalla_register.dart';
 import 'package:proyecto_final_synquid/pantallas/pantalla_validation.dart';
 import 'pantallas/pantalla_Welcome.dart';
 import 'theme/app_theme.dart';
@@ -30,9 +31,15 @@ class SynquidApp extends StatelessWidget {
         brightness: Brightness.dark,
         scaffoldBackgroundColor: AppColors.darkBg,
       ),
-      home: const PantallaValidation(), //  SelectInstitucionEstudiante, SelectInstitucionCole
+      home: const PantallaRegister(), 
     );
   }
 }
 
+//SelectInstitucionEstudiante, SelectInstitucionCole
+
 //PantallaValidation
+
+//PantallaRegister
+
+//PantallaLogin
