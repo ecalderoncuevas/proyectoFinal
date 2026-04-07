@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:proyecto_final_synquid/pantallas/pantalla_account.dart';
 import 'package:proyecto_final_synquid/pantallas/pantalla_change_password.dart';
+import 'package:proyecto_final_synquid/pantallas/pantalla_faltas_generales.dart';
 import 'package:proyecto_final_synquid/pantallas/pantalla_forgot_password.dart';
 import 'package:proyecto_final_synquid/pantallas/pantalla_home_estudiante.dart';
 import 'package:proyecto_final_synquid/pantallas/pantalla_login.dart';
@@ -37,12 +38,14 @@ class SynquidApp extends StatelessWidget {
         brightness: Brightness.dark,
         scaffoldBackgroundColor: AppColors.darkBg,
       ),
-      home: const PantallaHomeEstudiante(), 
+      home: const PantallaFaltasGenerales(), 
     );
   }
 }
 
-//SelectInstitucionEstudiante, SelectInstitucionCole
+//SelectInstitucionEstudiante
+
+//SelectInstitucionCole
 
 //PantallaValidation
 
@@ -51,4 +54,7 @@ class SynquidApp extends StatelessWidget {
 //PantallaChangePassword
 
 //PantallaLogin
+
 //PantallaSettings
+
+//PantallaHomeEstudiante

@@ -61,7 +61,7 @@ class PantallaHomeEstudiante extends StatelessWidget {
                       ],
                     ),
 
-                    const SizedBox(height: 28),
+                    const SizedBox(height: 50),
 
                     Text(
                       'Good Morning,\nname',
