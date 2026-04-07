@@ -14,7 +14,7 @@ class PantallaAccount extends StatelessWidget {
       backgroundColor: bgColor,
       body: Column(
         children: [
-          // ── Header verde con avatar solapado ──────────────────────
+          
           Stack(
             clipBehavior: Clip.none,
             alignment: Alignment.bottomCenter,
@@ -43,14 +43,14 @@ class PantallaAccount extends StatelessWidget {
 
           const SizedBox(height: 62),
 
-          // ── Contenido scrollable ───────────────────────────────────
+          
           Expanded(
             child: SingleChildScrollView(
               padding: const EdgeInsets.symmetric(horizontal: 24.0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Nombre
+
                   Center(
                     child: Text(
                       'Nombre Persona',
@@ -99,7 +99,7 @@ class PantallaAccount extends StatelessWidget {
             ),
           ),
 
-          // ── Log out ────────────────────────────────────────────────
+
           Padding(
             padding: const EdgeInsets.only(bottom: 32),
             child: GestureDetector(
@@ -120,7 +120,7 @@ class PantallaAccount extends StatelessWidget {
   }
 }
 
-// ─── Widgets reutilizables ────────────────────────────────────────────────────
+
 
 class _InfoField extends StatelessWidget {
   final String label;

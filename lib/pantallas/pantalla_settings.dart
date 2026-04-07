@@ -34,7 +34,7 @@ class _PantallaSettingsState extends State<PantallaSettings> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
 
-          // ── Header verde ──────────────────────────────────────────
+   
           Container(
             width: double.infinity,
             color: green,
@@ -68,7 +68,7 @@ class _PantallaSettingsState extends State<PantallaSettings> {
             ),
           ),
 
-          // ── Contenido ─────────────────────────────────────────────
+         
           Expanded(
             child: SingleChildScrollView(
               padding: const EdgeInsets.symmetric(horizontal: 24.0),
@@ -181,7 +181,7 @@ class _PantallaSettingsState extends State<PantallaSettings> {
                   ),
                   const _Divider(),
 
-                  // Font Size label
+             
                   _SettingsRow(
                     icon: null,
                     label: 'Font Size',
@@ -196,7 +196,7 @@ class _PantallaSettingsState extends State<PantallaSettings> {
                     onTap: null,
                   ),
 
-                  // Slider estilo Apple
+             
                   _FontSizeSlider(
                     value: _fontSize,
                     onChanged: (value) {
@@ -215,7 +215,7 @@ class _PantallaSettingsState extends State<PantallaSettings> {
   }
 }
 
-// ─── Widgets reutilizables ────────────────────────────────────────────────────
+
 
 class _FontSizeSlider extends StatelessWidget {
   final double value;
@@ -386,7 +386,7 @@ class _SettingsRowWithWidget extends StatelessWidget {
   }
 }
 
-// Icono con borde verde redondeado
+
 class _IconBox extends StatelessWidget {
   final IconData? icon;
   final Widget? customChild;
