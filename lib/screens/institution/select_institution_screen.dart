@@ -6,16 +6,24 @@ import 'package:proyecto_final_synquid/models/institution.dart';
 import 'package:proyecto_final_synquid/services/api_client.dart';
 import 'package:proyecto_final_synquid/services/institution_service.dart';
 
-class SelectInstitucionEstudianteScreen extends StatefulWidget {
-  const SelectInstitucionEstudianteScreen({super.key});
+class SelectInstitutionScreen extends StatefulWidget {
+  final IconData icon;
+  final String title;
+  final void Function(Institution institution)? onInstitutionSelected;
+
+  const SelectInstitutionScreen({
+    super.key,
+    required this.icon,
+    this.title = 'Select your\ninstitution',
+    this.onInstitutionSelected,
+  });
 
   @override
-  State<SelectInstitucionEstudianteScreen> createState() =>
-      _SelectInstitucionEstudianteScreenState();
+  State<SelectInstitutionScreen> createState() =>
+      _SelectInstitutionScreenState();
 }
 
-class _SelectInstitucionEstudianteScreenState
-    extends State<SelectInstitucionEstudianteScreen> {
+class _SelectInstitutionScreenState extends State<SelectInstitutionScreen> {
   late final InstitutionService _service;
   late Future<List<Institution>> _institutionsFuture;
   Institution? _selectedInstitution;
@@ -37,14 +45,14 @@ class _SelectInstitucionEstudianteScreenState
           child: Column(
             children: [
               const Spacer(flex: 2),
-              const FaIcon(
-                FontAwesomeIcons.schoolFlag,
+              FaIcon(
+                widget.icon,
                 size: 90,
                 color: Colors.white,
               ),
               const SizedBox(height: 32),
               Text(
-                'Select your\ninstitution',
+                widget.title,
                 textAlign: TextAlign.center,
                 style: GoogleFonts.rowdies(
                   fontSize: 28,
@@ -63,14 +71,17 @@ class _SelectInstitucionEstudianteScreenState
                     );
                   }
                   if (snapshot.hasError) {
-                  return Padding(
-                    padding: const EdgeInsets.all(16),
-                    child: Text(
-                      'Error: ${snapshot.error}',
-                      textAlign: TextAlign.center,
-                      style: GoogleFonts.rowdies(color: Colors.redAccent, fontSize: 12),
-                    ),
-                  );
+                    return Padding(
+                      padding: const EdgeInsets.all(16),
+                      child: Text(
+                        'Error: ${snapshot.error}',
+                        textAlign: TextAlign.center,
+                        style: GoogleFonts.rowdies(
+                          color: Colors.redAccent,
+                          fontSize: 12,
+                        ),
+                      ),
+                    );
                   }
                   final institutions = snapshot.data ?? [];
                   return _buildDropdown(institutions);
@@ -128,6 +139,9 @@ class _SelectInstitucionEstudianteScreenState
             setState(() {
               _selectedInstitution = value;
             });
+            if (value != null) {
+              widget.onInstitutionSelected?.call(value);
+            }
           },
         ),
       ),

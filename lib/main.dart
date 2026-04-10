@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:proyecto_final_synquid/core/theme/app_theme.dart';
-import 'screens/institution/select_institution_estudiante_screen.dart';
+import 'package:proyecto_final_synquid/screens/auth/welcome_screen.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -26,23 +26,7 @@ class SynquidApp extends StatelessWidget {
         brightness: Brightness.dark,
         scaffoldBackgroundColor: AppColors.darkBg,
       ),
-      home: const SelectInstitucionEstudianteScreen(), 
+      home: const WelcomeScreen(),
     );
   }
 }
-
-//SelectInstitucionEstudiante
-
-//SelectInstitucionCole
-
-//PantallaValidation
-
-//PantallaRegister
-
-//PantallaChangePassword
-
-//PantallaLogin
-
-//PantallaSettings
-
-//PantallaHomeEstudiante
