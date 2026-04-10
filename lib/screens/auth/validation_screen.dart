@@ -1,22 +1,23 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
-import '../theme/app_theme.dart';
+import 'package:proyecto_final_synquid/core/theme/app_theme.dart';
 
-class PantallaValidationEmail extends StatefulWidget {
-  const PantallaValidationEmail({super.key});
+class PantallaValidation extends StatefulWidget {
+  const PantallaValidation({super.key});
 
   @override
-  State<PantallaValidationEmail> createState() => _PantallaValidationState();
+  State<PantallaValidation> createState() => _PantallaValidationState();
 
 
 }
 
-class _PantallaValidationState extends State<PantallaValidationEmail> {
+class _PantallaValidationState extends State<PantallaValidation> {
   final List<TextEditingController> _controllers =
     List.generate(6, (_) => TextEditingController());
   
   final List<FocusNode> _focusNodes = List.generate(6, (_) => FocusNode());
+  bool _rememberDevice = false;
 
   @override
   void dispose() {
@@ -92,6 +93,42 @@ class _PantallaValidationState extends State<PantallaValidationEmail> {
               ),
 
               const Spacer(flex: 3),
+
+              Row(
+                children: [
+                  GestureDetector(
+                    onTap: () {
+                      setState(() {
+                        _rememberDevice = !_rememberDevice;
+                      });
+                    },
+                    child: Container(
+                      width: 22,
+                      height: 22,
+                      decoration: BoxDecoration(
+                        color: _rememberDevice ? green : Colors.transparent,
+                        border: Border.all(color: green, width: 1.5),
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                      child: _rememberDevice
+                        ? const Icon(Icons.check,
+                            size: 14, color: AppColors.darkBg)
+                            : null,
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Text(
+                    'Remember this device',
+                    style: GoogleFonts.rowdies(
+                      fontSize: 13,
+                      color: Colors.white,
+                      fontWeight: FontWeight.w300,
+                    ),
+                  ),
+                ],
+              ),
+
+              const SizedBox(height: 24),
 
               _PrimaryButton(
                 label: 'Validate',

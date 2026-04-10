@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import '../theme/app_theme.dart';
-import '../widgets/theme_switch.dart';
+import 'package:proyecto_final_synquid/core/theme/app_theme.dart';
+import '../../widgets/theme_switch.dart';
 
 class PantallaSettings extends StatefulWidget {
   const PantallaSettings({super.key});

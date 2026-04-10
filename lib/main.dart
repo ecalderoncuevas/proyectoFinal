@@ -1,19 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:proyecto_final_synquid/pantallas/pantalla_account.dart';
-import 'package:proyecto_final_synquid/pantallas/pantalla_change_password.dart';
-import 'package:proyecto_final_synquid/pantallas/pantalla_faltas_generales.dart';
-import 'package:proyecto_final_synquid/pantallas/pantalla_forgot_password.dart';
-import 'package:proyecto_final_synquid/pantallas/pantalla_home_estudiante.dart';
-import 'package:proyecto_final_synquid/pantallas/pantalla_login.dart';
-import 'package:proyecto_final_synquid/pantallas/pantalla_register.dart';
-import 'package:proyecto_final_synquid/pantallas/pantalla_settings.dart';
-import 'package:proyecto_final_synquid/pantallas/pantalla_validation.dart';
-import 'package:proyecto_final_synquid/pantallas/pantalla_validation_email.dart';
-import 'pantallas/pantalla_Welcome.dart';
-import 'theme/app_theme.dart';
-import 'pantallas/pantalla_Select_Institucion_Estudiante.dart';
-import 'pantallas/pantalla_Select_Institucion_Cole.dart';
+import 'package:proyecto_final_synquid/screens/account/account_screen.dart';
+import 'package:proyecto_final_synquid/screens/password/change_password_screen.dart';
+import 'package:proyecto_final_synquid/screens/attendance/faltas_generales_screen.dart';
+import 'package:proyecto_final_synquid/screens/password/forgot_password_screen.dart';
+import 'package:proyecto_final_synquid/screens/home/home_student_screen.dart';
+import 'package:proyecto_final_synquid/screens/auth/login_screen.dart';
+import 'package:proyecto_final_synquid/screens/auth/register_screen.dart';
+import 'package:proyecto_final_synquid/screens/account/settings_screen.dart';
+import 'package:proyecto_final_synquid/screens/auth/validation_screen.dart';
+import 'package:proyecto_final_synquid/screens/auth/validation_email_screen.dart';
+import 'screens/auth/welcome_screen.dart';
+import 'package:proyecto_final_synquid/core/theme/app_theme.dart';
+import 'screens/institution/select_institution_estudiante_screen.dart';
+import 'screens/institution/select_institution_cole_screen.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();

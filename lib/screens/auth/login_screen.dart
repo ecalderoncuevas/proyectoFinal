@@ -1,28 +1,26 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
-import '../theme/app_theme.dart';
+import 'package:proyecto_final_synquid/core/theme/app_theme.dart';
 
-class PantallaRegister extends StatefulWidget {
-  const PantallaRegister({super.key});
+class PantallaLogin extends StatefulWidget {
+  const PantallaLogin({super.key});
 
   @override
-  State<PantallaRegister> createState() => _PantallaRegisterState();
+  State<PantallaLogin> createState() => _PantallaLoginState();
 }
 
-class _PantallaRegisterState extends State<PantallaRegister> {
+class _PantallaLoginState extends State<PantallaLogin> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
-  final TextEditingController _confirmPasswordController = TextEditingController();
 
   @override
   void dispose() {
     _emailController.dispose();
     _passwordController.dispose();
-    _confirmPasswordController.dispose();
     super.dispose();
   }
-
+  
   @override
   Widget build(BuildContext context) {
     const bgColor = AppColors.darkBg;
@@ -37,22 +35,17 @@ class _PantallaRegisterState extends State<PantallaRegister> {
             children: [
               const Spacer(flex: 2),
 
-              Text(
-                'Register',
-                textAlign: TextAlign.center,
-                style: GoogleFonts.rowdies(
-                  fontSize: 40,
-                  fontWeight: FontWeight.w700,
-                  color: green,
-                ),
+              CircleAvatar(
+                radius: 45,
+                backgroundColor: Colors.grey.shade400,
               ),
 
               const Spacer(flex: 2),
-
+              
               _InputField(
                 label: 'Email',
                 controller: _emailController,
-                keyboardType: TextInputType.emailAddress,
+                KeyboardType: TextInputType.emailAddress,
               ),
 
               const SizedBox(height: 24),
@@ -63,36 +56,42 @@ class _PantallaRegisterState extends State<PantallaRegister> {
                 isPassword: true,
               ),
 
-              const SizedBox(height: 24),
+              const Spacer(flex: 3),
 
-              _InputField(
-                label: 'Confirm Password',
-                controller: _confirmPasswordController,
-                isPassword: true,
+              _PrimaryButton(
+                label: 'Sign in',
+                onTap: () {},
               ),
 
-              const Spacer(flex: 3),
+              const SizedBox(height: 12),
 
               GestureDetector(
                 onTap: () {},
                 child: Text(
-                  'privacy policy',
+                  'Create account',
                   style: GoogleFonts.rowdies(
-                    fontSize: 13,
+                    fontSize: 14,
                     color: green,
                     fontWeight: FontWeight.w300,
                   ),
                 ),
               ),
 
-              const SizedBox(height: 12),
+              const Spacer(flex: 2),
 
-              _PrimaryButton(
-                label: 'Register',
+              GestureDetector(
                 onTap: () {},
+                child: Text(
+                  'forgot your password?',
+                  style: GoogleFonts.rowdies(
+                    fontSize: 13,
+                    color: green,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
               ),
 
-              const SizedBox(height: 32),
+            const SizedBox(height: 24),
             ],
           ),
         ),
@@ -105,21 +104,21 @@ class _InputField extends StatelessWidget {
   final String label;
   final TextEditingController controller;
   final bool isPassword;
-  final TextInputType keyboardType;
+  final TextInputType KeyboardType;
 
   const _InputField({
     required this.label,
     required this.controller,
     this.isPassword = false,
-    this.keyboardType = TextInputType.text,
-});
+    this.KeyboardType = TextInputType.text,
+  });
 
   @override
   Widget build(BuildContext context) {
     return TextField(
       controller: controller,
       obscureText: isPassword,
-      keyboardType: keyboardType,
+      keyboardType: KeyboardType,
       style: GoogleFonts.rowdies(
         color: Colors.white,
         fontSize: 14,
@@ -150,12 +149,12 @@ class _PrimaryButton extends StatelessWidget {
     required this.label,
     required this.onTap,
   });
-
+  
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: onTap,
-            child: Container(
+      child: Container(
         width: double.infinity,
         padding: const EdgeInsets.symmetric(vertical: 16),
         decoration: BoxDecoration(
@@ -176,3 +175,6 @@ class _PrimaryButton extends StatelessWidget {
     );
   }
 }
+
+
+        
