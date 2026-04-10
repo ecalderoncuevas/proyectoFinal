@@ -1,6 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import '../core/constants/api_constants.dart';
+import 'package:proyecto_final_synquid/core/constants/api_constants.dart';
 
 class ApiClient {
   late final Dio dio;
