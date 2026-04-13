@@ -6,9 +6,11 @@ class InstitutionService {
   final ApiClient _client;
   InstitutionService(this._client);
 
+  final String base =  ApiConstants.baseUrl;
+
   Future<List<Institution>> getAll() async {
     try {
-      final response = await _client.dio.get(ApiConstants.institutions);
+      final response = await _client.dio.get("$base${ApiConstants.institutions}");
       final List<dynamic> data = response.data;
       return data.map((json) => Institution.fromJson(json)).toList();
     } catch (e) {

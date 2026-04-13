@@ -5,17 +5,18 @@ import 'package:proyecto_final_synquid/core/theme/app_theme.dart';
 import 'package:proyecto_final_synquid/models/institution.dart';
 import 'package:proyecto_final_synquid/services/api_client.dart';
 import 'package:proyecto_final_synquid/services/institution_service.dart';
+import 'package:proyecto_final_synquid/widgets/primary_button.dart';
 
 class SelectInstitutionScreen extends StatefulWidget {
   final IconData icon;
   final String title;
-  final void Function(Institution institution)? onInstitutionSelected;
+  final void Function(Institution institution) onContinue;
 
   const SelectInstitutionScreen({
     super.key,
     required this.icon,
+    required this.onContinue,
     this.title = 'Select your\ninstitution',
-    this.onInstitutionSelected,
   });
 
   @override
@@ -45,11 +46,7 @@ class _SelectInstitutionScreenState extends State<SelectInstitutionScreen> {
           child: Column(
             children: [
               const Spacer(flex: 2),
-              FaIcon(
-                widget.icon,
-                size: 90,
-                color: Colors.white,
-              ),
+              FaIcon(widget.icon, size: 90, color: Colors.white),
               const SizedBox(height: 32),
               Text(
                 widget.title,
@@ -86,6 +83,13 @@ class _SelectInstitutionScreenState extends State<SelectInstitutionScreen> {
                   final institutions = snapshot.data ?? [];
                   return _buildDropdown(institutions);
                 },
+              ),
+              const SizedBox(height: 32),
+              PrimaryButton(
+                label: 'Continue',
+                onPressed: _selectedInstitution == null
+                    ? null
+                    : () => widget.onContinue(_selectedInstitution!),
               ),
               const Spacer(flex: 3),
             ],
@@ -139,9 +143,6 @@ class _SelectInstitutionScreenState extends State<SelectInstitutionScreen> {
             setState(() {
               _selectedInstitution = value;
             });
-            if (value != null) {
-              widget.onInstitutionSelected?.call(value);
-            }
           },
         ),
       ),

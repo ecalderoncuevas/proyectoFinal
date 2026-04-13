@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:proyecto_final_synquid/core/router/app_router.dart';
 import 'package:proyecto_final_synquid/core/theme/app_theme.dart';
-import 'package:proyecto_final_synquid/screens/auth/welcome_screen.dart';
-
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
   SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
@@ -14,7 +13,7 @@ class SynquidApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    return MaterialApp.router(
       title: 'Synquid',
       debugShowCheckedModeBanner: false,
       themeMode: ThemeMode.dark,
@@ -26,7 +25,7 @@ class SynquidApp extends StatelessWidget {
         brightness: Brightness.dark,
         scaffoldBackgroundColor: AppColors.darkBg,
       ),
-      home: const WelcomeScreen(),
+      routerConfig: appRouter,
     );
   }
 }

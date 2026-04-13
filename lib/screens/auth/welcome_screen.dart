@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:proyecto_final_synquid/core/router/app_router.dart';
 import 'package:proyecto_final_synquid/core/theme/app_theme.dart';
-import 'package:proyecto_final_synquid/screens/institution/select_institution_screen.dart';
 
 class WelcomeScreen extends StatelessWidget {
   const WelcomeScreen({super.key});
@@ -44,42 +45,24 @@ class WelcomeScreen extends StatelessWidget {
                   _RoleButton(
                     icon: FontAwesomeIcons.userGraduate,
                     label: 'student',
-                    onTap: () => _goToSelectInstitution(
-                      context,
-                      icon: FontAwesomeIcons.userGraduate,
+                    onTap: () {
+                      debugPrint('>>> Student tocado');
+                      context.push(AppRoutes.selectInstitutionStudent);
+                      },
                     ),
-                  ),
-                  _RoleButton(
-                    icon: FontAwesomeIcons.schoolFlag,
-                    label: 'institution',
-                    onTap: () => _goToSelectInstitution(
-                      context,
+                    _RoleButton(
                       icon: FontAwesomeIcons.schoolFlag,
-                    ),
-                  ),
+                      label: 'institution',
+                      onTap: () {
+                        debugPrint('>>> Institution tocado');
+                        context.push(AppRoutes.selectInstitutionCole);
+                        },
+                      ),
                 ],
               ),
               const Spacer(flex: 3),
             ],
           ),
-        ),
-      ),
-    );
-  }
-
-  void _goToSelectInstitution(
-    BuildContext context, {
-    required IconData icon,
-  }) {
-    Navigator.of(context).push(
-      MaterialPageRoute(
-        builder: (_) => SelectInstitutionScreen(
-          icon: icon,
-          onInstitutionSelected: (institution) {
-            // aquí, más adelante, decides a dónde ir después
-            // de seleccionar la institución
-            debugPrint('Seleccionado: ${institution.name}');
-          },
         ),
       ),
     );
