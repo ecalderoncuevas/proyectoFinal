@@ -6,19 +6,25 @@ class PrimaryButton extends StatelessWidget {
   final String label;
   final VoidCallback? onPressed;
   final bool isLoading;
+  final double height;
+  final double fontSize;
+  final double? width;
 
   const PrimaryButton({
     super.key,
     required this.label,
     required this.onPressed,
     this.isLoading = false,
+    this.height = 56,
+    this.fontSize = 18,
+    this.width,
   });
 
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      width: double.infinity,
-      height: 56,
+      width: width ?? double.infinity,
+      height: height,
       child: ElevatedButton(
         onPressed: isLoading ? null : onPressed,
         style: ElevatedButton.styleFrom(
@@ -30,10 +36,10 @@ class PrimaryButton extends StatelessWidget {
           elevation: 0,
         ),
         child: isLoading
-            ? const SizedBox(
-                height: 22,
-                width: 22,
-                child: CircularProgressIndicator(
+            ? SizedBox(
+                height: fontSize + 4,
+                width: fontSize + 4,
+                child: const CircularProgressIndicator(
                   color: AppColors.darkBg,
                   strokeWidth: 2.5,
                 ),
@@ -42,7 +48,7 @@ class PrimaryButton extends StatelessWidget {
                 label,
                 style: GoogleFonts.rowdies(
                   color: AppColors.darkBg,
-                  fontSize: 18,
+                  fontSize: fontSize,
                   fontWeight: FontWeight.w700,
                 ),
               ),

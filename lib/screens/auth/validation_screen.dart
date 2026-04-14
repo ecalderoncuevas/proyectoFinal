@@ -87,8 +87,6 @@ class _ValidationScreenState extends State<ValidationScreen> {
 
   @override
   Widget build(BuildContext context) {
-    const green = AppColors.green;
-
     return Scaffold(
       backgroundColor: AppColors.darkBg,
       appBar: const BackAppBar(),
@@ -129,19 +127,16 @@ class _ValidationScreenState extends State<ValidationScreen> {
                   );
                 }),
               ),
-              const SizedBox(height: 12),
+              const SizedBox(height: 16),
               Align(
                 alignment: Alignment.centerLeft,
-                child: GestureDetector(
-                  onTap: _isSending ? null : _sendCode,
-                  child: Text(
-                    _isSending ? 'Sending...' : 'Send again',
-                    style: GoogleFonts.rowdies(
-                      fontSize: 13,
-                      color: green,
-                      fontWeight: FontWeight.w300,
-                    ),
-                  ),
+                child: PrimaryButton(
+                  label: 'Send again',
+                  isLoading: _isSending,
+                  onPressed: _sendCode,
+                  width: 160,
+                  height: 42,
+                  fontSize: 14,
                 ),
               ),
               const Spacer(flex: 3),

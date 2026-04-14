@@ -5,6 +5,8 @@ import 'package:proyecto_final_synquid/screens/auth/login_screen.dart';
 import 'package:proyecto_final_synquid/screens/auth/validation_screen.dart';
 import 'package:proyecto_final_synquid/screens/auth/welcome_screen.dart';
 import 'package:proyecto_final_synquid/screens/institution/select_institution_screen.dart';
+import 'package:proyecto_final_synquid/screens/password/change_password_screen.dart';
+import 'package:proyecto_final_synquid/screens/password/forgot_password_screen.dart';
 
 class AppRoutes {
   static const welcome = '/';
@@ -13,6 +15,9 @@ class AppRoutes {
   static const login = '/login';
   static const validationEmail = '/validation-email';
   static const validationDevice = '/validation-device';
+  static const validationForgotPassword = '/validation-forgot-password';
+  static const forgotPassword = '/forgot-password';
+  static const changePassword = '/change-password';
 }
 
 final appRouter = GoRouter(
@@ -54,7 +59,6 @@ final appRouter = GoRouter(
           email: email,
           onValidate: (code, _) {
             debugPrint('Código introducido: $code para email: $email');
-           
           },
         );
       },
@@ -67,10 +71,31 @@ final appRouter = GoRouter(
           email: email,
           showRememberDevice: true,
           onValidate: (code, remember) {
-            debugPrint('Código: $code, Remember: $remember, Email: $email');
+            debugPrint('Código: $code, Remember: $remember');
           },
         );
       },
+    ),
+    GoRoute(
+      path: AppRoutes.validationForgotPassword,
+      builder: (context, state) {
+        final email = state.extra as String? ?? '';
+        return ValidationScreen(
+          email: email,
+          onValidate: (code, _) {
+            debugPrint('Código forgot password: $code');
+            context.push(AppRoutes.changePassword);
+          },
+        );
+      },
+    ),
+    GoRoute(
+      path: AppRoutes.forgotPassword,
+      builder: (context, state) => const ForgotPasswordScreen(),
+    ),
+    GoRoute(
+      path: AppRoutes.changePassword,
+      builder: (context, state) => const ChangePasswordScreen(),
     ),
   ],
 );

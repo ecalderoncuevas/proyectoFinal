@@ -1,15 +1,14 @@
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:proyecto_final_synquid/core/router/app_router.dart';
 import 'package:proyecto_final_synquid/core/storage/token_storage.dart';
 import 'package:proyecto_final_synquid/core/theme/app_theme.dart';
 import 'package:proyecto_final_synquid/services/api_client.dart';
 import 'package:proyecto_final_synquid/services/auth_service.dart';
-import 'package:proyecto_final_synquid/widgets/primary_button.dart';
-import 'package:go_router/go_router.dart';
 import 'package:proyecto_final_synquid/widgets/back_app_bar.dart';
-import 'package:dio/dio.dart';
-
+import 'package:proyecto_final_synquid/widgets/primary_button.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -39,67 +38,67 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   Future<void> _doLogin() async {
-  final email = _emailController.text.trim();
-  final password = _passwordController.text;
+    final email = _emailController.text.trim();
+    final password = _passwordController.text;
 
-  if (email.isEmpty || password.isEmpty) {
-    _showMessage('Please enter email and password', isError: true);
-    return;
-  }
-
-  setState(() => _isLoading = true);
-
-  try {
-    final response = await _authService.login(
-      email: email,
-      password: password,
-    );
-
-    if (!mounted) return;
-
-    if (response.isSuccess) {
-      _showMessage(response.message, isError: false);
-      context.push(AppRoutes.validationEmail, extra: email);
-    } else {
-      _showMessage(response.message, isError: true);
+    if (email.isEmpty || password.isEmpty) {
+      _showMessage('Please enter email and password', isError: true);
+      return;
     }
-  } on DioException catch (e) {
-    if (!mounted) return;
-    _showMessage(_friendlyDioError(e), isError: true);
-  } catch (e) {
-    if (!mounted) return;
-    _showMessage('Unexpected error. Please try again.', isError: true);
-  } finally {
-    if (mounted) setState(() => _isLoading = false);
-  }
-}
 
-String _friendlyDioError(DioException e) {
-  final status = e.response?.statusCode;
-  switch (status) {
-    case 400:
-      return 'Invalid email or password format';
-    case 401:
-      return 'Incorrect password';
-    case 404:
-      return 'No account found with this email';
-    case 500:
-    case 502:
-    case 503:
-      return 'Server error. Please try again later';
+    setState(() => _isLoading = true);
+
+    try {
+      final response = await _authService.login(
+        email: email,
+        password: password,
+      );
+
+      if (!mounted) return;
+
+      if (response.isSuccess) {
+        _showMessage(response.message, isError: false);
+        context.push(AppRoutes.validationEmail, extra: email);
+      } else {
+        _showMessage(response.message, isError: true);
+      }
+    } on DioException catch (e) {
+      if (!mounted) return;
+      _showMessage(_friendlyDioError(e), isError: true);
+    } catch (e) {
+      if (!mounted) return;
+      _showMessage('Unexpected error. Please try again.', isError: true);
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
+    }
   }
 
-  switch (e.type) {
-    case DioExceptionType.connectionTimeout:
-    case DioExceptionType.receiveTimeout:
-    case DioExceptionType.sendTimeout:
-      return 'Connection timeout. Check your internet';
-    case DioExceptionType.connectionError:
-      return 'No internet connection';
-    default:
-      return 'Login failed. Please try again';
+  String _friendlyDioError(DioException e) {
+    final status = e.response?.statusCode;
+    switch (status) {
+      case 400:
+        return 'Invalid email or password format';
+      case 401:
+        return 'Incorrect password';
+      case 404:
+        return 'No account found with this email';
+      case 500:
+      case 502:
+      case 503:
+        return 'Server error. Please try again later';
+    }
+
+    switch (e.type) {
+      case DioExceptionType.connectionTimeout:
+      case DioExceptionType.receiveTimeout:
+      case DioExceptionType.sendTimeout:
+        return 'Connection timeout. Check your internet';
+      case DioExceptionType.connectionError:
+        return 'No internet connection';
+      default:
+        return 'Login failed. Please try again';
+    }
   }
-}
 
   void _showMessage(String text, {required bool isError}) {
     ScaffoldMessenger.of(context).showSnackBar(
@@ -112,11 +111,8 @@ String _friendlyDioError(DioException e) {
 
   @override
   Widget build(BuildContext context) {
-    const bgColor = AppColors.darkBg;
-    const green = AppColors.green;
-
     return Scaffold(
-      backgroundColor: bgColor,
+      backgroundColor: AppColors.darkBg,
       appBar: const BackAppBar(),
       body: SafeArea(
         child: Padding(
@@ -124,64 +120,42 @@ String _friendlyDioError(DioException e) {
           child: Column(
             children: [
               const Spacer(flex: 2),
-
               CircleAvatar(
                 radius: 45,
                 backgroundColor: Colors.grey.shade400,
               ),
-
               const Spacer(flex: 2),
-
               _InputField(
                 label: 'Email',
                 controller: _emailController,
                 keyboardType: TextInputType.emailAddress,
               ),
-
               const SizedBox(height: 24),
-
               _InputField(
                 label: 'Password',
                 controller: _passwordController,
                 isPassword: true,
               ),
-
               const Spacer(flex: 3),
-
               PrimaryButton(
                 label: 'Sign in',
                 isLoading: _isLoading,
                 onPressed: _doLogin,
               ),
-
               const SizedBox(height: 12),
-
-              GestureDetector(
-                onTap: () {},
-                child: Text(
-                  'Create account',
-                  style: GoogleFonts.rowdies(
-                    fontSize: 14,
-                    color: green,
-                    fontWeight: FontWeight.w300,
-                  ),
-                ),
+              _LinkText(
+                label: 'Create account',
+                fontWeight: FontWeight.w300,
+                onTap: () {
+                  // TODO: navegar a register cuando exista
+                },
               ),
-
               const Spacer(flex: 2),
-
-              GestureDetector(
-                onTap: () {},
-                child: Text(
-                  'forgot your password?',
-                  style: GoogleFonts.rowdies(
-                    fontSize: 13,
-                    color: green,
-                    fontWeight: FontWeight.w700,
-                  ),
-                ),
+              _LinkText(
+                label: 'forgot your password?',
+                fontWeight: FontWeight.w700,
+                onTap: () => context.push(AppRoutes.forgotPassword),
               ),
-
               const SizedBox(height: 24),
             ],
           ),
@@ -249,6 +223,55 @@ class _InputFieldState extends State<_InputField> {
                 onPressed: () => setState(() => _obscure = !_obscure),
               )
             : null,
+      ),
+    );
+  }
+}
+
+/// Texto verde que se subraya brevemente al pulsarlo
+/// para dar feedback visual al usuario.
+class _LinkText extends StatefulWidget {
+  final String label;
+  final FontWeight fontWeight;
+  final VoidCallback onTap;
+
+  const _LinkText({
+    required this.label,
+    required this.onTap,
+    this.fontWeight = FontWeight.w300,
+  });
+
+  @override
+  State<_LinkText> createState() => _LinkTextState();
+}
+
+class _LinkTextState extends State<_LinkText> {
+  bool _pressed = false;
+
+  void _handleTap() {
+    setState(() => _pressed = true);
+    // Mantenemos el subrayado un momento para que se vea, luego navegamos.
+    Future.delayed(const Duration(milliseconds: 150), () {
+      if (mounted) setState(() => _pressed = false);
+      widget.onTap();
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: _handleTap,
+      behavior: HitTestBehavior.opaque,
+      child: Text(
+        widget.label,
+        style: GoogleFonts.rowdies(
+          fontSize: 13,
+          color: AppColors.green,
+          fontWeight: widget.fontWeight,
+          decoration: _pressed ? TextDecoration.underline : TextDecoration.none,
+          decorationColor: AppColors.green,
+          decorationThickness: 2,
+        ),
       ),
     );
   }
