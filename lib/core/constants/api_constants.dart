@@ -14,4 +14,5 @@ class ApiConstants {
   static const String user = '/User';
   static const String attendanceCheck = '/Attendance/check';
   static const String attendanceRegister = '/Attendance/Register';
+  static const String verifyEmail = '/Auth/verifyEmail';
 }

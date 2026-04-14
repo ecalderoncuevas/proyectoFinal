@@ -1,22 +1,22 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:proyecto_final_synquid/core/storage/token_storage.dart';
 import 'package:proyecto_final_synquid/core/theme/app_theme.dart';
-import 'package:proyecto_final_synquid/widgets/primary_button.dart';
+import 'package:proyecto_final_synquid/services/api_client.dart';
+import 'package:proyecto_final_synquid/services/auth_service.dart';
 import 'package:proyecto_final_synquid/widgets/back_app_bar.dart';
+import 'package:proyecto_final_synquid/widgets/primary_button.dart';
 
 class ValidationScreen extends StatefulWidget {
-  
+  final String email;
   final bool showRememberDevice;
-
-  
   final String title;
-
-  
   final void Function(String code, bool rememberDevice) onValidate;
 
   const ValidationScreen({
     super.key,
+    required this.email,
     required this.onValidate,
     this.showRememberDevice = false,
     this.title = 'Verify email',
@@ -30,7 +30,17 @@ class _ValidationScreenState extends State<ValidationScreen> {
   final List<TextEditingController> _controllers =
       List.generate(6, (_) => TextEditingController());
   final List<FocusNode> _focusNodes = List.generate(6, (_) => FocusNode());
+
+  late final AuthService _authService;
   bool _rememberDevice = false;
+  bool _isSending = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _authService = AuthService(ApiClient(), TokenStorage());
+    WidgetsBinding.instance.addPostFrameCallback((_) => _sendCode());
+  }
 
   @override
   void dispose() {
@@ -45,6 +55,36 @@ class _ValidationScreenState extends State<ValidationScreen> {
 
   String get _code => _controllers.map((c) => c.text).join();
 
+  Future<void> _sendCode() async {
+    if (widget.email.isEmpty) {
+      _showMessage('No email provided', isError: true);
+      return;
+    }
+    setState(() => _isSending = true);
+    try {
+      final ok = await _authService.sendVerificationCode(widget.email);
+      if (!mounted) return;
+      _showMessage(
+        ok ? 'Code sent to ${widget.email}' : 'Could not send code',
+        isError: !ok,
+      );
+    } catch (e) {
+      if (!mounted) return;
+      _showMessage('Error: $e', isError: true);
+    } finally {
+      if (mounted) setState(() => _isSending = false);
+    }
+  }
+
+  void _showMessage(String text, {required bool isError}) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(text),
+        backgroundColor: isError ? Colors.redAccent : AppColors.green,
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     const green = AppColors.green;
@@ -58,13 +98,11 @@ class _ValidationScreenState extends State<ValidationScreen> {
           child: Column(
             children: [
               const Spacer(flex: 2),
-
               CircleAvatar(
                 radius: 45,
                 backgroundColor: Colors.grey.shade400,
               ),
               const SizedBox(height: 32),
-
               Text(
                 widget.title,
                 textAlign: TextAlign.center,
@@ -74,9 +112,7 @@ class _ValidationScreenState extends State<ValidationScreen> {
                   color: Colors.white,
                 ),
               ),
-
               const SizedBox(height: 32),
-
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: List.generate(6, (index) {
@@ -93,15 +129,13 @@ class _ValidationScreenState extends State<ValidationScreen> {
                   );
                 }),
               ),
-
               const SizedBox(height: 12),
-
               Align(
                 alignment: Alignment.centerLeft,
                 child: GestureDetector(
-                  onTap: () {},
+                  onTap: _isSending ? null : _sendCode,
                   child: Text(
-                    'Send again',
+                    _isSending ? 'Sending...' : 'Send again',
                     style: GoogleFonts.rowdies(
                       fontSize: 13,
                       color: green,
@@ -110,9 +144,7 @@ class _ValidationScreenState extends State<ValidationScreen> {
                   ),
                 ),
               ),
-
               const Spacer(flex: 3),
-
               if (widget.showRememberDevice) ...[
                 _RememberDeviceCheckbox(
                   value: _rememberDevice,
@@ -120,12 +152,10 @@ class _ValidationScreenState extends State<ValidationScreen> {
                 ),
                 const SizedBox(height: 24),
               ],
-
               PrimaryButton(
                 label: 'Validate',
                 onPressed: () => widget.onValidate(_code, _rememberDevice),
               ),
-
               const SizedBox(height: 32),
             ],
           ),

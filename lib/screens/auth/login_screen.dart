@@ -57,7 +57,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
       if (response.isSuccess) {
         _showMessage(response.message, isError: false);
-        context.push(AppRoutes.validationEmail);
+        context.push(AppRoutes.validationEmail, extra: email); 
         
       } else {
         _showMessage(response.message, isError: true);

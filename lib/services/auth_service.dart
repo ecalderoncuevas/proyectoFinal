@@ -33,6 +33,19 @@ class AuthService {
     }
   }
 
+Future<bool> sendVerificationCode(String email) async {
+  try {
+    final response = await _client.dio.post(
+      ApiConstants.verifyEmail,
+      data: {'email': email},
+    );
+    return response.data['errorCode'] == 0;
+  } catch (e) {
+    print('Error en sendVerificationCode(): $e');
+    rethrow;
+  }
+}
+
   Future<void> logout() async {
     await _tokenStorage.deleteToken();
   }

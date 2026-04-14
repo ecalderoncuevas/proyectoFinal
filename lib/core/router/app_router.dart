@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:go_router/go_router.dart';
-import 'package:proyecto_final_synquid/screens/auth/welcome_screen.dart';
 import 'package:proyecto_final_synquid/screens/auth/login_screen.dart';
-import 'package:proyecto_final_synquid/screens/institution/select_institution_screen.dart';
 import 'package:proyecto_final_synquid/screens/auth/validation_screen.dart';
-
+import 'package:proyecto_final_synquid/screens/auth/welcome_screen.dart';
+import 'package:proyecto_final_synquid/screens/institution/select_institution_screen.dart';
 
 class AppRoutes {
   static const welcome = '/';
@@ -45,24 +44,33 @@ final appRouter = GoRouter(
     ),
     GoRoute(
       path: AppRoutes.login,
-      builder: (context,state) => const LoginScreen(),
+      builder: (context, state) => const LoginScreen(),
     ),
     GoRoute(
       path: AppRoutes.validationEmail,
-      builder: (context, state) => ValidationScreen(
-        onValidate: (code, _) {
-          debugPrint('Código introducido: $code');
+      builder: (context, state) {
+        final email = state.extra as String? ?? '';
+        return ValidationScreen(
+          email: email,
+          onValidate: (code, _) {
+            debugPrint('Código introducido: $code para email: $email');
+           
           },
-        ),
-      ),
+        );
+      },
+    ),
     GoRoute(
       path: AppRoutes.validationDevice,
-      builder: (context, state) => ValidationScreen(
-        showRememberDevice: true,
-        onValidate: (code, remember) {
-          debugPrint('Código: $code, Remember: $remember');
-        },
-      ),
+      builder: (context, state) {
+        final email = state.extra as String? ?? '';
+        return ValidationScreen(
+          email: email,
+          showRememberDevice: true,
+          onValidate: (code, remember) {
+            debugPrint('Código: $code, Remember: $remember, Email: $email');
+          },
+        );
+      },
     ),
   ],
 );
