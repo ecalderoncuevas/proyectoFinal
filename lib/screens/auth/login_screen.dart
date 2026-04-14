@@ -8,6 +8,8 @@ import 'package:proyecto_final_synquid/services/auth_service.dart';
 import 'package:proyecto_final_synquid/widgets/primary_button.dart';
 import 'package:go_router/go_router.dart';
 import 'package:proyecto_final_synquid/widgets/back_app_bar.dart';
+import 'package:dio/dio.dart';
+
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -37,38 +39,67 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   Future<void> _doLogin() async {
-    final email = _emailController.text.trim();
-    final password = _passwordController.text;
+  final email = _emailController.text.trim();
+  final password = _passwordController.text;
 
-    if (email.isEmpty || password.isEmpty) {
-      _showMessage('Please enter email and password', isError: true);
-      return;
-    }
-
-    setState(() => _isLoading = true);
-
-    try {
-      final response = await _authService.login(
-        email: email,
-        password: password,
-      );
-
-      if (!mounted) return;
-
-      if (response.isSuccess) {
-        _showMessage(response.message, isError: false);
-        context.push(AppRoutes.validationEmail, extra: email); 
-        
-      } else {
-        _showMessage(response.message, isError: true);
-      }
-    } catch (e) {
-      if (!mounted) return;
-      _showMessage('Login failed: $e', isError: true);
-    } finally {
-      if (mounted) setState(() => _isLoading = false);
-    }
+  if (email.isEmpty || password.isEmpty) {
+    _showMessage('Please enter email and password', isError: true);
+    return;
   }
+
+  setState(() => _isLoading = true);
+
+  try {
+    final response = await _authService.login(
+      email: email,
+      password: password,
+    );
+
+    if (!mounted) return;
+
+    if (response.isSuccess) {
+      _showMessage(response.message, isError: false);
+      context.push(AppRoutes.validationEmail, extra: email);
+    } else {
+      _showMessage(response.message, isError: true);
+    }
+  } on DioException catch (e) {
+    if (!mounted) return;
+    _showMessage(_friendlyDioError(e), isError: true);
+  } catch (e) {
+    if (!mounted) return;
+    _showMessage('Unexpected error. Please try again.', isError: true);
+  } finally {
+    if (mounted) setState(() => _isLoading = false);
+  }
+}
+
+String _friendlyDioError(DioException e) {
+  final status = e.response?.statusCode;
+  switch (status) {
+    case 400:
+      return 'Invalid email or password format';
+    case 401:
+      return 'Incorrect password';
+    case 404:
+      return 'No account found with this email';
+    case 500:
+    case 502:
+    case 503:
+      return 'Server error. Please try again later';
+  }
+
+  switch (e.type) {
+    case DioExceptionType.connectionTimeout:
+    case DioExceptionType.receiveTimeout:
+    case DioExceptionType.sendTimeout:
+      return 'Connection timeout. Check your internet';
+    case DioExceptionType.connectionError:
+      return 'No internet connection';
+    default:
+      return 'Login failed. Please try again';
+  }
+}
 
   void _showMessage(String text, {required bool isError}) {
     ScaffoldMessenger.of(context).showSnackBar(
@@ -160,7 +191,7 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 }
 
-class _InputField extends StatelessWidget {
+class _InputField extends StatefulWidget {
   final String label;
   final TextEditingController controller;
   final bool isPassword;
@@ -174,14 +205,27 @@ class _InputField extends StatelessWidget {
   });
 
   @override
+  State<_InputField> createState() => _InputFieldState();
+}
+
+class _InputFieldState extends State<_InputField> {
+  bool _obscure = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _obscure = widget.isPassword;
+  }
+
+  @override
   Widget build(BuildContext context) {
     return TextField(
-      controller: controller,
-      obscureText: isPassword,
-      keyboardType: keyboardType,
+      controller: widget.controller,
+      obscureText: _obscure,
+      keyboardType: widget.keyboardType,
       style: GoogleFonts.rowdies(color: Colors.white, fontSize: 14),
       decoration: InputDecoration(
-        labelText: label,
+        labelText: widget.label,
         labelStyle: GoogleFonts.rowdies(
           color: AppColors.green,
           fontSize: 14,
@@ -193,6 +237,18 @@ class _InputField extends StatelessWidget {
         focusedBorder: const UnderlineInputBorder(
           borderSide: BorderSide(color: AppColors.green, width: 2),
         ),
+        suffixIcon: widget.isPassword
+            ? IconButton(
+                icon: Icon(
+                  _obscure
+                      ? Icons.visibility_off_outlined
+                      : Icons.visibility_outlined,
+                  color: AppColors.green,
+                  size: 20,
+                ),
+                onPressed: () => setState(() => _obscure = !_obscure),
+              )
+            : null,
       ),
     );
   }
