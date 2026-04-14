@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:proyecto_final_synquid/screens/auth/welcome_screen.dart';
 import 'package:proyecto_final_synquid/screens/auth/login_screen.dart';
 import 'package:proyecto_final_synquid/screens/institution/select_institution_screen.dart';
+import 'package:proyecto_final_synquid/screens/auth/validation_screen.dart';
 
 
 class AppRoutes {
@@ -11,6 +12,8 @@ class AppRoutes {
   static const selectInstitutionStudent = '/select-institution/student';
   static const selectInstitutionCole = '/select-institution/cole';
   static const login = '/login';
+  static const validationEmail = '/validation-email';
+  static const validationDevice = '/validation-device';
 }
 
 final appRouter = GoRouter(
@@ -43,6 +46,23 @@ final appRouter = GoRouter(
     GoRoute(
       path: AppRoutes.login,
       builder: (context,state) => const LoginScreen(),
+    ),
+    GoRoute(
+      path: AppRoutes.validationEmail,
+      builder: (context, state) => ValidationScreen(
+        onValidate: (code, _) {
+          debugPrint('Código introducido: $code');
+          },
+        ),
+      ),
+    GoRoute(
+      path: AppRoutes.validationDevice,
+      builder: (context, state) => ValidationScreen(
+        showRememberDevice: true,
+        onValidate: (code, remember) {
+          debugPrint('Código: $code, Remember: $remember');
+        },
+      ),
     ),
   ],
 );

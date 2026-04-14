@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:proyecto_final_synquid/core/router/app_router.dart';
 import 'package:proyecto_final_synquid/core/storage/token_storage.dart';
 import 'package:proyecto_final_synquid/core/theme/app_theme.dart';
 import 'package:proyecto_final_synquid/services/api_client.dart';
 import 'package:proyecto_final_synquid/services/auth_service.dart';
 import 'package:proyecto_final_synquid/widgets/primary_button.dart';
+import 'package:go_router/go_router.dart';
+import 'package:proyecto_final_synquid/widgets/back_app_bar.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -54,6 +57,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
       if (response.isSuccess) {
         _showMessage(response.message, isError: false);
+        context.push(AppRoutes.validationEmail);
         
       } else {
         _showMessage(response.message, isError: true);
@@ -82,6 +86,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
     return Scaffold(
       backgroundColor: bgColor,
+      appBar: const BackAppBar(),
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 32.0),

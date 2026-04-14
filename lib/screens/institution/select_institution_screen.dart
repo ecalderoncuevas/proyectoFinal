@@ -6,6 +6,7 @@ import 'package:proyecto_final_synquid/models/institution.dart';
 import 'package:proyecto_final_synquid/services/api_client.dart';
 import 'package:proyecto_final_synquid/services/institution_service.dart';
 import 'package:proyecto_final_synquid/widgets/primary_button.dart';
+import 'package:proyecto_final_synquid/widgets/back_app_bar.dart';
 
 class SelectInstitutionScreen extends StatefulWidget {
   final IconData icon;
@@ -40,6 +41,7 @@ class _SelectInstitutionScreenState extends State<SelectInstitutionScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.darkBg,
+      appBar: const BackAppBar(), 
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 32.0),
