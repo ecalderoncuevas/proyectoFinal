@@ -1,20 +1,40 @@
-import 'api_client.dart';
-import '../core/constants/api_constants.dart';
+import 'package:proyecto_final_synquid/core/constants/api_constants.dart';
+import 'package:proyecto_final_synquid/core/storage/token_storage.dart';
+import 'package:proyecto_final_synquid/models/login_request.dart';
+import 'package:proyecto_final_synquid/models/login_response.dart';
+import 'package:proyecto_final_synquid/services/api_client.dart';
 
 class AuthService {
   final ApiClient _client;
-  AuthService(this._client);
+  final TokenStorage _tokenStorage;
 
-  Future<Map<String, dynamic>> login(String email, String password) async {
-    final response = await _client.dio.post(
-      ApiConstants.login,
-      data: {'email': email, 'password': password},
-    );
-    return response.data;
+  AuthService(this._client, this._tokenStorage);
+
+  Future<LoginResponse> login({
+    required String email,
+    required String password,
+  }) async {
+    try {
+      final request = LoginRequest(email: email, password: password);
+      final response = await _client.dio.post(
+        ApiConstants.login,
+        data: request.toJson(),
+      );
+      final loginResponse = LoginResponse.fromJson(response.data);
+
+      if (loginResponse.isSuccess) {
+        await _tokenStorage.saveToken(loginResponse.token);
+      }
+
+      return loginResponse;
+    } catch (e) {
+      print('Error en login() $e');
+      rethrow;
+    }
   }
 
   Future<void> logout() async {
-    await _client.dio.post(ApiConstants.logout);
+    await _tokenStorage.deleteToken();
   }
- 
+  
 }
