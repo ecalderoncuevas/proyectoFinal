@@ -84,18 +84,12 @@ class _HeaderSection extends StatelessWidget {
       child: SafeArea(
         bottom: false,
         child: Padding(
-          padding: const EdgeInsets.fromLTRB(20, 12, 20, 28),
+          padding: const EdgeInsets.fromLTRB(20, 56, 20, 28),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  _NfcCardButton(onTap: () {}),
-                  _HamburgerMenu(),
-                ],
-              ),
-              const SizedBox(height: 50),
+              _NfcCardButton(onTap: () {}),
+              const SizedBox(height: 24),
               Text(
                 'Good Morning,\nname',
                 style: GoogleFonts.rowdies(
@@ -126,12 +120,8 @@ class _NfcCardButton extends StatelessWidget {
         width: 64,
         height: 52,
         decoration: BoxDecoration(
-          color: Colors.transparent,
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(
-            color: AppColors.homeLightBg,
-            width: 2.5,
-          ),
+          border: Border.all(color: AppColors.homeLightBg, width: 2.5),
         ),
         child: Stack(
           children: [
@@ -152,11 +142,11 @@ class _NfcCardButton extends StatelessWidget {
               right: 6,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
+                children: const [
                   _CardLine(width: 16),
-                  const SizedBox(height: 3),
+                  SizedBox(height: 3),
                   _CardLine(width: 12),
-                  const SizedBox(height: 3),
+                  SizedBox(height: 3),
                   _CardLine(width: 8),
                 ],
               ),
@@ -180,66 +170,6 @@ class _CardLine extends StatelessWidget {
       decoration: BoxDecoration(
         color: AppColors.homeLightBg,
         borderRadius: BorderRadius.circular(1),
-      ),
-    );
-  }
-}
-
-class _HamburgerMenu extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return PopupMenuButton<String>(
-      icon: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.end,
-        children: const [
-          _MenuLine(width: 28),
-          SizedBox(height: 6),
-          _MenuLine(width: 28),
-          SizedBox(height: 6),
-          _MenuLine(width: 28),
-        ],
-      ),
-      color: AppColors.homeDarkGreen,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
-      ),
-      offset: const Offset(0, 48),
-      itemBuilder: (context) => [
-        _buildMenuItem('Perfil'),
-        _buildMenuItem('Configuración'),
-        _buildMenuItem('Cerrar sesión'),
-      ],
-    );
-  }
-
-  PopupMenuItem<String> _buildMenuItem(String label) {
-    return PopupMenuItem<String>(
-      value: label,
-      child: Text(
-        label,
-        style: GoogleFonts.rowdies(
-          fontSize: 16,
-          fontWeight: FontWeight.w300,
-          color: AppColors.homeLightBg,
-        ),
-      ),
-    );
-  }
-}
-
-class _MenuLine extends StatelessWidget {
-  final double width;
-  const _MenuLine({required this.width});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: width,
-      height: 2.5,
-      decoration: BoxDecoration(
-        color: AppColors.homeLightBg,
-        borderRadius: BorderRadius.circular(2),
       ),
     );
   }

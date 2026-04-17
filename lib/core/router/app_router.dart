@@ -8,6 +8,7 @@ import 'package:proyecto_final_synquid/screens/institution/select_institution_sc
 import 'package:proyecto_final_synquid/screens/password/change_password_screen.dart';
 import 'package:proyecto_final_synquid/screens/password/forgot_password_screen.dart';
 import 'package:proyecto_final_synquid/screens/home/home_student_screen.dart';
+import 'package:proyecto_final_synquid/widgets/app_shell.dart';
 
 class AppRoutes {
   static const welcome = '/';
@@ -101,10 +102,15 @@ final appRouter = GoRouter(
       builder: (context, state) => const ChangePasswordScreen(),
     ),
     
-    GoRoute(
-      path: AppRoutes.homeStudent,
-      builder: (context, state) => const HomeStudentScreen(),
-    ),
+    ShellRoute(
+      builder: (context, state, child) => AppShell(child: child),
+      routes: [
+        GoRoute(
+          path: AppRoutes.homeStudent,
+          builder: (context, state) => const HomeStudentScreen(),
+        ),
 
+      ],
+    ),
   ],
 );
