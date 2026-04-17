@@ -147,7 +147,6 @@ class _LoginScreenState extends State<LoginScreen> {
                 label: 'Create account',
                 fontWeight: FontWeight.w300,
                 onTap: () {
-                  // TODO: navegar a register cuando exista
                 },
               ),
               const Spacer(flex: 2),
@@ -228,8 +227,6 @@ class _InputFieldState extends State<_InputField> {
   }
 }
 
-/// Texto verde que se subraya brevemente al pulsarlo
-/// para dar feedback visual al usuario.
 class _LinkText extends StatefulWidget {
   final String label;
   final FontWeight fontWeight;
@@ -250,7 +247,7 @@ class _LinkTextState extends State<_LinkText> {
 
   void _handleTap() {
     setState(() => _pressed = true);
-    // Mantenemos el subrayado un momento para que se vea, luego navegamos.
+    
     Future.delayed(const Duration(milliseconds: 150), () {
       if (mounted) setState(() => _pressed = false);
       widget.onTap();

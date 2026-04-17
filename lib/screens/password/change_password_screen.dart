@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:proyecto_final_synquid/core/router/app_router.dart';
 import 'package:proyecto_final_synquid/core/theme/app_theme.dart';
 import 'package:proyecto_final_synquid/widgets/back_app_bar.dart';
 import 'package:proyecto_final_synquid/widgets/primary_button.dart';
+import 'package:go_router/go_router.dart';
+import 'package:proyecto_final_synquid/core/router/app_router.dart';
 
 class ChangePasswordScreen extends StatefulWidget {
   const ChangePasswordScreen({super.key});
@@ -20,11 +23,13 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
 
   bool _hasMinChars = false;
   bool _hasSpecialChar = false;
+  bool _showMismatch = false; 
 
   @override
   void initState() {
     super.initState();
     _newPasswordController.addListener(_validatePassword);
+    _confirmPasswordController.addListener(_checkMatch);
   }
 
   void _validatePassword() {
@@ -34,6 +39,23 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
       _hasSpecialChar = password.contains(RegExp(r'[!@#$%^&*(),.?":{}|<>]'));
     });
   }
+
+  void _checkMatch() {
+  final confirm = _confirmPasswordController.text;
+  setState(() {
+    _showMismatch = confirm.isNotEmpty &&
+        confirm != _newPasswordController.text;
+  });
+}
+
+  void _showMessage(String text, {required bool isError}) {
+  ScaffoldMessenger.of(context).showSnackBar(
+    SnackBar(
+      content: Text(text),
+      backgroundColor: isError ? Colors.redAccent : AppColors.green,
+    ),
+  );
+}
 
   @override
   void dispose() {
@@ -66,10 +88,9 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
                 ),
               ),
               const SizedBox(height: 48),
-              _InputField(
+              _LabeledPasswordField(
                 label: 'Current Password',
                 controller: _currentPasswordController,
-                isPassword: true,
               ),
               const SizedBox(height: 4),
               GestureDetector(
@@ -84,17 +105,27 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
                 ),
               ),
               const SizedBox(height: 24),
-              _InputField(
+              _LabeledPasswordField(
                 label: 'New Password',
                 controller: _newPasswordController,
-                isPassword: true,
               ),
               const SizedBox(height: 24),
-              _InputField(
+
+              _LabeledPasswordField(
                 label: 'Confirm New Password',
                 controller: _confirmPasswordController,
-                isPassword: true,
               ),
+              const SizedBox(height: 4),
+              if (_showMismatch)
+                Text(
+                  'No coinciden las contraseñas',
+                  style: GoogleFonts.rowdies(
+                    fontSize: 11,
+                    color: Colors.red.shade400,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+
               const SizedBox(height: 24),
               _ValidationRow(
                 label: 'At least 8 Characters',
@@ -108,8 +139,24 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
               const SizedBox(height: 80),
               PrimaryButton(
                 label: 'Change',
-                onPressed: () {
-                  // TODO: validar passwords coinciden + llamar a /Auth/changePasword
+                onPressed: () {    
+                  final newPass = _newPasswordController.text;
+                  final confirmPass = _confirmPasswordController.text;
+
+                  if(_currentPasswordController.text.isEmpty) {
+                    _showMessage('Please enter your current password', isError: true);
+                  }
+                  if (!_hasMinChars || !_hasSpecialChar) {
+                    _showMessage('Password does not meet requirements', isError: true);
+                    return;
+                  }
+                  if (newPass != confirmPass) {
+                    _showMessage('Passwords do not match', isError: true);
+                    return;
+                  }
+
+                  _showMessage('Password changed succesfully', isError: false);
+                  context.go(AppRoutes.login);
                 },
               ),
               const SizedBox(height: 32),
@@ -121,44 +168,68 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
   }
 }
 
-class _InputField extends StatelessWidget {
+class _LabeledPasswordField extends StatefulWidget {
   final String label;
   final TextEditingController controller;
-  final bool isPassword;
 
-  const _InputField({
+  const _LabeledPasswordField({
     required this.label,
     required this.controller,
-    this.isPassword = false,
   });
 
   @override
+  State<_LabeledPasswordField> createState() => _LabeledPasswordFieldState();
+}
+
+class _LabeledPasswordFieldState extends State<_LabeledPasswordField> {
+  bool _obscure = true;
+
+  @override
   Widget build(BuildContext context) {
-    return TextField(
-      controller: controller,
-      obscureText: isPassword,
-      enableSuggestions: false,
-      autocorrect: false,
-      style: GoogleFonts.rowdies(
-        color: Colors.white,
-        fontSize: 14,
-        fontWeight: FontWeight.w700,
-      ),
-      decoration: InputDecoration(
-        labelText: label,
-        labelStyle: GoogleFonts.rowdies(
-          color: AppColors.green,
-          fontSize: 16,
-          fontWeight: FontWeight.w700,
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          widget.label,
+          style: GoogleFonts.rowdies(
+            color: AppColors.green,
+            fontSize: 16,
+            fontWeight: FontWeight.w700,
+          ),
         ),
-        floatingLabelBehavior: FloatingLabelBehavior.never,
-        enabledBorder: const UnderlineInputBorder(
-          borderSide: BorderSide(color: Colors.white24, width: 1),
+        const SizedBox(height: 8),
+        TextField(
+          controller: widget.controller,
+          obscureText: _obscure,
+          enableSuggestions: false,
+          autocorrect: false,
+          style: GoogleFonts.rowdies(
+            color: Colors.white,
+            fontSize: 14,
+            fontWeight: FontWeight.w700,
+          ),
+          decoration: InputDecoration(
+            isDense: true,
+            contentPadding: const EdgeInsets.symmetric(vertical: 8),
+            enabledBorder: const UnderlineInputBorder(
+              borderSide: BorderSide(color: Colors.white24, width: 1),
+            ),
+            focusedBorder: const UnderlineInputBorder(
+              borderSide: BorderSide(color: AppColors.green, width: 2),
+            ),
+            suffixIcon: IconButton(
+              icon: Icon(
+                _obscure
+                    ? Icons.visibility_off_outlined
+                    : Icons.visibility_outlined,
+                color: AppColors.green,
+                size: 20,
+              ),
+              onPressed: () => setState(() => _obscure = !_obscure),
+            ),
+          ),
         ),
-        focusedBorder: const UnderlineInputBorder(
-          borderSide: BorderSide(color: AppColors.green, width: 2),
-        ),
-      ),
+      ],
     );
   }
 }
@@ -176,7 +247,8 @@ class _ValidationRow extends StatelessWidget {
   Widget build(BuildContext context) {
     return Row(
       children: [
-        Container(
+        AnimatedContainer(
+          duration: const Duration(milliseconds: 200),
           width: 18,
           height: 18,
           decoration: BoxDecoration(
@@ -196,7 +268,7 @@ class _ValidationRow extends StatelessWidget {
           label,
           style: GoogleFonts.rowdies(
             fontSize: 12,
-            color: Colors.white,
+            color: isValid ? AppColors.green : Colors.white,
             fontWeight: FontWeight.w700,
           ),
         ),
