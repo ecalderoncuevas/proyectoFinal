@@ -7,6 +7,7 @@ import 'package:proyecto_final_synquid/screens/auth/welcome_screen.dart';
 import 'package:proyecto_final_synquid/screens/institution/select_institution_screen.dart';
 import 'package:proyecto_final_synquid/screens/password/change_password_screen.dart';
 import 'package:proyecto_final_synquid/screens/password/forgot_password_screen.dart';
+import 'package:proyecto_final_synquid/screens/home/home_student_screen.dart';
 
 class AppRoutes {
   static const welcome = '/';
@@ -18,6 +19,8 @@ class AppRoutes {
   static const validationForgotPassword = '/validation-forgot-password';
   static const forgotPassword = '/forgot-password';
   static const changePassword = '/change-password';
+  static const homeStudent = '/home-student';
+  
 }
 
 final appRouter = GoRouter(
@@ -97,5 +100,11 @@ final appRouter = GoRouter(
       path: AppRoutes.changePassword,
       builder: (context, state) => const ChangePasswordScreen(),
     ),
+    
+    GoRoute(
+      path: AppRoutes.homeStudent,
+      builder: (context, state) => const HomeStudentScreen(),
+    ),
+
   ],
 );

@@ -4,81 +4,38 @@ import 'package:proyecto_final_synquid/core/theme/app_theme.dart';
 
 class _SubjectItem {
   final String name;
+  final String group;
   final String date;
   final Color tagColor;
 
   const _SubjectItem({
     required this.name,
+    required this.group,
     required this.date,
     required this.tagColor,
   });
 }
 
-
-class PantallaHomeEstudiante extends StatelessWidget {
-  const PantallaHomeEstudiante({super.key});
+class HomeStudentScreen extends StatelessWidget {
+  const HomeStudentScreen({super.key});
 
   static const _subjects = [
-    _SubjectItem(name: 'Interfaces', date: '10-05', tagColor: AppColors.tagGreen),
-    _SubjectItem(name: 'Interfaces', date: '10-05', tagColor: AppColors.tagYellow),
-    _SubjectItem(name: 'Interfaces', date: '10-05', tagColor: AppColors.tagRed),
-    _SubjectItem(name: 'Interfaces', date: '10-05', tagColor: AppColors.tagGreen),
-    _SubjectItem(name: 'Interfaces', date: '10-05', tagColor: AppColors.tagYellow),
-    _SubjectItem(name: 'Interfaces', date: '10-05', tagColor: AppColors.tagRed),
+    _SubjectItem(name: 'Interfaces', group: 'DAM1', date: '10-05', tagColor: AppColors.tagGreen),
+    _SubjectItem(name: 'Interfaces', group: 'DAM2', date: '10-05', tagColor: AppColors.tagYellow),
+    _SubjectItem(name: 'Interfaces', group: 'DAM2', date: '10-05', tagColor: AppColors.tagRed),
+    _SubjectItem(name: 'Interfaces', group: 'DAM2', date: '10-05', tagColor: AppColors.tagGreen),
+    _SubjectItem(name: 'Interfaces', group: 'DAM2', date: '10-05', tagColor: AppColors.tagYellow),
+    _SubjectItem(name: 'Interfaces', group: 'DAM2', date: '10-05', tagColor: AppColors.tagRed),
   ];
 
   @override
   Widget build(BuildContext context) {
-    const bgColor   = AppColors.homeLightBg;
-    const darkGreen = AppColors.homeDarkGreen;
-
     return Scaffold(
-      backgroundColor: bgColor,
+      backgroundColor: AppColors.homeLightBg,
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-
-
-          Container(
-            width: double.infinity,
-            color: darkGreen,
-            child: SafeArea(
-              bottom: false,
-              child: Padding(
-                padding: const EdgeInsets.fromLTRB(20, 12, 20, 28),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        const Icon(
-                          Icons.credit_card_outlined,
-                          color: AppColors.homeLightBg,
-                          size: 48,
-                        ),
-                        _HamburgerMenu(),
-                      ],
-                    ),
-
-                    const SizedBox(height: 50),
-
-                    Text(
-                      'Good Morning,\nname',
-                      style: GoogleFonts.rowdies(
-                        fontSize: 40,
-                        fontWeight: FontWeight.w700,
-                        color: AppColors.homeLightBg,
-                        height: 1.1,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ),
-
- 
+          _HeaderSection(),
           Expanded(
             child: SingleChildScrollView(
               padding: const EdgeInsets.symmetric(horizontal: 20.0),
@@ -86,7 +43,6 @@ class PantallaHomeEstudiante extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const SizedBox(height: 16),
-
                   Align(
                     alignment: Alignment.centerRight,
                     child: GestureDetector(
@@ -96,21 +52,18 @@ class PantallaHomeEstudiante extends StatelessWidget {
                         style: GoogleFonts.rowdies(
                           fontSize: 15,
                           fontWeight: FontWeight.w700,
-                          color: darkGreen,
+                          color: AppColors.homeDarkGreen,
                         ),
                       ),
                     ),
                   ),
-
                   const SizedBox(height: 12),
-
                   ..._subjects.map(
                     (subject) => Padding(
                       padding: const EdgeInsets.only(bottom: 12),
                       child: _SubjectCard(item: subject),
                     ),
                   ),
-
                   const SizedBox(height: 24),
                 ],
               ),
@@ -122,21 +75,129 @@ class PantallaHomeEstudiante extends StatelessWidget {
   }
 }
 
+class _HeaderSection extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      color: AppColors.homeDarkGreen,
+      child: SafeArea(
+        bottom: false,
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(20, 12, 20, 28),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  _NfcCardButton(onTap: () {}),
+                  _HamburgerMenu(),
+                ],
+              ),
+              const SizedBox(height: 50),
+              Text(
+                'Good Morning,\nname',
+                style: GoogleFonts.rowdies(
+                  fontSize: 40,
+                  fontWeight: FontWeight.w700,
+                  color: AppColors.homeLightBg,
+                  height: 1.1,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
 
+class _NfcCardButton extends StatelessWidget {
+  final VoidCallback onTap;
+
+  const _NfcCardButton({required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        width: 64,
+        height: 52,
+        decoration: BoxDecoration(
+          color: Colors.transparent,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(
+            color: AppColors.homeLightBg,
+            width: 2.5,
+          ),
+        ),
+        child: Stack(
+          children: [
+            Positioned(
+              bottom: 8,
+              left: 8,
+              child: Container(
+                width: 20,
+                height: 14,
+                decoration: BoxDecoration(
+                  color: AppColors.homeLightBg,
+                  borderRadius: BorderRadius.circular(3),
+                ),
+              ),
+            ),
+            Positioned(
+              top: 6,
+              right: 6,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  _CardLine(width: 16),
+                  const SizedBox(height: 3),
+                  _CardLine(width: 12),
+                  const SizedBox(height: 3),
+                  _CardLine(width: 8),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _CardLine extends StatelessWidget {
+  final double width;
+  const _CardLine({required this.width});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: width,
+      height: 2,
+      decoration: BoxDecoration(
+        color: AppColors.homeLightBg,
+        borderRadius: BorderRadius.circular(1),
+      ),
+    );
+  }
+}
 
 class _HamburgerMenu extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return PopupMenuButton<String>(
-      icon: const Column(
+      icon: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.end,
-        children: [
-          _MenuLine(width: 24),
-          SizedBox(height: 5),
-          _MenuLine(width: 24),
-          SizedBox(height: 5),
-          _MenuLine(width: 24),
+        children: const [
+          _MenuLine(width: 28),
+          SizedBox(height: 6),
+          _MenuLine(width: 28),
+          SizedBox(height: 6),
+          _MenuLine(width: 28),
         ],
       ),
       color: AppColors.homeDarkGreen,
@@ -198,7 +259,6 @@ class _SubjectCard extends StatelessWidget {
       ),
       child: Column(
         children: [
-      
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
             child: Row(
@@ -223,8 +283,6 @@ class _SubjectCard extends StatelessWidget {
               ],
             ),
           ),
-
-    
           Container(
             decoration: BoxDecoration(
               color: AppColors.homeDarkGreen,
@@ -233,6 +291,15 @@ class _SubjectCard extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
             child: Row(
               children: [
+                Text(
+                  item.group,
+                  style: GoogleFonts.rowdies(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w700,
+                    color: AppColors.homeLightBg,
+                  ),
+                ),
+                const SizedBox(width: 12),
                 Container(
                   width: 22,
                   height: 22,
@@ -259,14 +326,5 @@ class _SubjectCard extends StatelessWidget {
         ],
       ),
     );
-  }
-}
-
-class _Divider extends StatelessWidget {
-  const _Divider();
-
-  @override
-  Widget build(BuildContext context) {
-    return const Divider(color: Colors.black12, height: 1);
   }
 }

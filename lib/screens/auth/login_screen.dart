@@ -55,12 +55,12 @@ class _LoginScreenState extends State<LoginScreen> {
       );
 
       if (!mounted) return;
-
+      
       if (response.isSuccess) {
         _showMessage(response.message, isError: false);
-        context.push(AppRoutes.validationEmail, extra: email);
-      } else {
-        _showMessage(response.message, isError: true);
+        context.go(AppRoutes.homeStudent);
+        }else {
+          _showMessage(response.message, isError: true);
       }
     } on DioException catch (e) {
       if (!mounted) return;
