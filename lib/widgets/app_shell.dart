@@ -2,8 +2,10 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
 import 'package:proyecto_final_synquid/core/router/app_router.dart';
 import 'package:proyecto_final_synquid/core/theme/app_theme.dart';
+import 'package:proyecto_final_synquid/core/theme/theme_provider.dart';
 
 class AppShell extends StatefulWidget {
   final Widget child;
@@ -54,17 +56,20 @@ class _AppShellState extends State<AppShell>
 
   @override
   Widget build(BuildContext context) {
-
     final location = GoRouterState.of(context).uri.toString();
     final isHome = location == AppRoutes.homeStudent;
+    final isDark = context.watch<ThemeProvider>().isDark;
+
+    // En el home el header es verde oscuro → iconos claros siempre.
+    // En otras pantallas depende del tema.
+    final iconColor = isHome
+        ? AppColors.homeLightBg
+        : (isDark ? AppColors.green : AppColors.homeDarkGreen);
 
     return Scaffold(
       body: Stack(
         children: [
-
           widget.child,
-
-
           Positioned(
             top: MediaQuery.of(context).padding.top + 8,
             left: 12,
@@ -72,7 +77,6 @@ class _AppShellState extends State<AppShell>
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-
                 if (!isHome)
                   GestureDetector(
                     onTap: () => context.pop(),
@@ -81,15 +85,13 @@ class _AppShellState extends State<AppShell>
                       padding: const EdgeInsets.all(8),
                       child: Icon(
                         Icons.arrow_back_ios_new_rounded,
-                        color: _iconColor(location),
+                        color: iconColor,
                         size: 22,
                       ),
                     ),
                   )
                 else
                   const SizedBox(width: 38),
-
-
                 GestureDetector(
                   onTap: _openDrawer,
                   behavior: HitTestBehavior.opaque,
@@ -99,11 +101,11 @@ class _AppShellState extends State<AppShell>
                       mainAxisSize: MainAxisSize.min,
                       crossAxisAlignment: CrossAxisAlignment.end,
                       children: [
-                        _MenuLine(color: _iconColor(location)),
+                        _MenuLine(color: iconColor),
                         const SizedBox(height: 6),
-                        _MenuLine(color: _iconColor(location)),
+                        _MenuLine(color: iconColor),
                         const SizedBox(height: 6),
-                        _MenuLine(color: _iconColor(location)),
+                        _MenuLine(color: iconColor),
                       ],
                     ),
                   ),
@@ -111,7 +113,6 @@ class _AppShellState extends State<AppShell>
               ],
             ),
           ),
-
           AnimatedBuilder(
             animation: _drawerController,
             builder: (context, _) {
@@ -138,6 +139,7 @@ class _AppShellState extends State<AppShell>
                     child: SlideTransition(
                       position: _slideAnimation,
                       child: _DrawerContent(
+                        isDark: isDark,
                         onClose: _closeDrawer,
                         onNavigate: (route) {
                           _closeDrawer();
@@ -153,14 +155,6 @@ class _AppShellState extends State<AppShell>
         ],
       ),
     );
-  }
-
-
-  Color _iconColor(String location) {
-    if (location == AppRoutes.homeStudent) {
-      return AppColors.homeLightBg;
-    }
-    return AppColors.homeDarkGreen;
   }
 }
 
@@ -182,22 +176,28 @@ class _MenuLine extends StatelessWidget {
 }
 
 class _DrawerContent extends StatelessWidget {
+  final bool isDark;
   final VoidCallback onClose;
   final void Function(String route) onNavigate;
 
   const _DrawerContent({
+    required this.isDark,
     required this.onClose,
     required this.onNavigate,
   });
 
   @override
   Widget build(BuildContext context) {
+    
+    final bgColor = isDark ? AppColors.homeDarkGreen : AppColors.green;
+    final textColor = isDark ? AppColors.homeLightBg : AppColors.homeDarkGreen;
+
     return Container(
       width: MediaQuery.of(context).size.width * 0.65,
       height: double.infinity,
-      decoration: const BoxDecoration(
-        color: AppColors.homeDarkGreen,
-        borderRadius: BorderRadius.only(
+      decoration: BoxDecoration(
+        color: bgColor,
+        borderRadius: const BorderRadius.only(
           topLeft: Radius.circular(24),
           bottomLeft: Radius.circular(24),
         ),
@@ -212,48 +212,53 @@ class _DrawerContent extends StatelessWidget {
                 alignment: Alignment.centerRight,
                 child: GestureDetector(
                   onTap: onClose,
-                  child: const Icon(
-                    Icons.close,
-                    color: AppColors.homeLightBg,
-                    size: 28,
-                  ),
+                  child: Icon(Icons.close, color: textColor, size: 28),
                 ),
               ),
               const SizedBox(height: 8),
               Center(
                 child: Text(
-                  'SynQuid',
+                  'SYNQUID',
                   style: GoogleFonts.rowdies(
                     fontSize: 28,
                     fontWeight: FontWeight.w700,
-                    color: AppColors.homeLightBg,
+                    color: textColor,
                   ),
                 ),
               ),
               const SizedBox(height: 48),
               _DrawerItem(
                 label: 'Perfil',
+                color: textColor,
                 onTap: () => onNavigate(AppRoutes.homeStudent),
-
               ),
               const SizedBox(height: 24),
               _DrawerItem(
                 label: 'Faltas',
+                color: textColor,
+                underline: true,
                 onTap: () => onNavigate(AppRoutes.homeStudent),
-
               ),
               const SizedBox(height: 24),
               _DrawerItem(
                 label: 'Calendario',
+                color: textColor,
                 onTap: () => onNavigate(AppRoutes.homeStudent),
-        
               ),
               const SizedBox(height: 24),
               _DrawerItem(
                 label: 'Ajustes',
-                onTap: () => onNavigate(AppRoutes.homeStudent),
-
+                color: textColor,
+                onTap: () => onNavigate(AppRoutes.settings),
               ),
+              const Spacer(),
+              // Links del footer
+              _FooterLink(label: 'Your Privacy', color: textColor),
+              const SizedBox(height: 16),
+              _FooterLink(label: 'Terms of Use', color: textColor),
+              const SizedBox(height: 16),
+              _FooterLink(label: 'Política y Privacidad', color: textColor),
+              const SizedBox(height: 16),
             ],
           ),
         ),
@@ -264,9 +269,16 @@ class _DrawerContent extends StatelessWidget {
 
 class _DrawerItem extends StatelessWidget {
   final String label;
+  final Color color;
+  final bool underline;
   final VoidCallback onTap;
 
-  const _DrawerItem({required this.label, required this.onTap});
+  const _DrawerItem({
+    required this.label,
+    required this.color,
+    required this.onTap,
+    this.underline = false,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -278,7 +290,37 @@ class _DrawerItem extends StatelessWidget {
         style: GoogleFonts.rowdies(
           fontSize: 18,
           fontWeight: FontWeight.w700,
-          color: AppColors.homeLightBg,
+          color: color,
+          decoration:
+              underline ? TextDecoration.underline : TextDecoration.none,
+          decorationColor: color,
+          decorationThickness: 2,
+        ),
+      ),
+    );
+  }
+}
+
+class _FooterLink extends StatelessWidget {
+  final String label;
+  final Color color;
+
+  const _FooterLink({required this.label, required this.color});
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: () {},
+      behavior: HitTestBehavior.opaque,
+      child: Text(
+        label,
+        style: GoogleFonts.rowdies(
+          fontSize: 14,
+          fontWeight: FontWeight.w700,
+          color: color,
+          decoration: TextDecoration.underline,
+          decorationColor: color,
+          decorationThickness: 2,
         ),
       ),
     );
