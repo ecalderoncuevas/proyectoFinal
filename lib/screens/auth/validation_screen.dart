@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
 import 'package:proyecto_final_synquid/core/storage/token_storage.dart';
 import 'package:proyecto_final_synquid/core/theme/app_theme.dart';
+import 'package:proyecto_final_synquid/core/theme/theme_provider.dart';
 import 'package:proyecto_final_synquid/services/api_client.dart';
 import 'package:proyecto_final_synquid/services/auth_service.dart';
 import 'package:proyecto_final_synquid/widgets/back_app_bar.dart';
@@ -77,18 +79,24 @@ class _ValidationScreenState extends State<ValidationScreen> {
   }
 
   void _showMessage(String text, {required bool isError}) {
+    final isDark = context.read<ThemeProvider>().isDark;
+    final appGreen = isDark ? AppColors.green : AppColors.homeDarkGreen;
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(text),
-        backgroundColor: isError ? Colors.redAccent : AppColors.green,
+        backgroundColor: isError ? Colors.redAccent : appGreen,
       ),
     );
   }
 
   @override
   Widget build(BuildContext context) {
+    final isDark = context.watch<ThemeProvider>().isDark;
+    final appGreen = isDark ? AppColors.green : AppColors.homeDarkGreen;
+    final appBg = isDark ? AppColors.darkBg : AppColors.homeLightBg;
+
     return Scaffold(
-      backgroundColor: AppColors.darkBg,
+      backgroundColor: appBg,
       appBar: const BackAppBar(),
       body: SafeArea(
         child: Padding(
@@ -107,7 +115,7 @@ class _ValidationScreenState extends State<ValidationScreen> {
                 style: GoogleFonts.rowdies(
                   fontSize: 24,
                   fontWeight: FontWeight.w700,
-                  color: Colors.white,
+                  color: appGreen,
                 ),
               ),
               const SizedBox(height: 32),
@@ -117,6 +125,8 @@ class _ValidationScreenState extends State<ValidationScreen> {
                   return _OtpBox(
                     controller: _controllers[index],
                     focusNode: _focusNodes[index],
+                    appGreen: appGreen,
+                    appBg: appBg,
                     onChanged: (value) {
                       if (value.length == 1 && index < 5) {
                         _focusNodes[index + 1].requestFocus();
@@ -143,6 +153,8 @@ class _ValidationScreenState extends State<ValidationScreen> {
               if (widget.showRememberDevice) ...[
                 _RememberDeviceCheckbox(
                   value: _rememberDevice,
+                  appGreen: appGreen,
+                  appBg: appBg,
                   onChanged: (v) => setState(() => _rememberDevice = v),
                 ),
                 const SizedBox(height: 24),
@@ -164,11 +176,15 @@ class _OtpBox extends StatelessWidget {
   final TextEditingController controller;
   final FocusNode focusNode;
   final ValueChanged<String> onChanged;
+  final Color appGreen;
+  final Color appBg;
 
   const _OtpBox({
     required this.controller,
     required this.focusNode,
     required this.onChanged,
+    required this.appGreen,
+    required this.appBg,
   });
 
   @override
@@ -185,14 +201,14 @@ class _OtpBox extends StatelessWidget {
         keyboardType: TextInputType.number,
         inputFormatters: [FilteringTextInputFormatter.digitsOnly],
         style: GoogleFonts.rowdies(
-          color: AppColors.darkBg,
+          color: appBg,
           fontSize: 20,
           fontWeight: FontWeight.w700,
         ),
         decoration: InputDecoration(
           counterText: '',
           filled: true,
-          fillColor: AppColors.green,
+          fillColor: appGreen,
           contentPadding: const EdgeInsets.symmetric(vertical: 14),
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(10),
@@ -207,10 +223,14 @@ class _OtpBox extends StatelessWidget {
 class _RememberDeviceCheckbox extends StatelessWidget {
   final bool value;
   final ValueChanged<bool> onChanged;
+  final Color appGreen;
+  final Color appBg;
 
   const _RememberDeviceCheckbox({
     required this.value,
     required this.onChanged,
+    required this.appGreen,
+    required this.appBg,
   });
 
   @override
@@ -223,12 +243,12 @@ class _RememberDeviceCheckbox extends StatelessWidget {
             width: 22,
             height: 22,
             decoration: BoxDecoration(
-              color: value ? AppColors.green : Colors.transparent,
-              border: Border.all(color: AppColors.green, width: 1.5),
+              color: value ? appGreen : Colors.transparent,
+              border: Border.all(color: appGreen, width: 1.5),
               borderRadius: BorderRadius.circular(4),
             ),
             child: value
-                ? const Icon(Icons.check, size: 14, color: AppColors.darkBg)
+                ? Icon(Icons.check, size: 14, color: appBg)
                 : null,
           ),
         ),
@@ -237,7 +257,7 @@ class _RememberDeviceCheckbox extends StatelessWidget {
           'Remember this device',
           style: GoogleFonts.rowdies(
             fontSize: 13,
-            color: Colors.white,
+            color: appGreen,
             fontWeight: FontWeight.w300,
           ),
         ),

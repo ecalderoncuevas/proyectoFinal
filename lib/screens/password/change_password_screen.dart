@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
 import 'package:proyecto_final_synquid/core/router/app_router.dart';
 import 'package:proyecto_final_synquid/core/theme/app_theme.dart';
+import 'package:proyecto_final_synquid/core/theme/theme_provider.dart';
 import 'package:proyecto_final_synquid/widgets/back_app_bar.dart';
 import 'package:proyecto_final_synquid/widgets/primary_button.dart';
-import 'package:go_router/go_router.dart';
-import 'package:proyecto_final_synquid/core/router/app_router.dart';
 
 class ChangePasswordScreen extends StatefulWidget {
   const ChangePasswordScreen({super.key});
@@ -23,7 +24,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
 
   bool _hasMinChars = false;
   bool _hasSpecialChar = false;
-  bool _showMismatch = false; 
+  bool _showMismatch = false;
 
   @override
   void initState() {
@@ -41,21 +42,23 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
   }
 
   void _checkMatch() {
-  final confirm = _confirmPasswordController.text;
-  setState(() {
-    _showMismatch = confirm.isNotEmpty &&
-        confirm != _newPasswordController.text;
-  });
-}
+    final confirm = _confirmPasswordController.text;
+    setState(() {
+      _showMismatch = confirm.isNotEmpty &&
+          confirm != _newPasswordController.text;
+    });
+  }
 
   void _showMessage(String text, {required bool isError}) {
-  ScaffoldMessenger.of(context).showSnackBar(
-    SnackBar(
-      content: Text(text),
-      backgroundColor: isError ? Colors.redAccent : AppColors.green,
-    ),
-  );
-}
+    final isDark = context.read<ThemeProvider>().isDark;
+    final appGreen = isDark ? AppColors.green : AppColors.homeDarkGreen;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(text),
+        backgroundColor: isError ? Colors.redAccent : appGreen,
+      ),
+    );
+  }
 
   @override
   void dispose() {
@@ -67,8 +70,12 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = context.watch<ThemeProvider>().isDark;
+    final appGreen = isDark ? AppColors.green : AppColors.homeDarkGreen;
+    final appBg = isDark ? AppColors.darkBg : AppColors.homeLightBg;
+
     return Scaffold(
-      backgroundColor: AppColors.darkBg,
+      backgroundColor: appBg,
       appBar: const BackAppBar(),
       body: SafeArea(
         child: SingleChildScrollView(
@@ -83,7 +90,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
                   style: GoogleFonts.rowdies(
                     fontSize: 32,
                     fontWeight: FontWeight.w700,
-                    color: AppColors.green,
+                    color: appGreen,
                   ),
                 ),
               ),
@@ -91,6 +98,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
               _LabeledPasswordField(
                 label: 'Current Password',
                 controller: _currentPasswordController,
+                appGreen: appGreen,
               ),
               const SizedBox(height: 4),
               GestureDetector(
@@ -108,12 +116,13 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
               _LabeledPasswordField(
                 label: 'New Password',
                 controller: _newPasswordController,
+                appGreen: appGreen,
               ),
               const SizedBox(height: 24),
-
               _LabeledPasswordField(
                 label: 'Confirm New Password',
                 controller: _confirmPasswordController,
+                appGreen: appGreen,
               ),
               const SizedBox(height: 4),
               if (_showMismatch)
@@ -125,25 +134,26 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
                     fontWeight: FontWeight.w700,
                   ),
                 ),
-
               const SizedBox(height: 24),
               _ValidationRow(
                 label: 'At least 8 Characters',
                 isValid: _hasMinChars,
+                appGreen: appGreen,
               ),
               const SizedBox(height: 8),
               _ValidationRow(
                 label: 'At least 1 Special Character',
                 isValid: _hasSpecialChar,
+                appGreen: appGreen,
               ),
               const SizedBox(height: 80),
               PrimaryButton(
                 label: 'Change',
-                onPressed: () {    
+                onPressed: () {
                   final newPass = _newPasswordController.text;
                   final confirmPass = _confirmPasswordController.text;
 
-                  if(_currentPasswordController.text.isEmpty) {
+                  if (_currentPasswordController.text.isEmpty) {
                     _showMessage('Please enter your current password', isError: true);
                   }
                   if (!_hasMinChars || !_hasSpecialChar) {
@@ -171,10 +181,12 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
 class _LabeledPasswordField extends StatefulWidget {
   final String label;
   final TextEditingController controller;
+  final Color appGreen;
 
   const _LabeledPasswordField({
     required this.label,
     required this.controller,
+    required this.appGreen,
   });
 
   @override
@@ -186,13 +198,16 @@ class _LabeledPasswordFieldState extends State<_LabeledPasswordField> {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = context.read<ThemeProvider>().isDark;
+    final appGreen = widget.appGreen;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
           widget.label,
           style: GoogleFonts.rowdies(
-            color: AppColors.green,
+            color: appGreen,
             fontSize: 16,
             fontWeight: FontWeight.w700,
           ),
@@ -204,25 +219,28 @@ class _LabeledPasswordFieldState extends State<_LabeledPasswordField> {
           enableSuggestions: false,
           autocorrect: false,
           style: GoogleFonts.rowdies(
-            color: Colors.white,
+            color: appGreen,
             fontSize: 14,
             fontWeight: FontWeight.w700,
           ),
           decoration: InputDecoration(
             isDense: true,
             contentPadding: const EdgeInsets.symmetric(vertical: 8),
-            enabledBorder: const UnderlineInputBorder(
-              borderSide: BorderSide(color: Colors.white24, width: 1),
+            enabledBorder: UnderlineInputBorder(
+              borderSide: BorderSide(
+                color: isDark ? Colors.white24 : appGreen.withValues(alpha: 0.3),
+                width: 1,
+              ),
             ),
-            focusedBorder: const UnderlineInputBorder(
-              borderSide: BorderSide(color: AppColors.green, width: 2),
+            focusedBorder: UnderlineInputBorder(
+              borderSide: BorderSide(color: appGreen, width: 2),
             ),
             suffixIcon: IconButton(
               icon: Icon(
                 _obscure
                     ? Icons.visibility_off_outlined
                     : Icons.visibility_outlined,
-                color: AppColors.green,
+                color: appGreen,
                 size: 20,
               ),
               onPressed: () => setState(() => _obscure = !_obscure),
@@ -237,10 +255,12 @@ class _LabeledPasswordFieldState extends State<_LabeledPasswordField> {
 class _ValidationRow extends StatelessWidget {
   final String label;
   final bool isValid;
+  final Color appGreen;
 
   const _ValidationRow({
     required this.label,
     required this.isValid,
+    required this.appGreen,
   });
 
   @override
@@ -253,14 +273,14 @@ class _ValidationRow extends StatelessWidget {
           height: 18,
           decoration: BoxDecoration(
             shape: BoxShape.circle,
-            color: isValid ? AppColors.green : Colors.transparent,
+            color: isValid ? appGreen : Colors.transparent,
             border: Border.all(
-              color: isValid ? AppColors.green : Colors.white54,
+              color: isValid ? appGreen : appGreen.withValues(alpha: 0.4),
               width: 1.5,
             ),
           ),
           child: isValid
-              ? const Icon(Icons.check, size: 12, color: AppColors.darkBg)
+              ? Icon(Icons.check, size: 12, color: context.read<ThemeProvider>().isDark ? AppColors.darkBg : AppColors.homeLightBg)
               : null,
         ),
         const SizedBox(width: 10),
@@ -268,7 +288,7 @@ class _ValidationRow extends StatelessWidget {
           label,
           style: GoogleFonts.rowdies(
             fontSize: 12,
-            color: isValid ? AppColors.green : Colors.white,
+            color: isValid ? appGreen : appGreen.withValues(alpha: 0.6),
             fontWeight: FontWeight.w700,
           ),
         ),

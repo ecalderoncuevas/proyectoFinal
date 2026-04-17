@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
 import 'package:proyecto_final_synquid/core/theme/app_theme.dart';
+import 'package:proyecto_final_synquid/core/theme/theme_provider.dart';
 import 'package:proyecto_final_synquid/models/institution.dart';
 import 'package:proyecto_final_synquid/services/api_client.dart';
 import 'package:proyecto_final_synquid/services/institution_service.dart';
@@ -39,16 +41,20 @@ class _SelectInstitutionScreenState extends State<SelectInstitutionScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = context.watch<ThemeProvider>().isDark;
+    final appGreen = isDark ? AppColors.green : AppColors.homeDarkGreen;
+    final appBg = isDark ? AppColors.darkBg : AppColors.homeLightBg;
+
     return Scaffold(
-      backgroundColor: AppColors.darkBg,
-      appBar: const BackAppBar(), 
+      backgroundColor: appBg,
+      appBar: const BackAppBar(),
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 32.0),
           child: Column(
             children: [
               const Spacer(flex: 2),
-              FaIcon(widget.icon, size: 90, color: Colors.white),
+              FaIcon(widget.icon, size: 90, color: appGreen),
               const SizedBox(height: 32),
               Text(
                 widget.title,
@@ -56,7 +62,7 @@ class _SelectInstitutionScreenState extends State<SelectInstitutionScreen> {
                 style: GoogleFonts.rowdies(
                   fontSize: 28,
                   fontWeight: FontWeight.w700,
-                  color: Colors.white,
+                  color: appGreen,
                   height: 1.2,
                 ),
               ),
@@ -65,9 +71,7 @@ class _SelectInstitutionScreenState extends State<SelectInstitutionScreen> {
                 future: _institutionsFuture,
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting) {
-                    return const CircularProgressIndicator(
-                      color: AppColors.green,
-                    );
+                    return CircularProgressIndicator(color: appGreen);
                   }
                   if (snapshot.hasError) {
                     return Padding(
@@ -83,7 +87,7 @@ class _SelectInstitutionScreenState extends State<SelectInstitutionScreen> {
                     );
                   }
                   final institutions = snapshot.data ?? [];
-                  return _buildDropdown(institutions);
+                  return _buildDropdown(institutions, appGreen, appBg);
                 },
               ),
               const SizedBox(height: 32),
@@ -101,10 +105,14 @@ class _SelectInstitutionScreenState extends State<SelectInstitutionScreen> {
     );
   }
 
-  Widget _buildDropdown(List<Institution> institutions) {
+  Widget _buildDropdown(
+    List<Institution> institutions,
+    Color appGreen,
+    Color appBg,
+  ) {
     return Container(
       decoration: BoxDecoration(
-        color: AppColors.green,
+        color: appGreen,
         borderRadius: BorderRadius.circular(16),
       ),
       child: DropdownButtonHideUnderline(
@@ -112,13 +120,13 @@ class _SelectInstitutionScreenState extends State<SelectInstitutionScreen> {
           value: _selectedInstitution,
           hint: const SizedBox.shrink(),
           isExpanded: true,
-          dropdownColor: AppColors.green,
+          dropdownColor: appGreen,
           borderRadius: BorderRadius.circular(16),
-          icon: const Padding(
-            padding: EdgeInsets.only(right: 12),
+          icon: Padding(
+            padding: const EdgeInsets.only(right: 12),
             child: Icon(
               Icons.keyboard_arrow_down_rounded,
-              color: AppColors.darkBg,
+              color: appBg,
               size: 28,
             ),
           ),
@@ -133,7 +141,7 @@ class _SelectInstitutionScreenState extends State<SelectInstitutionScreen> {
                 child: Text(
                   institution.name,
                   style: GoogleFonts.rowdies(
-                    color: AppColors.darkBg,
+                    color: appBg,
                     fontSize: 16,
                     fontWeight: FontWeight.w700,
                   ),

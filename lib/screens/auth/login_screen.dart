@@ -2,9 +2,11 @@ import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
 import 'package:proyecto_final_synquid/core/router/app_router.dart';
 import 'package:proyecto_final_synquid/core/storage/token_storage.dart';
 import 'package:proyecto_final_synquid/core/theme/app_theme.dart';
+import 'package:proyecto_final_synquid/core/theme/theme_provider.dart';
 import 'package:proyecto_final_synquid/services/api_client.dart';
 import 'package:proyecto_final_synquid/services/auth_service.dart';
 import 'package:proyecto_final_synquid/widgets/back_app_bar.dart';
@@ -55,12 +57,12 @@ class _LoginScreenState extends State<LoginScreen> {
       );
 
       if (!mounted) return;
-      
+
       if (response.isSuccess) {
         _showMessage(response.message, isError: false);
         context.go(AppRoutes.homeStudent);
-        }else {
-          _showMessage(response.message, isError: true);
+      } else {
+        _showMessage(response.message, isError: true);
       }
     } on DioException catch (e) {
       if (!mounted) return;
@@ -101,18 +103,24 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   void _showMessage(String text, {required bool isError}) {
+    final isDark = context.read<ThemeProvider>().isDark;
+    final appGreen = isDark ? AppColors.green : AppColors.homeDarkGreen;
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(text),
-        backgroundColor: isError ? Colors.redAccent : AppColors.green,
+        backgroundColor: isError ? Colors.redAccent : appGreen,
       ),
     );
   }
 
   @override
   Widget build(BuildContext context) {
+    final isDark = context.watch<ThemeProvider>().isDark;
+    final appGreen = isDark ? AppColors.green : AppColors.homeDarkGreen;
+    final appBg = isDark ? AppColors.darkBg : AppColors.homeLightBg;
+
     return Scaffold(
-      backgroundColor: AppColors.darkBg,
+      backgroundColor: appBg,
       appBar: const BackAppBar(),
       body: SafeArea(
         child: Padding(
@@ -129,12 +137,14 @@ class _LoginScreenState extends State<LoginScreen> {
                 label: 'Email',
                 controller: _emailController,
                 keyboardType: TextInputType.emailAddress,
+                appGreen: appGreen,
               ),
               const SizedBox(height: 24),
               _InputField(
                 label: 'Password',
                 controller: _passwordController,
                 isPassword: true,
+                appGreen: appGreen,
               ),
               const Spacer(flex: 3),
               PrimaryButton(
@@ -146,13 +156,14 @@ class _LoginScreenState extends State<LoginScreen> {
               _LinkText(
                 label: 'Create account',
                 fontWeight: FontWeight.w300,
-                onTap: () {
-                },
+                color: appGreen,
+                onTap: () {},
               ),
               const Spacer(flex: 2),
               _LinkText(
                 label: 'forgot your password?',
                 fontWeight: FontWeight.w700,
+                color: appGreen,
                 onTap: () => context.push(AppRoutes.forgotPassword),
               ),
               const SizedBox(height: 24),
@@ -169,10 +180,12 @@ class _InputField extends StatefulWidget {
   final TextEditingController controller;
   final bool isPassword;
   final TextInputType keyboardType;
+  final Color appGreen;
 
   const _InputField({
     required this.label,
     required this.controller,
+    required this.appGreen,
     this.isPassword = false,
     this.keyboardType = TextInputType.text,
   });
@@ -196,19 +209,19 @@ class _InputFieldState extends State<_InputField> {
       controller: widget.controller,
       obscureText: _obscure,
       keyboardType: widget.keyboardType,
-      style: GoogleFonts.rowdies(color: Colors.white, fontSize: 14),
+      style: GoogleFonts.rowdies(color: widget.appGreen, fontSize: 14),
       decoration: InputDecoration(
         labelText: widget.label,
         labelStyle: GoogleFonts.rowdies(
-          color: AppColors.green,
+          color: widget.appGreen,
           fontSize: 14,
           fontWeight: FontWeight.w300,
         ),
-        enabledBorder: const UnderlineInputBorder(
-          borderSide: BorderSide(color: AppColors.green, width: 1),
+        enabledBorder: UnderlineInputBorder(
+          borderSide: BorderSide(color: widget.appGreen, width: 1),
         ),
-        focusedBorder: const UnderlineInputBorder(
-          borderSide: BorderSide(color: AppColors.green, width: 2),
+        focusedBorder: UnderlineInputBorder(
+          borderSide: BorderSide(color: widget.appGreen, width: 2),
         ),
         suffixIcon: widget.isPassword
             ? IconButton(
@@ -216,7 +229,7 @@ class _InputFieldState extends State<_InputField> {
                   _obscure
                       ? Icons.visibility_off_outlined
                       : Icons.visibility_outlined,
-                  color: AppColors.green,
+                  color: widget.appGreen,
                   size: 20,
                 ),
                 onPressed: () => setState(() => _obscure = !_obscure),
@@ -230,11 +243,13 @@ class _InputFieldState extends State<_InputField> {
 class _LinkText extends StatefulWidget {
   final String label;
   final FontWeight fontWeight;
+  final Color color;
   final VoidCallback onTap;
 
   const _LinkText({
     required this.label,
     required this.onTap,
+    required this.color,
     this.fontWeight = FontWeight.w300,
   });
 
@@ -247,7 +262,6 @@ class _LinkTextState extends State<_LinkText> {
 
   void _handleTap() {
     setState(() => _pressed = true);
-    
     Future.delayed(const Duration(milliseconds: 150), () {
       if (mounted) setState(() => _pressed = false);
       widget.onTap();
@@ -263,10 +277,10 @@ class _LinkTextState extends State<_LinkText> {
         widget.label,
         style: GoogleFonts.rowdies(
           fontSize: 13,
-          color: AppColors.green,
+          color: widget.color,
           fontWeight: widget.fontWeight,
           decoration: _pressed ? TextDecoration.underline : TextDecoration.none,
-          decorationColor: AppColors.green,
+          decorationColor: widget.color,
           decorationThickness: 2,
         ),
       ),

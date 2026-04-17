@@ -19,7 +19,7 @@ class AppShell extends StatefulWidget {
 class _AppShellState extends State<AppShell>
     with SingleTickerProviderStateMixin {
   late final AnimationController _drawerController;
-  late final Animation<Offset> _slideAnimation;
+  late final Animation <Offset> _slideAnimation;
   late final Animation<double> _fadeAnimation;
 
   @override
@@ -60,11 +60,8 @@ class _AppShellState extends State<AppShell>
     final isHome = location == AppRoutes.homeStudent;
     final isDark = context.watch<ThemeProvider>().isDark;
 
-    // En el home el header es verde oscuro → iconos claros siempre.
-    // En otras pantallas depende del tema.
-    final iconColor = isHome
-        ? AppColors.homeLightBg
-        : (isDark ? AppColors.green : AppColors.homeDarkGreen);
+
+    final iconColor = isDark ? AppColors.green : AppColors.homeLightBg;
 
     return Scaffold(
       body: Stack(
@@ -143,8 +140,12 @@ class _AppShellState extends State<AppShell>
                         onClose: _closeDrawer,
                         onNavigate: (route) {
                           _closeDrawer();
-                          context.go(route);
-                        },
+                          if (route == AppRoutes.homeStudent) {
+                            context.go(route);
+                            } else {
+                              context.push(route);
+                              }
+                            },
                       ),
                     ),
                   ),
@@ -188,9 +189,9 @@ class _DrawerContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    
-    final bgColor = isDark ? AppColors.homeDarkGreen : AppColors.green;
-    final textColor = isDark ? AppColors.homeLightBg : AppColors.homeDarkGreen;
+
+    final bgColor = isDark ? AppColors.green : AppColors.homeDarkGreen;
+    final textColor = isDark ? AppColors.darkBg : AppColors.homeLightBg;
 
     return Container(
       width: MediaQuery.of(context).size.width * 0.65,
@@ -252,7 +253,7 @@ class _DrawerContent extends StatelessWidget {
                 onTap: () => onNavigate(AppRoutes.settings),
               ),
               const Spacer(),
-              // Links del footer
+          
               _FooterLink(label: 'Your Privacy', color: textColor),
               const SizedBox(height: 16),
               _FooterLink(label: 'Terms of Use', color: textColor),

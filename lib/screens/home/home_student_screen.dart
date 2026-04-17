@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
 import 'package:proyecto_final_synquid/core/theme/app_theme.dart';
+import 'package:proyecto_final_synquid/core/theme/theme_provider.dart';
 
 class _SubjectItem {
   final String name;
@@ -30,12 +32,24 @@ class HomeStudentScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = context.watch<ThemeProvider>().isDark;
+    final bgColor = isDark ? AppColors.darkBg : AppColors.homeLightBg;
+    final appGreen = isDark ? AppColors.green : AppColors.homeDarkGreen;
+    final appBg = isDark ? AppColors.darkBg : AppColors.homeLightBg;
+    final cardTopBg = isDark ? AppColors.homeDarkGreen : AppColors.green;
+    final cardTopText = isDark ? AppColors.homeLightBg : AppColors.homeDarkGreen;
+    final cardBottomBg = isDark ? AppColors.green : AppColors.homeDarkGreen;
+    final cardBottomText = isDark ? AppColors.homeDarkGreen : AppColors.homeLightBg;
+
     return Scaffold(
-      backgroundColor: AppColors.homeLightBg,
+      backgroundColor: bgColor,
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _HeaderSection(),
+          _HeaderSection(
+            headerColor: appGreen,
+            textColor: appBg,
+          ),
           Expanded(
             child: SingleChildScrollView(
               padding: const EdgeInsets.symmetric(horizontal: 20.0),
@@ -52,7 +66,7 @@ class HomeStudentScreen extends StatelessWidget {
                         style: GoogleFonts.rowdies(
                           fontSize: 15,
                           fontWeight: FontWeight.w700,
-                          color: AppColors.homeDarkGreen,
+                          color: appGreen,
                         ),
                       ),
                     ),
@@ -61,7 +75,13 @@ class HomeStudentScreen extends StatelessWidget {
                   ..._subjects.map(
                     (subject) => Padding(
                       padding: const EdgeInsets.only(bottom: 12),
-                      child: _SubjectCard(item: subject),
+                      child: _SubjectCard(
+                        item: subject,
+                        cardBgColor: cardTopBg,
+                        cardTextColor: cardTopText,
+                        bottomBgColor: cardBottomBg,
+                        bottomTextColor: cardBottomText,
+                      ),
                     ),
                   ),
                   const SizedBox(height: 24),
@@ -76,11 +96,19 @@ class HomeStudentScreen extends StatelessWidget {
 }
 
 class _HeaderSection extends StatelessWidget {
+  final Color headerColor;
+  final Color textColor;
+
+  const _HeaderSection({
+    required this.headerColor,
+    required this.textColor,
+  });
+
   @override
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
-      color: AppColors.homeDarkGreen,
+      color: headerColor,
       child: SafeArea(
         bottom: false,
         child: Padding(
@@ -88,14 +116,14 @@ class _HeaderSection extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _NfcCardButton(onTap: () {}),
+              _NfcCardButton(onTap: () {}, color: textColor),
               const SizedBox(height: 24),
               Text(
                 'Good Morning,\nname',
                 style: GoogleFonts.rowdies(
                   fontSize: 40,
                   fontWeight: FontWeight.w700,
-                  color: AppColors.homeLightBg,
+                  color: textColor,
                   height: 1.1,
                 ),
               ),
@@ -109,8 +137,9 @@ class _HeaderSection extends StatelessWidget {
 
 class _NfcCardButton extends StatelessWidget {
   final VoidCallback onTap;
+  final Color color;
 
-  const _NfcCardButton({required this.onTap});
+  const _NfcCardButton({required this.onTap, required this.color});
 
   @override
   Widget build(BuildContext context) {
@@ -121,7 +150,7 @@ class _NfcCardButton extends StatelessWidget {
         height: 52,
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: AppColors.homeLightBg, width: 2.5),
+          border: Border.all(color: color, width: 2.5),
         ),
         child: Stack(
           children: [
@@ -132,7 +161,7 @@ class _NfcCardButton extends StatelessWidget {
                 width: 20,
                 height: 14,
                 decoration: BoxDecoration(
-                  color: AppColors.homeLightBg,
+                  color: color,
                   borderRadius: BorderRadius.circular(3),
                 ),
               ),
@@ -142,12 +171,12 @@ class _NfcCardButton extends StatelessWidget {
               right: 6,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.end,
-                children: const [
-                  _CardLine(width: 16),
-                  SizedBox(height: 3),
-                  _CardLine(width: 12),
-                  SizedBox(height: 3),
-                  _CardLine(width: 8),
+                children: [
+                  _CardLine(width: 16, color: color),
+                  const SizedBox(height: 3),
+                  _CardLine(width: 12, color: color),
+                  const SizedBox(height: 3),
+                  _CardLine(width: 8, color: color),
                 ],
               ),
             ),
@@ -160,7 +189,8 @@ class _NfcCardButton extends StatelessWidget {
 
 class _CardLine extends StatelessWidget {
   final double width;
-  const _CardLine({required this.width});
+  final Color color;
+  const _CardLine({required this.width, required this.color});
 
   @override
   Widget build(BuildContext context) {
@@ -168,7 +198,7 @@ class _CardLine extends StatelessWidget {
       width: width,
       height: 2,
       decoration: BoxDecoration(
-        color: AppColors.homeLightBg,
+        color: color,
         borderRadius: BorderRadius.circular(1),
       ),
     );
@@ -177,14 +207,24 @@ class _CardLine extends StatelessWidget {
 
 class _SubjectCard extends StatelessWidget {
   final _SubjectItem item;
+  final Color cardBgColor;
+  final Color cardTextColor;
+  final Color bottomBgColor;
+  final Color bottomTextColor;
 
-  const _SubjectCard({required this.item});
+  const _SubjectCard({
+    required this.item,
+    required this.cardBgColor,
+    required this.cardTextColor,
+    required this.bottomBgColor,
+    required this.bottomTextColor,
+  });
 
   @override
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        color: AppColors.green,
+        color: cardBgColor,
         borderRadius: BorderRadius.circular(16),
       ),
       child: Column(
@@ -199,7 +239,7 @@ class _SubjectCard extends StatelessWidget {
                   style: GoogleFonts.rowdies(
                     fontSize: 16,
                     fontWeight: FontWeight.w700,
-                    color: AppColors.homeDarkGreen,
+                    color: cardTextColor,
                   ),
                 ),
                 Text(
@@ -207,7 +247,7 @@ class _SubjectCard extends StatelessWidget {
                   style: GoogleFonts.rowdies(
                     fontSize: 16,
                     fontWeight: FontWeight.w700,
-                    color: AppColors.homeDarkGreen,
+                    color: cardTextColor,
                   ),
                 ),
               ],
@@ -215,7 +255,7 @@ class _SubjectCard extends StatelessWidget {
           ),
           Container(
             decoration: BoxDecoration(
-              color: AppColors.homeDarkGreen,
+              color: bottomBgColor,
               borderRadius: BorderRadius.circular(12),
             ),
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
@@ -226,7 +266,7 @@ class _SubjectCard extends StatelessWidget {
                   style: GoogleFonts.rowdies(
                     fontSize: 14,
                     fontWeight: FontWeight.w700,
-                    color: AppColors.homeLightBg,
+                    color: bottomTextColor,
                   ),
                 ),
                 const SizedBox(width: 12),
@@ -246,7 +286,7 @@ class _SubjectCard extends StatelessWidget {
                     style: GoogleFonts.rowdies(
                       fontSize: 16,
                       fontWeight: FontWeight.w300,
-                      color: AppColors.homeLightBg,
+                      color: bottomTextColor,
                     ),
                   ),
                 ),

@@ -18,27 +18,41 @@ class _SettingsScreenState extends State<SettingsScreen> {
   Widget build(BuildContext context) {
     final theme = context.watch<ThemeProvider>();
     final isDark = theme.isDark;
-    final textColor = isDark ? AppColors.green : AppColors.homeDarkGreen;
+    final appGreen = isDark ? AppColors.green : AppColors.homeDarkGreen;
+    final appBg = isDark ? AppColors.darkBg : AppColors.homeLightBg;
+    final textColor = appGreen;
     final subtleColor = isDark ? Colors.white24 : Colors.black26;
 
     return Scaffold(
-      backgroundColor: isDark ? AppColors.darkBg : AppColors.homeLightBg,
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 24.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const SizedBox(height: 56),
-              Text(
-                'Configuration',
-                style: GoogleFonts.rowdies(
-                  fontSize: 32,
-                  fontWeight: FontWeight.w700,
-                  color: textColor,
+      backgroundColor: appBg,
+      body: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            width: double.infinity,
+            color: appGreen,
+            child: SafeArea(
+              bottom: false,
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(24, 56, 24, 28),
+                child: Text(
+                  'Configuration',
+                  style: GoogleFonts.rowdies(
+                    fontSize: 32,
+                    fontWeight: FontWeight.w700,
+                    color: appBg,
+                  ),
                 ),
               ),
-              const SizedBox(height: 32),
+            ),
+          ),
+          Expanded(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 24.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+              const SizedBox(height: 16),
               Divider(color: subtleColor, height: 1),
               const SizedBox(height: 8),
               Expanded(
@@ -161,6 +175,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
             ],
           ),
         ),
+      ),
+        ],
       ),
     );
   }
