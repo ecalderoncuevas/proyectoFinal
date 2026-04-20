@@ -11,7 +11,7 @@ import 'package:proyecto_final_synquid/screens/home/home_student_screen.dart';
 import 'package:proyecto_final_synquid/widgets/app_shell.dart';
 import 'package:proyecto_final_synquid/screens/acc/settings_screen.dart';
 import 'package:proyecto_final_synquid/screens/attendance/faltas_generales_screen.dart';
-
+import 'package:proyecto_final_synquid/screens/attendance/faltas_asignatura_screen.dart';
 
 class AppRoutes {
   static const welcome = '/';
@@ -26,6 +26,7 @@ class AppRoutes {
   static const homeStudent = '/home-student';
   static const settings = '/settings';
   static const faltasGenerales = '/faltas-generales';
+  static const faltasAsignatura = '/faltas-asignatura';
   
 }
 
@@ -120,6 +121,18 @@ final appRouter = GoRouter(
       GoRoute(
         path: AppRoutes.faltasGenerales,
         builder: (context, state) => const FaltasGeneralesScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.faltasAsignatura,
+        builder: (context, state) {
+          final data = state.extra as Map<String, dynamic>;
+          return FaltasAsignaturaScreen(
+            subject: data['subject'] as String,
+            faltas: data['faltas'] as int,
+            total: data['total'] as int,
+            tagColor: data['tagColor'] as Color,
+          );
+        },
       ),
   ],
 ),

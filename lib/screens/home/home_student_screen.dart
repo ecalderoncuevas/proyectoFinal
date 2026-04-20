@@ -3,6 +3,9 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:proyecto_final_synquid/core/theme/app_theme.dart';
 import 'package:proyecto_final_synquid/core/theme/theme_provider.dart';
+import 'package:go_router/go_router.dart';
+import 'package:proyecto_final_synquid/core/router/app_router.dart';
+
 
 class _SubjectItem {
   final String name;
@@ -280,7 +283,17 @@ class _SubjectCard extends StatelessWidget {
                 ),
                 const Spacer(),
                 GestureDetector(
-                  onTap: () {},
+                  onTap: () {
+                    context.push(
+                      AppRoutes.faltasAsignatura,
+                      extra: {
+                        'subject': item.name,
+                        'faltas': 5,
+                        'total': 20,
+                        'tagColor': item.tagColor,
+                      },
+                    );
+                  },
                   child: Text(
                     'ver faltas  →',
                     style: GoogleFonts.rowdies(

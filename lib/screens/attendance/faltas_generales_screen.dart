@@ -112,7 +112,7 @@ class _FaltasHeader extends StatelessWidget {
           child: Text(
             'Faltas',
             style: GoogleFonts.rowdies(
-              fontSize: 28,
+              fontSize: 48,
               fontWeight: FontWeight.w700,
               color: textColor,
             ),
