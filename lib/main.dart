@@ -35,6 +35,14 @@ class SynquidApp extends StatelessWidget {
         brightness: Brightness.dark,
         scaffoldBackgroundColor: AppColors.darkBg,
       ),
+      builder: (context, child) {
+        return MediaQuery(
+          data: MediaQuery.of(context).copyWith(
+            textScaler: TextScaler.linear(themeProvider.fontSize / 16),
+          ),
+          child: child!,
+        );
+      },
       routerConfig: appRouter,
     );
   }

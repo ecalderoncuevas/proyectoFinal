@@ -87,10 +87,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         icon: Icons.translate,
                         label: 'Language',
                         textColor: textColor,
-                        trailing: Icon(
-                          Icons.keyboard_arrow_down,
-                          color: textColor,
-                          size: 24,
+                        trailing: _LanguageDropdown(
+                          value: theme.language,
+                          onChanged: theme.setLanguage,
+                          bgColor: appGreen,
+                          labelColor: appBg,
                         ),
                       ),
                       const SizedBox(height: 4),
@@ -143,28 +144,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
                             max: 24,
                             divisions: 6,
                             onChanged: (value) => theme.setFontSize(value),
-                          ),
-                        ),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 8,
-                          vertical: 8,
-                        ),
-                        child: Container(
-                          width: double.infinity,
-                          padding: const EdgeInsets.all(16),
-                          decoration: BoxDecoration(
-                            color: subtleColor.withOpacity(0.3),
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: Text(
-                            'Preview text at ${theme.fontSize.toInt()}px',
-                            style: GoogleFonts.rowdies(
-                              fontSize: theme.fontSize,
-                              fontWeight: FontWeight.w300,
-                              color: textColor,
-                            ),
                           ),
                         ),
                       ),
@@ -266,6 +245,68 @@ class _SettingsRow extends StatelessWidget {
           ),
           if (trailing != null) trailing!,
         ],
+      ),
+    );
+  }
+}
+
+class _LanguageDropdown extends StatelessWidget {
+  final String value;
+  final ValueChanged<String> onChanged;
+  final Color bgColor;
+  final Color labelColor;
+
+  static const _languages = ['Español', 'Català', 'English'];
+
+  const _LanguageDropdown({
+    required this.value,
+    required this.onChanged,
+    required this.bgColor,
+    required this.labelColor,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8),
+      decoration: BoxDecoration(
+        color: bgColor,
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: DropdownButtonHideUnderline(
+        child: DropdownButton<String>(
+          value: value,
+          isDense: false,
+          dropdownColor: bgColor,
+          borderRadius: BorderRadius.circular(12),
+          icon: Padding(
+            padding: const EdgeInsets.only(left: 4),
+            child: Icon(
+              Icons.keyboard_arrow_down_rounded,
+              color: labelColor,
+              size: 22,
+            ),
+          ),
+          items: _languages.map((lang) {
+            return DropdownMenuItem<String>(
+              value: lang,
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                child: Text(
+                  lang,
+                  style: GoogleFonts.rowdies(
+                    color: labelColor,
+                    fontSize: 14,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+              ),
+            );
+          }).toList(),
+          onChanged: (String? lang) {
+            if (lang != null) onChanged(lang);
+          },
+        ),
       ),
     );
   }

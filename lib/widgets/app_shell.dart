@@ -61,7 +61,8 @@ class _AppShellState extends State<AppShell>
     final isDark = context.watch<ThemeProvider>().isDark;
 
 
-    final iconColor = isDark ? AppColors.green : AppColors.homeLightBg;
+    final backArrowColor = isDark ? AppColors.darkBg : AppColors.homeLightBg;
+    final hamburgerColor = isDark ? AppColors.homeDarkGreen : AppColors.homeLightBg;
 
     return Scaffold(
       body: Stack(
@@ -82,7 +83,7 @@ class _AppShellState extends State<AppShell>
                       padding: const EdgeInsets.all(8),
                       child: Icon(
                         Icons.arrow_back_ios_new_rounded,
-                        color: iconColor,
+                        color: backArrowColor,
                         size: 22,
                       ),
                     ),
@@ -98,11 +99,11 @@ class _AppShellState extends State<AppShell>
                       mainAxisSize: MainAxisSize.min,
                       crossAxisAlignment: CrossAxisAlignment.end,
                       children: [
-                        _MenuLine(color: iconColor),
+                        _MenuLine(color: hamburgerColor),
                         const SizedBox(height: 6),
-                        _MenuLine(color: iconColor),
+                        _MenuLine(color: hamburgerColor),
                         const SizedBox(height: 6),
-                        _MenuLine(color: iconColor),
+                        _MenuLine(color: hamburgerColor),
                       ],
                     ),
                   ),

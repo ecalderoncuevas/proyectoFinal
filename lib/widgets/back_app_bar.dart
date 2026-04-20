@@ -10,7 +10,7 @@ class BackAppBar extends StatelessWidget implements PreferredSizeWidget {
   @override
   Widget build(BuildContext context) {
     final isDark = context.watch<ThemeProvider>().isDark;
-    final iconColor = isDark ? AppColors.green : AppColors.homeLightBg;
+    final iconColor = isDark ? AppColors.darkBg : AppColors.homeLightBg;
 
     return AppBar(
       backgroundColor: Colors.transparent,
