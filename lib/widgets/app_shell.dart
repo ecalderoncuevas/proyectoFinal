@@ -238,8 +238,7 @@ class _DrawerContent extends StatelessWidget {
               _DrawerItem(
                 label: 'Faltas',
                 color: textColor,
-                underline: true,
-                onTap: () => onNavigate(AppRoutes.homeStudent),
+                onTap: () => onNavigate(AppRoutes.faltasGenerales),
               ),
               const SizedBox(height: 24),
               _DrawerItem(
@@ -272,14 +271,12 @@ class _DrawerContent extends StatelessWidget {
 class _DrawerItem extends StatelessWidget {
   final String label;
   final Color color;
-  final bool underline;
   final VoidCallback onTap;
 
   const _DrawerItem({
     required this.label,
     required this.color,
     required this.onTap,
-    this.underline = false,
   });
 
   @override
@@ -293,10 +290,7 @@ class _DrawerItem extends StatelessWidget {
           fontSize: 18,
           fontWeight: FontWeight.w700,
           color: color,
-          decoration:
-              underline ? TextDecoration.underline : TextDecoration.none,
-          decorationColor: color,
-          decorationThickness: 2,
+          decoration: TextDecoration.none,
         ),
       ),
     );

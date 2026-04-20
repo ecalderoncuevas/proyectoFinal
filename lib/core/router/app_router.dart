@@ -10,6 +10,8 @@ import 'package:proyecto_final_synquid/screens/password/forgot_password_screen.d
 import 'package:proyecto_final_synquid/screens/home/home_student_screen.dart';
 import 'package:proyecto_final_synquid/widgets/app_shell.dart';
 import 'package:proyecto_final_synquid/screens/acc/settings_screen.dart';
+import 'package:proyecto_final_synquid/screens/attendance/faltas_generales_screen.dart';
+
 
 class AppRoutes {
   static const welcome = '/';
@@ -23,6 +25,7 @@ class AppRoutes {
   static const changePassword = '/change-password';
   static const homeStudent = '/home-student';
   static const settings = '/settings';
+  static const faltasGenerales = '/faltas-generales';
   
 }
 
@@ -113,7 +116,11 @@ final appRouter = GoRouter(
       GoRoute(
         path: AppRoutes.settings,
         builder: (context, state) => const SettingsScreen(),
-    ),
+      ),
+      GoRoute(
+        path: AppRoutes.faltasGenerales,
+        builder: (context, state) => const FaltasGeneralesScreen(),
+      ),
   ],
 ),
 
