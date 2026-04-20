@@ -87,10 +87,10 @@ class FaltasAsignaturaScreen extends StatelessWidget {
                     vertical: 2,
                   ),
                   decoration: BoxDecoration(
-                    color: Colors.white,
+                    color: isDark ? AppColors.darkBg : Colors.white,
                     borderRadius: BorderRadius.circular(20),
                     border: Border.all(
-                      color: AppColors.homeDarkGreen,
+                      color: isDark ? AppColors.green : AppColors.homeDarkGreen,
                       width: 2,
                     ),
                   ),
@@ -99,7 +99,7 @@ class FaltasAsignaturaScreen extends StatelessWidget {
                     style: GoogleFonts.rowdies(
                       fontSize: 28,
                       fontWeight: FontWeight.w700,
-                      color: const Color(0xFF34C759),
+                      color: isDark ? AppColors.green : const Color(0xFF34C759),
                     ),
                   ),
                 ),
