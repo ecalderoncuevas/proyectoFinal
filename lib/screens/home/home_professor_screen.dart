@@ -187,13 +187,8 @@ class _ClassCard extends StatelessWidget {
                 GestureDetector(
                   onTap: () {
                     context.push(
-                      AppRoutes.faltasAsignatura,
-                      extra: {
-                        'subject': item.name,
-                        'faltas': 5,
-                        'total': 20,
-                        'tagColor': AppColors.tagGreen,
-                      },
+                      AppRoutes.faltasClase,
+                      extra: item.name,
                     );
                   },
                   child: Text(
