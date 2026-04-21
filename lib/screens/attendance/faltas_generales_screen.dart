@@ -3,7 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:proyecto_final_synquid/core/theme/app_theme.dart';
 import 'package:proyecto_final_synquid/core/theme/theme_provider.dart';
-
+import 'package:proyecto_final_synquid/widgets/legend_popup.dart';
 
 class _FaltaItem {
   final String subject;
@@ -60,7 +60,7 @@ class FaltasGeneralesScreen extends StatelessWidget {
             child: Align(
               alignment: Alignment.centerRight,
               child: GestureDetector(
-                onTap: () {},
+                onTap: () => LegendPopup.show(context, items: LegendPopup.faltasItems),
                 child: Text(
                   'Ver leyenda',
                   style: GoogleFonts.rowdies(

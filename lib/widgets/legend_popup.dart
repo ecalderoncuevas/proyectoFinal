@@ -2,8 +2,32 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:proyecto_final_synquid/core/theme/app_theme.dart';
 
+class LegendItem {
+  final String label;
+  final Color color;
+
+  const LegendItem({required this.label, required this.color});
+}
+
 class LegendPopup {
-  static Future<void> show(BuildContext context) {
+  static const _defaultItems = [
+    LegendItem(label: 'Presente', color: AppColors.tagGreen),
+    LegendItem(label: 'Pendiente', color: AppColors.tagYellow),
+    LegendItem(label: 'Ausente', color: AppColors.tagRed),
+  ];
+
+  static const faltasItems = [
+    LegendItem(label: 'Bien', color: AppColors.tagGreen),
+    LegendItem(label: 'Cuidado', color: AppColors.tagYellow),
+    LegendItem(label: 'Crítico', color: AppColors.tagRed),
+  ];
+
+  static Future<void> show(
+    BuildContext context, {
+    List<LegendItem>? items,
+  }) {
+    final legendItems = items ?? _defaultItems;
+
     return showGeneralDialog(
       context: context,
       barrierDismissible: true,
@@ -56,21 +80,11 @@ class LegendPopup {
                     ),
                   ),
                   const SizedBox(height: 24),
-                  const _LegendRow(
-                    label: 'Presente',
-                    color: AppColors.tagGreen,
-                  ),
+                  ...legendItems.map((item) => Padding(
+                    padding: const EdgeInsets.only(bottom: 14),
+                    child: _LegendRow(label: item.label, color: item.color),
+                  )),
                   const SizedBox(height: 14),
-                  const _LegendRow(
-                    label: 'Pendiente',
-                    color: AppColors.tagYellow,
-                  ),
-                  const SizedBox(height: 14),
-                  const _LegendRow(
-                    label: 'Ausente',
-                    color: AppColors.tagRed,
-                  ),
-                  const SizedBox(height: 28),
                   GestureDetector(
                     onTap: () => Navigator.of(context).pop(),
                     child: Container(

@@ -34,7 +34,7 @@ class AppRoutes {
 }
 
 final appRouter = GoRouter(
-  initialLocation: AppRoutes.homeStudent,
+  initialLocation: AppRoutes.welcome,
   routes: [
     GoRoute(
       path: AppRoutes.welcome,
