@@ -228,7 +228,7 @@ class _DrawerContent extends StatelessWidget {
                   ),
                 ),
               ),
-
+              
               const SizedBox(height: 48),
               _DrawerItem(
                 label: 'Perfil',

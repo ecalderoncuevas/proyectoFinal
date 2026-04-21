@@ -5,7 +5,7 @@ import 'package:proyecto_final_synquid/core/theme/app_theme.dart';
 import 'package:proyecto_final_synquid/core/theme/theme_provider.dart';
 import 'package:go_router/go_router.dart';
 import 'package:proyecto_final_synquid/core/router/app_router.dart';
-
+import 'package:proyecto_final_synquid/widgets/legend_popup.dart';
 
 class _SubjectItem {
   final String name;
@@ -63,7 +63,7 @@ class HomeStudentScreen extends StatelessWidget {
                   Align(
                     alignment: Alignment.centerRight,
                     child: GestureDetector(
-                      onTap: () {},
+                      onTap: () => LegendPopup.show(context),
                       child: Text(
                         'Ver leyenda',
                         style: GoogleFonts.rowdies(
