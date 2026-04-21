@@ -13,7 +13,8 @@ import 'package:proyecto_final_synquid/widgets/back_app_bar.dart';
 import 'package:proyecto_final_synquid/widgets/primary_button.dart';
 
 class LoginScreen extends StatefulWidget {
-  const LoginScreen({super.key});
+  final String role;
+  const LoginScreen({super.key, this.role = 'student'});
 
   @override
   State<LoginScreen> createState() => _LoginScreenState();
@@ -60,7 +61,11 @@ class _LoginScreenState extends State<LoginScreen> {
 
       if (response.isSuccess) {
         _showMessage(response.message, isError: false);
-        context.go(AppRoutes.homeStudent);
+        if (widget.role == 'professor'){
+          context.go(AppRoutes.homeProfessor);
+        } else {
+          context.go(AppRoutes.homeStudent);
+        }
       } else {
         _showMessage(response.message, isError: true);
       }

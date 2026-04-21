@@ -13,7 +13,7 @@ import 'package:proyecto_final_synquid/screens/acc/settings_screen.dart';
 import 'package:proyecto_final_synquid/screens/attendance/faltas_generales_screen.dart';
 import 'package:proyecto_final_synquid/screens/attendance/faltas_asignatura_screen.dart';
 import 'package:proyecto_final_synquid/screens/home/schedule_screen.dart';
-
+import 'package:proyecto_final_synquid/screens/home/home_professor_screen.dart';
 
 class AppRoutes {
   static const welcome = '/';
@@ -30,6 +30,7 @@ class AppRoutes {
   static const faltasGenerales = '/faltas-generales';
   static const faltasAsignatura = '/faltas-asignatura';
   static const schedule = '/schedule';
+  static const homeProfessor = '/home-professor';
   
 }
 
@@ -46,7 +47,7 @@ final appRouter = GoRouter(
         icon: FontAwesomeIcons.userGraduate,
         onContinue: (institution) {
           debugPrint('Estudiante eligió: ${institution.name}');
-          context.push(AppRoutes.login);
+          context.push(AppRoutes.login, extra: 'student');
         },
       ),
     ),
@@ -56,13 +57,16 @@ final appRouter = GoRouter(
         icon: FontAwesomeIcons.schoolFlag,
         onContinue: (institution) {
           debugPrint('Cole eligió: ${institution.name}');
-          context.push(AppRoutes.login);
+          context.push(AppRoutes.login, extra: 'professor');
         },
       ),
     ),
     GoRoute(
       path: AppRoutes.login,
-      builder: (context, state) => const LoginScreen(),
+      builder: (context, state){
+        final role = state.extra as String? ?? 'student';
+        return LoginScreen(role: role);
+      },
     ),
     GoRoute(
       path: AppRoutes.validationEmail,
@@ -140,6 +144,10 @@ final appRouter = GoRouter(
       GoRoute(
         path: AppRoutes.schedule,
         builder: (context, state) => const ScheduleScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.homeProfessor,
+        builder: (context, state) => const HomeProfessorScreen(),
       ),
   ],
 ),

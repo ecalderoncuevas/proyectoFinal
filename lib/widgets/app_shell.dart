@@ -57,7 +57,10 @@ class _AppShellState extends State<AppShell>
   @override
   Widget build(BuildContext context) {
     final location = GoRouterState.of(context).uri.toString();
-    final isHome = location == AppRoutes.homeStudent;
+    final isHome = location == AppRoutes.homeStudent ||
+        location == AppRoutes.homeProfessor;
+
+
     final isDark = context.watch<ThemeProvider>().isDark;
 
 
