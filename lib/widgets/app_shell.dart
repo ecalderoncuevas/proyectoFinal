@@ -274,7 +274,9 @@ class _DrawerContent extends StatelessWidget {
               _DrawerItem(
                 label: 'Calendario',
                 color: textColor,
-                onTap: () => onNavigate(AppRoutes.schedule),
+                onTap: () => onNavigate(
+                  isProfessor ? AppRoutes.scheduleProfessor : AppRoutes.schedule,
+                ),
               ),
               const SizedBox(height: 24),
               _DrawerItem(

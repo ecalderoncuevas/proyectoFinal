@@ -5,10 +5,12 @@ import 'package:proyecto_final_synquid/core/providers/user_provider.dart';
 import 'package:proyecto_final_synquid/core/router/app_router.dart';
 import 'package:proyecto_final_synquid/core/theme/app_theme.dart';
 import 'package:proyecto_final_synquid/core/theme/theme_provider.dart';
+import 'package:intl/date_symbol_data_local.dart';
 
-void main() {
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
+  await initializeDateFormatting('es_ES', null);
   runApp(
     MultiProvider(
       providers: [
