@@ -12,6 +12,8 @@ import 'package:proyecto_final_synquid/widgets/app_shell.dart';
 import 'package:proyecto_final_synquid/screens/acc/settings_screen.dart';
 import 'package:proyecto_final_synquid/screens/attendance/faltas_generales_screen.dart';
 import 'package:proyecto_final_synquid/screens/attendance/faltas_asignatura_screen.dart';
+import 'package:proyecto_final_synquid/screens/home/schedule_screen.dart';
+
 
 class AppRoutes {
   static const welcome = '/';
@@ -27,6 +29,7 @@ class AppRoutes {
   static const settings = '/settings';
   static const faltasGenerales = '/faltas-generales';
   static const faltasAsignatura = '/faltas-asignatura';
+  static const schedule = '/schedule';
   
 }
 
@@ -133,6 +136,10 @@ final appRouter = GoRouter(
             tagColor: data['tagColor'] as Color,
           );
         },
+      ),
+      GoRoute(
+        path: AppRoutes.schedule,
+        builder: (context, state) => const ScheduleScreen(),
       ),
   ],
 ),

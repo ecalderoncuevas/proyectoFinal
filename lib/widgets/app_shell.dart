@@ -228,6 +228,7 @@ class _DrawerContent extends StatelessWidget {
                   ),
                 ),
               ),
+
               const SizedBox(height: 48),
               _DrawerItem(
                 label: 'Perfil',
@@ -235,18 +236,21 @@ class _DrawerContent extends StatelessWidget {
                 onTap: () => onNavigate(AppRoutes.homeStudent),
               ),
               const SizedBox(height: 24),
+
               _DrawerItem(
                 label: 'Faltas',
                 color: textColor,
                 onTap: () => onNavigate(AppRoutes.faltasGenerales),
               ),
               const SizedBox(height: 24),
+
               _DrawerItem(
                 label: 'Calendario',
                 color: textColor,
-                onTap: () => onNavigate(AppRoutes.homeStudent),
+                onTap: () => onNavigate(AppRoutes.schedule),
               ),
               const SizedBox(height: 24),
+
               _DrawerItem(
                 label: 'Ajustes',
                 color: textColor,
