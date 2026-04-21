@@ -15,7 +15,7 @@ import 'package:proyecto_final_synquid/screens/attendance/faltas_asignatura_scre
 import 'package:proyecto_final_synquid/screens/home/schedule_screen.dart';
 import 'package:proyecto_final_synquid/screens/home/home_professor_screen.dart';
 import 'package:proyecto_final_synquid/screens/attendance/faltas_clase_screen.dart';
-
+import 'package:proyecto_final_synquid/screens/home/clases_screen.dart';
 
 class AppRoutes {
   static const welcome = '/';
@@ -34,6 +34,7 @@ class AppRoutes {
   static const schedule = '/schedule';
   static const homeProfessor = '/home-professor';
   static const faltasClase = '/faltas-clase';
+  static const clases = '/clases';
   
 }
 
@@ -158,6 +159,10 @@ final appRouter = GoRouter(
           final subject = state.extra as String? ?? '';
           return FaltasClaseScreen(subject: subject);
         },
+      ),
+      GoRoute(
+        path: AppRoutes.clases,
+        builder: (context, state) => const ClasesScreen(),
       ),
   ],
 ),

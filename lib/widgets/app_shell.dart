@@ -6,6 +6,7 @@ import 'package:provider/provider.dart';
 import 'package:proyecto_final_synquid/core/router/app_router.dart';
 import 'package:proyecto_final_synquid/core/theme/app_theme.dart';
 import 'package:proyecto_final_synquid/core/theme/theme_provider.dart';
+import 'package:proyecto_final_synquid/core/providers/user_provider.dart';
 
 class AppShell extends StatefulWidget {
   final Widget child;
@@ -19,7 +20,7 @@ class AppShell extends StatefulWidget {
 class _AppShellState extends State<AppShell>
     with SingleTickerProviderStateMixin {
   late final AnimationController _drawerController;
-  late final Animation <Offset> _slideAnimation;
+  late final Animation<Offset> _slideAnimation;
   late final Animation<double> _fadeAnimation;
 
   @override
@@ -59,13 +60,10 @@ class _AppShellState extends State<AppShell>
     final location = GoRouterState.of(context).uri.toString();
     final isHome = location == AppRoutes.homeStudent ||
         location == AppRoutes.homeProfessor;
-
-
     final isDark = context.watch<ThemeProvider>().isDark;
+    final isProfessor = context.watch<UserProvider>().isProfessor;
 
-
-    final backArrowColor = isDark ? AppColors.darkBg : AppColors.homeLightBg;
-    final hamburgerColor = isDark ? AppColors.homeDarkGreen : AppColors.homeLightBg;
+    final iconColor = isDark ? AppColors.darkBg : AppColors.homeLightBg;
 
     return Scaffold(
       body: Stack(
@@ -80,13 +78,22 @@ class _AppShellState extends State<AppShell>
               children: [
                 if (!isHome)
                   GestureDetector(
-                    onTap: () => context.pop(),
+                    onTap: () {
+                      if (context.canPop()) {
+                        context.pop();
+                      } else {
+                        final homeRoute = isProfessor
+                            ? AppRoutes.homeProfessor
+                            : AppRoutes.homeStudent;
+                        context.go(homeRoute);
+                      }
+                    },
                     behavior: HitTestBehavior.opaque,
                     child: Padding(
                       padding: const EdgeInsets.all(8),
                       child: Icon(
                         Icons.arrow_back_ios_new_rounded,
-                        color: backArrowColor,
+                        color: iconColor,
                         size: 22,
                       ),
                     ),
@@ -102,11 +109,11 @@ class _AppShellState extends State<AppShell>
                       mainAxisSize: MainAxisSize.min,
                       crossAxisAlignment: CrossAxisAlignment.end,
                       children: [
-                        _MenuLine(color: hamburgerColor),
+                        _MenuLine(color: iconColor),
                         const SizedBox(height: 6),
-                        _MenuLine(color: hamburgerColor),
+                        _MenuLine(color: iconColor),
                         const SizedBox(height: 6),
-                        _MenuLine(color: hamburgerColor),
+                        _MenuLine(color: iconColor),
                       ],
                     ),
                   ),
@@ -141,15 +148,17 @@ class _AppShellState extends State<AppShell>
                       position: _slideAnimation,
                       child: _DrawerContent(
                         isDark: isDark,
+                        isProfessor: isProfessor,
                         onClose: _closeDrawer,
                         onNavigate: (route) {
                           _closeDrawer();
-                          if (route == AppRoutes.homeStudent) {
+                          if (route == AppRoutes.homeStudent ||
+                              route == AppRoutes.homeProfessor) {
                             context.go(route);
-                            } else {
-                              context.push(route);
-                              }
-                            },
+                          } else {
+                            context.push(route);
+                          }
+                        },
                       ),
                     ),
                   ),
@@ -182,20 +191,23 @@ class _MenuLine extends StatelessWidget {
 
 class _DrawerContent extends StatelessWidget {
   final bool isDark;
+  final bool isProfessor;
   final VoidCallback onClose;
   final void Function(String route) onNavigate;
 
   const _DrawerContent({
     required this.isDark,
+    required this.isProfessor,
     required this.onClose,
     required this.onNavigate,
   });
 
   @override
   Widget build(BuildContext context) {
-
-    final bgColor = isDark ? AppColors.green : AppColors.homeDarkGreen;
-    final textColor = isDark ? AppColors.darkBg : AppColors.homeLightBg;
+    final bgColor = isDark ? AppColors.homeDarkGreen : AppColors.green;
+    final textColor = isDark ? AppColors.homeLightBg : AppColors.homeDarkGreen;
+    final homeRoute =
+        isProfessor ? AppRoutes.homeProfessor : AppRoutes.homeStudent;
 
     return Container(
       width: MediaQuery.of(context).size.width * 0.65,
@@ -231,36 +243,46 @@ class _DrawerContent extends StatelessWidget {
                   ),
                 ),
               ),
-              
               const SizedBox(height: 48),
               _DrawerItem(
                 label: 'Perfil',
                 color: textColor,
-                onTap: () => onNavigate(AppRoutes.homeStudent),
+                onTap: () => onNavigate(homeRoute),
               ),
               const SizedBox(height: 24),
-
-              _DrawerItem(
-                label: 'Faltas',
-                color: textColor,
-                onTap: () => onNavigate(AppRoutes.faltasGenerales),
-              ),
-              const SizedBox(height: 24),
-
+              if (isProfessor) ...[
+                _DrawerItem(
+                  label: 'Reducir Faltas',
+                  color: textColor,
+                  onTap: () => onNavigate(homeRoute),
+                ),
+                const SizedBox(height: 24),
+                _DrawerItem(
+                  label: 'Clases',
+                  color: textColor,
+                  onTap: () => onNavigate(AppRoutes.clases),
+                ),
+                const SizedBox(height: 24),
+              ] else ...[
+                _DrawerItem(
+                  label: 'Faltas',
+                  color: textColor,
+                  onTap: () => onNavigate(AppRoutes.faltasGenerales),
+                ),
+                const SizedBox(height: 24),
+              ],
               _DrawerItem(
                 label: 'Calendario',
                 color: textColor,
                 onTap: () => onNavigate(AppRoutes.schedule),
               ),
               const SizedBox(height: 24),
-
               _DrawerItem(
                 label: 'Ajustes',
                 color: textColor,
                 onTap: () => onNavigate(AppRoutes.settings),
               ),
               const Spacer(),
-          
               _FooterLink(label: 'Your Privacy', color: textColor),
               const SizedBox(height: 16),
               _FooterLink(label: 'Terms of Use', color: textColor),

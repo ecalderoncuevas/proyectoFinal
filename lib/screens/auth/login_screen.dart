@@ -11,6 +11,7 @@ import 'package:proyecto_final_synquid/services/api_client.dart';
 import 'package:proyecto_final_synquid/services/auth_service.dart';
 import 'package:proyecto_final_synquid/widgets/back_app_bar.dart';
 import 'package:proyecto_final_synquid/widgets/primary_button.dart';
+import 'package:proyecto_final_synquid/core/providers/user_provider.dart';
 
 class LoginScreen extends StatefulWidget {
   final String role;
@@ -61,11 +62,14 @@ class _LoginScreenState extends State<LoginScreen> {
 
       if (response.isSuccess) {
         _showMessage(response.message, isError: false);
+        context.read<UserProvider>().setRole(widget.role);
+
         if (widget.role == 'professor'){
           context.go(AppRoutes.homeProfessor);
         } else {
           context.go(AppRoutes.homeStudent);
         }
+        
       } else {
         _showMessage(response.message, isError: true);
       }
