@@ -63,7 +63,12 @@ class _AppShellState extends State<AppShell>
     final isDark = context.watch<ThemeProvider>().isDark;
     final isProfessor = context.watch<UserProvider>().isProfessor;
 
-    final iconColor = isDark ? AppColors.darkBg : AppColors.homeLightBg;
+    // Color del icono: C2D8C4 en dark, F8F5F2 en light (siempre visible
+    // gracias a la píldora de fondo homeDarkGreen detrás de cada icono).
+    final iconColor = isDark ? AppColors.green : AppColors.homeLightBg;
+    // Fondo de la píldora: homeDarkGreen con ligera opacidad. Contrasta
+    // con cualquier fondo de pantalla en ambos modos.
+    final pillBg = AppColors.homeDarkGreen.withValues(alpha: 0.88);
 
     return Scaffold(
       body: Stack(
@@ -89,30 +94,41 @@ class _AppShellState extends State<AppShell>
                       }
                     },
                     behavior: HitTestBehavior.opaque,
-                    child: Padding(
-                      padding: const EdgeInsets.all(8),
+                    child: Container(
+                      width: 40,
+                      height: 40,
+                      decoration: BoxDecoration(
+                        color: pillBg,
+                        borderRadius: BorderRadius.circular(10),
+                      ),
                       child: Icon(
                         Icons.arrow_back_ios_new_rounded,
                         color: iconColor,
-                        size: 22,
+                        size: 20,
                       ),
                     ),
                   )
                 else
-                  const SizedBox(width: 38),
+                  const SizedBox(width: 40),
                 GestureDetector(
                   onTap: _openDrawer,
                   behavior: HitTestBehavior.opaque,
-                  child: Padding(
-                    padding: const EdgeInsets.all(8),
+                  child: Container(
+                    width: 40,
+                    height: 40,
+                    decoration: BoxDecoration(
+                      color: pillBg,
+                      borderRadius: BorderRadius.circular(10),
+                    ),
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
-                      crossAxisAlignment: CrossAxisAlignment.end,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
                         _MenuLine(color: iconColor),
-                        const SizedBox(height: 6),
+                        const SizedBox(height: 5),
                         _MenuLine(color: iconColor),
-                        const SizedBox(height: 6),
+                        const SizedBox(height: 5),
                         _MenuLine(color: iconColor),
                       ],
                     ),
@@ -138,7 +154,7 @@ class _AppShellState extends State<AppShell>
                       ),
                       child: Container(
                         color: Colors.black
-                            .withOpacity(0.3 * _fadeAnimation.value),
+                            .withValues(alpha: 0.3 * _fadeAnimation.value),
                       ),
                     ),
                   ),
@@ -179,7 +195,7 @@ class _MenuLine extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: 28,
+      width: 22,
       height: 2.5,
       decoration: BoxDecoration(
         color: color,
