@@ -270,7 +270,7 @@ class _DrawerContent extends StatelessWidget {
                 _DrawerItem(
                   label: 'Reducir Faltas',
                   color: textColor,
-                  onTap: () => onNavigate(homeRoute),
+                  onTap: () => onNavigate(AppRoutes.reducirFaltas),
                 ),
                 const SizedBox(height: 24),
                 _DrawerItem(
