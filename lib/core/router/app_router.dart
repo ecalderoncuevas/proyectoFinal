@@ -18,6 +18,7 @@ import 'package:proyecto_final_synquid/screens/attendance/faltas_clase_screen.da
 import 'package:proyecto_final_synquid/screens/home/clases_screen.dart';
 import 'package:proyecto_final_synquid/screens/home/schedule_professor_screen.dart';
 import 'package:proyecto_final_synquid/screens/attendance/reducir_faltas_screen.dart'; 
+import 'package:proyecto_final_synquid/screens/acc/account_screen.dart';
 
 class AppRoutes {
   static const welcome = '/';
@@ -39,11 +40,12 @@ class AppRoutes {
   static const clases = '/clases';
   static const scheduleProfessor = '/schedule-professor';
   static const reducirFaltas = '/reducir-faltas';
+  static const account = '/account';
   
 }
 
 final appRouter = GoRouter(
-  initialLocation: AppRoutes.welcome,
+  initialLocation: AppRoutes.faltasGenerales,
   routes: [
     GoRoute(
       path: AppRoutes.welcome,
@@ -175,6 +177,10 @@ final appRouter = GoRouter(
       GoRoute(
         path: AppRoutes.reducirFaltas,
         builder: (context, state) => const ReducirFaltasScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.account,
+        builder: (context, state) => const AccountScreen(),
       ),
   ],
 ),

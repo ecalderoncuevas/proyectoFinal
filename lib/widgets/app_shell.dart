@@ -263,7 +263,7 @@ class _DrawerContent extends StatelessWidget {
               _DrawerItem(
                 label: 'Perfil',
                 color: textColor,
-                onTap: () => onNavigate(homeRoute),
+                onTap: () => onNavigate(AppRoutes.account),
               ),
               const SizedBox(height: 24),
               if (isProfessor) ...[

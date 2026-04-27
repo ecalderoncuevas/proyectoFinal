@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:proyecto_final_synquid/core/theme/app_theme.dart';
 
-class PantallaAccount extends StatelessWidget {
-  const PantallaAccount({super.key});
+class AccountScreen extends StatelessWidget {
+  const AccountScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -14,7 +14,6 @@ class PantallaAccount extends StatelessWidget {
       backgroundColor: bgColor,
       body: Column(
         children: [
-          
           Stack(
             clipBehavior: Clip.none,
             alignment: Alignment.bottomCenter,
@@ -43,14 +42,12 @@ class PantallaAccount extends StatelessWidget {
 
           const SizedBox(height: 62),
 
-          
           Expanded(
             child: SingleChildScrollView(
               padding: const EdgeInsets.symmetric(horizontal: 24.0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-
                   Center(
                     child: Text(
                       'Nombre Persona',
@@ -61,28 +58,20 @@ class PantallaAccount extends StatelessWidget {
                       ),
                     ),
                   ),
-
                   const SizedBox(height: 32),
-
                   _InfoField(
                     label: 'Correo',
                     value: 'ceducalderon@gmail.com',
                   ),
-
                   const _Divider(),
-
                   _InfoFieldWithAction(
                     label: 'Password',
                     value: '····················',
                     actionIcon: Icons.key_outlined,
                     onActionTap: () {},
                   ),
-
                   const _Divider(),
-
                   const SizedBox(height: 8),
-
-                  // Delete account
                   GestureDetector(
                     onTap: () {},
                     child: Text(
@@ -98,7 +87,6 @@ class PantallaAccount extends StatelessWidget {
               ),
             ),
           ),
-
 
           Padding(
             padding: const EdgeInsets.only(bottom: 32),
@@ -119,8 +107,6 @@ class PantallaAccount extends StatelessWidget {
     );
   }
 }
-
-
 
 class _InfoField extends StatelessWidget {
   final String label;
