@@ -6,22 +6,36 @@ import 'package:proyecto_final_synquid/core/router/app_router.dart';
 import 'package:proyecto_final_synquid/core/theme/app_theme.dart';
 import 'package:proyecto_final_synquid/core/theme/theme_provider.dart';
 import 'package:intl/date_symbol_data_local.dart';
+import 'package:easy_localization/easy_localization.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
   await initializeDateFormatting('es_ES', null);
+  await initializeDateFormatting('ca_ES', null);
+  await initializeDateFormatting('en_US', null);
+  await initializeDateFormatting('es_ES', null);
+
   runApp(
-    MultiProvider(
-      providers: [
-        ChangeNotifierProvider(create: (_) => ThemeProvider()),
-        ChangeNotifierProvider(create: (_) => UserProvider()),
+    EasyLocalization(
+      supportedLocales: const [
+        Locale('es'),
+        Locale('ca'),
+        Locale('en'),
       ],
-      child: const SynquidApp(),
+      path: 'assets/translations',
+      fallbackLocale: const Locale('es'),
+      startLocale: const Locale('es'),
+      child: MultiProvider(
+        providers: [
+          ChangeNotifierProvider(create: (_) => ThemeProvider()),
+          ChangeNotifierProvider(create: (_) => UserProvider()),
+        ],
+        child: const SynquidApp(),
+      ),
     ),
   );
 }
-
 class SynquidApp extends StatelessWidget {
   const SynquidApp({super.key});
   
@@ -41,6 +55,10 @@ class SynquidApp extends StatelessWidget {
         brightness: Brightness.dark,
         scaffoldBackgroundColor: AppColors.darkBg,
       ),
+
+      localizationsDelegates: context.localizationDelegates,
+      supportedLocales: context.supportedLocales,
+      locale: context.locale,
       routerConfig: appRouter,
       builder: (context, child) {
         final scale = themeProvider.fontSize / 16.0;
