@@ -3,8 +3,7 @@ class ApiConstants {
   static const String baseUrl = 'https://dentinal-uncompounded-erma.ngrok-free.dev/api';
 
   static const String login = '/Auth/login';
-  static const String register = '/Auth/Register';
-  static const String logout = '/Auth/logout';
+static const String logout = '/Auth/logout';
   static const String refresh = '/Auth/refresh';
   static const String forgotPassword = '/Auth/forgotPassword';
   static const String changePassword = '/Auth/changePasword';

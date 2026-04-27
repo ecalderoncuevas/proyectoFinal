@@ -11,4 +11,9 @@ class UserProvider extends ChangeNotifier {
     _role = role;
     notifyListeners();
   }
+
+  void clearRole() {
+    _role = 'student';
+    notifyListeners();
+  }
 }

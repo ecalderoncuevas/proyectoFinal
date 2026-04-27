@@ -161,13 +161,6 @@ class _LoginScreenState extends State<LoginScreen> {
                 isLoading: _isLoading,
                 onPressed: _doLogin,
               ),
-              const SizedBox(height: 12),
-              _LinkText(
-                label: 'Create account',
-                fontWeight: FontWeight.w300,
-                color: appGreen,
-                onTap: () {},
-              ),
               const Spacer(flex: 2),
               _LinkText(
                 label: 'forgot your password?',
