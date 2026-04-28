@@ -6,9 +6,9 @@ import 'package:proyecto_final_synquid/core/router/app_router.dart';
 import 'package:proyecto_final_synquid/core/theme/app_theme.dart';
 import 'package:proyecto_final_synquid/core/theme/theme_provider.dart';
 import 'package:proyecto_final_synquid/core/providers/user_provider.dart';
-import 'package:proyecto_final_synquid/models/student_group.dart';
+import 'package:proyecto_final_synquid/models/teacher_group.dart';
 import 'package:proyecto_final_synquid/services/api_client.dart';
-import 'package:proyecto_final_synquid/services/user_service.dart';
+import 'package:proyecto_final_synquid/services/teacher_service.dart';
 
 class HomeProfessorScreen extends StatefulWidget {
   const HomeProfessorScreen({super.key});
@@ -37,8 +37,7 @@ class _HomeProfessorScreenState extends State<HomeProfessorScreen> {
     });
 
     try {
-      final userId = provider.user?.id ?? '';
-      final groups = await UserService(ApiClient()).getUserGroups(userId);
+      final groups = await TeacherService(ApiClient()).getMyGroups();
       if (!mounted) return;
       provider.cacheTeacherGroups(groups);
     } catch (e) {
@@ -164,7 +163,7 @@ class _HeaderSection extends StatelessWidget {
 }
 
 class _ClassCard extends StatelessWidget {
-  final StudentGroup group;
+  final TeacherGroup group;
   final Color cardBgColor;
   final Color cardTextColor;
   final Color bottomBgColor;

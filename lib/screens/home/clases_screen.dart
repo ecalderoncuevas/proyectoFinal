@@ -8,6 +8,7 @@ import 'package:proyecto_final_synquid/core/theme/theme_provider.dart';
 import 'package:proyecto_final_synquid/core/providers/user_provider.dart';
 import 'package:proyecto_final_synquid/models/attendance_record.dart';
 import 'package:proyecto_final_synquid/models/student_group.dart';
+import 'package:proyecto_final_synquid/models/teacher_group.dart';
 
 class ClasesScreen extends StatelessWidget {
   const ClasesScreen({super.key});
@@ -126,7 +127,7 @@ class _ProfessorView extends StatelessWidget {
 }
 
 class _TeacherGroupCard extends StatelessWidget {
-  final StudentGroup group;
+  final TeacherGroup group;
   final Color cardBg;
   final Color cardText;
 

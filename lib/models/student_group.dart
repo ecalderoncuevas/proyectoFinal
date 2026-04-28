@@ -4,6 +4,7 @@ class StudentGroup {
   final String level;
   final String institutionId;
   final String professorId;
+  final String professorName;
 
   StudentGroup({
     required this.groupId,
@@ -11,6 +12,7 @@ class StudentGroup {
     required this.level,
     required this.institutionId,
     required this.professorId,
+    required this.professorName,
   });
 
   factory StudentGroup.fromJson(Map<String, dynamic> json) => StudentGroup(
@@ -19,5 +21,6 @@ class StudentGroup {
         level: (json['level'] ?? '').toString(),
         institutionId: (json['institutionId'] ?? '').toString(),
         professorId: (json['professorId'] ?? '').toString(),
+        professorName: (json['professorName'] ?? '').toString(),
       );
 }

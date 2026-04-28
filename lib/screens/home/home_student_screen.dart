@@ -10,7 +10,7 @@ import 'package:proyecto_final_synquid/models/attendance_record.dart';
 import 'package:proyecto_final_synquid/models/student_group.dart';
 import 'package:proyecto_final_synquid/services/api_client.dart';
 import 'package:proyecto_final_synquid/services/attendance_service.dart';
-import 'package:proyecto_final_synquid/services/user_service.dart';
+import 'package:proyecto_final_synquid/services/student_service.dart';
 import 'package:proyecto_final_synquid/widgets/legend_popup.dart';
 
 class HomeStudentScreen extends StatefulWidget {
@@ -40,10 +40,9 @@ class _HomeStudentScreenState extends State<HomeStudentScreen> {
     });
 
     try {
-      final userId = provider.user?.id ?? '';
       final client = ApiClient();
       final results = await Future.wait([
-        UserService(client).getUserGroups(userId),
+        StudentService(client).getMyGroups(),
         AttendanceService(client).getMyHistory(),
       ]);
       if (!mounted) return;

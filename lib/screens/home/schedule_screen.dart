@@ -2,15 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:table_calendar/table_calendar.dart';
-import 'package:proyecto_final_synquid/core/providers/user_provider.dart';
 import 'package:proyecto_final_synquid/core/theme/app_theme.dart';
 import 'package:proyecto_final_synquid/core/theme/theme_provider.dart';
-import 'package:proyecto_final_synquid/models/student_group.dart';
 import 'package:proyecto_final_synquid/services/api_client.dart';
-import 'package:proyecto_final_synquid/services/group_service.dart';
-import 'package:proyecto_final_synquid/services/user_service.dart';
+import 'package:proyecto_final_synquid/services/student_service.dart';
 
-// Combined display model: group name + schedule slot
 class _ClassSlot {
   final String groupName;
   final String startTime;
@@ -64,30 +60,21 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
       _error = null;
     });
     try {
-      final provider = context.read<UserProvider>();
-      final userId = provider.user?.id ?? '';
-      final client = ApiClient();
-
-      List<StudentGroup> groups = provider.studentGroups ?? [];
-      if (groups.isEmpty) {
-        groups = await UserService(client).getUserGroups(userId);
-      }
-
-      final schedulesList = await Future.wait(
-        groups.map((g) => GroupService(client).getGroupSchedules(g.groupId)),
-      );
+      final items =
+          await StudentService(ApiClient()).getSchedule(DateTime.now());
 
       final newCache = <int, List<_ClassSlot>>{};
-      for (var i = 0; i < groups.length; i++) {
-        for (final sched in schedulesList[i]) {
-          newCache.putIfAbsent(sched.dayOfWeek, () => []).add(
-            _ClassSlot(
-              groupName: groups[i].groupName,
-              startTime: sched.startTime,
-              endTime: sched.endTime,
-            ),
-          );
-        }
+      final seenIds = <String>{};
+      for (final item in items) {
+        if (seenIds.contains(item.scheduleId)) continue;
+        seenIds.add(item.scheduleId);
+        newCache.putIfAbsent(item.dayOfWeek, () => []).add(
+          _ClassSlot(
+            groupName: item.groupName,
+            startTime: item.startTime,
+            endTime: item.endTime,
+          ),
+        );
       }
 
       if (mounted) setState(() => _cache.addAll(newCache));

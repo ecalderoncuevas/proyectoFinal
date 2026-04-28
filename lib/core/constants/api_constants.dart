@@ -15,12 +15,14 @@ class ApiConstants {
 
   // User
   static const String userMe = '/user/me';
-  static String userGroups(String userId) => '/User/$userId/groups';
 
-  // Group
-  static String groupSchedules(String groupId) => '/Group/$groupId/schedules';
+  // Student
+  static const String studentMyGroups = '/student/myGroups';
+  static const String studentSchedule = '/student/schedule';
 
-  // Teacher (students list only)
+  // Teacher
+  static const String teacherMyGroups = '/teacher/myGroups';
+  static const String teacherSchedule = '/teacher/schedule';
   static String teacherGroupStudents(String groupId) =>
       '/teacher/groups/$groupId/students';
 

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:proyecto_final_synquid/models/attendance_record.dart';
 import 'package:proyecto_final_synquid/models/student_group.dart';
+import 'package:proyecto_final_synquid/models/teacher_group.dart';
 import 'package:proyecto_final_synquid/models/user.dart';
 
 class UserProvider extends ChangeNotifier {
@@ -8,7 +9,7 @@ class UserProvider extends ChangeNotifier {
   User? _user;
   List<StudentGroup>? _studentGroups;
   List<AttendanceRecord>? _attendanceHistory;
-  List<StudentGroup>? _teacherGroups;
+  List<TeacherGroup>? _teacherGroups;
 
   String get role => _role;
   bool get isStudent => _role == 'student';
@@ -16,7 +17,7 @@ class UserProvider extends ChangeNotifier {
   User? get user => _user;
   List<StudentGroup>? get studentGroups => _studentGroups;
   List<AttendanceRecord>? get attendanceHistory => _attendanceHistory;
-  List<StudentGroup>? get teacherGroups => _teacherGroups;
+  List<TeacherGroup>? get teacherGroups => _teacherGroups;
 
   void setRole(String role) {
     _role = role;
@@ -37,7 +38,7 @@ class UserProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  void cacheTeacherGroups(List<StudentGroup> groups) {
+  void cacheTeacherGroups(List<TeacherGroup> groups) {
     _teacherGroups = groups;
     notifyListeners();
   }
