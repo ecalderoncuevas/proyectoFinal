@@ -3,46 +3,99 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:proyecto_final_synquid/core/theme/app_theme.dart';
 import 'package:proyecto_final_synquid/core/theme/theme_provider.dart';
+import 'package:proyecto_final_synquid/core/providers/user_provider.dart';
 import 'package:go_router/go_router.dart';
 import 'package:proyecto_final_synquid/core/router/app_router.dart';
+import 'package:proyecto_final_synquid/models/attendance_record.dart';
+import 'package:proyecto_final_synquid/models/student_group.dart';
+import 'package:proyecto_final_synquid/services/api_client.dart';
+import 'package:proyecto_final_synquid/services/attendance_service.dart';
+import 'package:proyecto_final_synquid/services/user_service.dart';
 import 'package:proyecto_final_synquid/widgets/legend_popup.dart';
 
-class _SubjectItem {
-  final String name;
-  final String group;
-  final String date;
-  final Color tagColor;
-
-  const _SubjectItem({
-    required this.name,
-    required this.group,
-    required this.date,
-    required this.tagColor,
-  });
-}
-
-class HomeStudentScreen extends StatelessWidget {
+class HomeStudentScreen extends StatefulWidget {
   const HomeStudentScreen({super.key});
 
-  static const _subjects = [
-    _SubjectItem(name: 'Interfaces', group: 'DAM1', date: '10-05', tagColor: AppColors.tagGreen),
-    _SubjectItem(name: 'Interfaces', group: 'DAM2', date: '10-05', tagColor: AppColors.tagYellow),
-    _SubjectItem(name: 'Interfaces', group: 'DAM2', date: '10-05', tagColor: AppColors.tagRed),
-    _SubjectItem(name: 'Interfaces', group: 'DAM2', date: '10-05', tagColor: AppColors.tagGreen),
-    _SubjectItem(name: 'Interfaces', group: 'DAM2', date: '10-05', tagColor: AppColors.tagYellow),
-    _SubjectItem(name: 'Interfaces', group: 'DAM2', date: '10-05', tagColor: AppColors.tagRed),
-  ];
+  @override
+  State<HomeStudentScreen> createState() => _HomeStudentScreenState();
+}
+
+class _HomeStudentScreenState extends State<HomeStudentScreen> {
+  bool _loading = false;
+  String? _error;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadIfNeeded();
+  }
+
+  Future<void> _loadIfNeeded() async {
+    final provider = context.read<UserProvider>();
+    if (provider.studentGroups != null) return;
+
+    setState(() {
+      _loading = true;
+      _error = null;
+    });
+
+    try {
+      final userId = provider.user?.id ?? '';
+      final client = ApiClient();
+      final results = await Future.wait([
+        UserService(client).getUserGroups(userId),
+        AttendanceService(client).getMyHistory(),
+      ]);
+      if (!mounted) return;
+      provider.cacheStudentData(
+        groups: results[0] as List<StudentGroup>,
+        history: results[1] as List<AttendanceRecord>,
+      );
+    } catch (e) {
+      if (mounted) setState(() => _error = e.toString());
+    } finally {
+      if (mounted) setState(() => _loading = false);
+    }
+  }
+
+  Color _tagColor(int faltas, int total) {
+    if (total == 0) return AppColors.tagGreen;
+    final ratio = faltas / total;
+    if (ratio >= 0.5) return AppColors.tagRed;
+    if (ratio >= 0.25) return AppColors.tagYellow;
+    return AppColors.tagGreen;
+  }
+
+  Map<String, Map<String, int>> _computeAttendanceSummary(
+      List<AttendanceRecord> history) {
+    final map = <String, Map<String, int>>{};
+    for (final r in history) {
+      map.putIfAbsent(r.groupId, () => {'faltas': 0, 'total': 0});
+      map[r.groupId]!['total'] = map[r.groupId]!['total']! + 1;
+      if (r.status == 1) {
+        map[r.groupId]!['faltas'] = map[r.groupId]!['faltas']! + 1;
+      }
+    }
+    return map;
+  }
 
   @override
   Widget build(BuildContext context) {
     final isDark = context.watch<ThemeProvider>().isDark;
+    final provider = context.watch<UserProvider>();
     final bgColor = isDark ? AppColors.darkBg : AppColors.homeLightBg;
     final appGreen = isDark ? AppColors.green : AppColors.homeDarkGreen;
     final appBg = isDark ? AppColors.darkBg : AppColors.homeLightBg;
     final cardTopBg = isDark ? AppColors.homeDarkGreen : AppColors.green;
     final cardTopText = isDark ? AppColors.homeLightBg : AppColors.homeDarkGreen;
     final cardBottomBg = isDark ? AppColors.green : AppColors.homeDarkGreen;
-    final cardBottomText = isDark ? AppColors.homeDarkGreen : AppColors.homeLightBg;
+    final cardBottomText =
+        isDark ? AppColors.homeDarkGreen : AppColors.homeLightBg;
+
+    final userName = provider.user?.firstName ?? '';
+    final groups = provider.studentGroups ?? [];
+    final history = provider.attendanceHistory ?? [];
+    final summary = _computeAttendanceSummary(history);
 
     return Scaffold(
       backgroundColor: bgColor,
@@ -52,45 +105,75 @@ class HomeStudentScreen extends StatelessWidget {
           _HeaderSection(
             headerColor: appGreen,
             textColor: appBg,
+            userName: userName,
           ),
           Expanded(
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.symmetric(horizontal: 20.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const SizedBox(height: 16),
-                  Align(
-                    alignment: Alignment.centerRight,
-                    child: GestureDetector(
-                      onTap: () => LegendPopup.show(context),
-                      child: Text(
-                        'Ver leyenda',
-                        style: GoogleFonts.rowdies(
-                          fontSize: 15,
-                          fontWeight: FontWeight.w700,
-                          color: appGreen,
-                        ),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 12),
-                  ..._subjects.map(
-                    (subject) => Padding(
-                      padding: const EdgeInsets.only(bottom: 12),
-                      child: _SubjectCard(
-                        item: subject,
-                        cardBgColor: cardTopBg,
-                        cardTextColor: cardTopText,
-                        bottomBgColor: cardBottomBg,
-                        bottomTextColor: cardBottomText,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 24),
-                ],
-              ),
-            ),
+            child: _loading
+                ? Center(
+                    child: CircularProgressIndicator(color: appGreen),
+                  )
+                : _error != null
+                    ? _ErrorView(
+                        error: _error!,
+                        color: appGreen,
+                        onRetry: _loadIfNeeded,
+                      )
+                    : groups.isEmpty
+                        ? Center(
+                            child: Text(
+                              'No hay asignaturas',
+                              style: GoogleFonts.rowdies(
+                                color: appGreen,
+                                fontSize: 16,
+                              ),
+                            ),
+                          )
+                        : SingleChildScrollView(
+                            padding:
+                                const EdgeInsets.symmetric(horizontal: 20.0),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                const SizedBox(height: 16),
+                                Align(
+                                  alignment: Alignment.centerRight,
+                                  child: GestureDetector(
+                                    onTap: () => LegendPopup.show(context),
+                                    child: Text(
+                                      'Ver leyenda',
+                                      style: GoogleFonts.rowdies(
+                                        fontSize: 15,
+                                        fontWeight: FontWeight.w700,
+                                        color: appGreen,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(height: 12),
+                                ...groups.map((group) {
+                                  final att = summary[group.groupId] ??
+                                      {'faltas': 0, 'total': 0};
+                                  final faltas = att['faltas']!;
+                                  final total = att['total']!;
+                                  final tag = _tagColor(faltas, total);
+                                  return Padding(
+                                    padding: const EdgeInsets.only(bottom: 12),
+                                    child: _SubjectCard(
+                                      group: group,
+                                      faltas: faltas,
+                                      total: total,
+                                      tagColor: tag,
+                                      cardBgColor: cardTopBg,
+                                      cardTextColor: cardTopText,
+                                      bottomBgColor: cardBottomBg,
+                                      bottomTextColor: cardBottomText,
+                                    ),
+                                  );
+                                }),
+                                const SizedBox(height: 24),
+                              ],
+                            ),
+                          ),
           ),
         ],
       ),
@@ -101,10 +184,12 @@ class HomeStudentScreen extends StatelessWidget {
 class _HeaderSection extends StatelessWidget {
   final Color headerColor;
   final Color textColor;
+  final String userName;
 
   const _HeaderSection({
     required this.headerColor,
     required this.textColor,
+    required this.userName,
   });
 
   @override
@@ -122,7 +207,7 @@ class _HeaderSection extends StatelessWidget {
               _NfcCardButton(onTap: () {}, color: textColor),
               const SizedBox(height: 24),
               Text(
-                'Good Morning,\nname',
+                'Buenos días,\n$userName',
                 style: GoogleFonts.rowdies(
                   fontSize: 40,
                   fontWeight: FontWeight.w700,
@@ -209,14 +294,20 @@ class _CardLine extends StatelessWidget {
 }
 
 class _SubjectCard extends StatelessWidget {
-  final _SubjectItem item;
+  final StudentGroup group;
+  final int faltas;
+  final int total;
+  final Color tagColor;
   final Color cardBgColor;
   final Color cardTextColor;
   final Color bottomBgColor;
   final Color bottomTextColor;
 
   const _SubjectCard({
-    required this.item,
+    required this.group,
+    required this.faltas,
+    required this.total,
+    required this.tagColor,
     required this.cardBgColor,
     required this.cardTextColor,
     required this.bottomBgColor,
@@ -238,7 +329,7 @@ class _SubjectCard extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  item.name,
+                  group.groupName,
                   style: GoogleFonts.rowdies(
                     fontSize: 16,
                     fontWeight: FontWeight.w700,
@@ -246,10 +337,10 @@ class _SubjectCard extends StatelessWidget {
                   ),
                 ),
                 Text(
-                  item.date,
+                  group.level,
                   style: GoogleFonts.rowdies(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w700,
+                    fontSize: 14,
+                    fontWeight: FontWeight.w300,
                     color: cardTextColor,
                   ),
                 ),
@@ -264,20 +355,11 @@ class _SubjectCard extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
             child: Row(
               children: [
-                Text(
-                  item.group,
-                  style: GoogleFonts.rowdies(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w700,
-                    color: bottomTextColor,
-                  ),
-                ),
-                const SizedBox(width: 12),
                 Container(
                   width: 22,
                   height: 22,
                   decoration: BoxDecoration(
-                    color: item.tagColor,
+                    color: tagColor,
                     borderRadius: BorderRadius.circular(6),
                   ),
                 ),
@@ -287,10 +369,11 @@ class _SubjectCard extends StatelessWidget {
                     context.push(
                       AppRoutes.faltasAsignatura,
                       extra: {
-                        'subject': item.name,
-                        'faltas': 5,
-                        'total': 20,
-                        'tagColor': item.tagColor,
+                        'groupId': group.groupId,
+                        'subject': group.groupName,
+                        'faltas': faltas,
+                        'total': total,
+                        'tagColor': tagColor,
                       },
                     );
                   },
@@ -307,6 +390,53 @@ class _SubjectCard extends StatelessWidget {
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+class _ErrorView extends StatelessWidget {
+  final String error;
+  final Color color;
+  final VoidCallback onRetry;
+
+  const _ErrorView({
+    required this.error,
+    required this.color,
+    required this.onRetry,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              'Error al cargar datos',
+              style: GoogleFonts.rowdies(
+                fontSize: 16,
+                fontWeight: FontWeight.w700,
+                color: color,
+              ),
+            ),
+            const SizedBox(height: 16),
+            GestureDetector(
+              onTap: onRetry,
+              child: Text(
+                'Reintentar',
+                style: GoogleFonts.rowdies(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w700,
+                  color: color,
+                  decoration: TextDecoration.underline,
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

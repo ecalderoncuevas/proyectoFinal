@@ -5,59 +5,49 @@ import 'package:provider/provider.dart';
 import 'package:proyecto_final_synquid/core/router/app_router.dart';
 import 'package:proyecto_final_synquid/core/theme/app_theme.dart';
 import 'package:proyecto_final_synquid/core/theme/theme_provider.dart';
-
-class _CursoData {
-  final String profesor;
-  final List<_AsignaturaData> asignaturas;
-
-  const _CursoData({required this.profesor, required this.asignaturas});
-}
-
-class _AsignaturaData {
-  final String name;
-  final Color placeholderColor;
-
-  const _AsignaturaData({required this.name, required this.placeholderColor});
-}
+import 'package:proyecto_final_synquid/core/providers/user_provider.dart';
+import 'package:proyecto_final_synquid/models/attendance_record.dart';
+import 'package:proyecto_final_synquid/models/student_group.dart';
 
 class ClasesScreen extends StatelessWidget {
   const ClasesScreen({super.key});
 
-  static const _cursos = [
-    _CursoData(
-      profesor: 'profesor',
-      asignaturas: [
-        _AsignaturaData(name: 'Interfaces', placeholderColor: Color(0xFFF5F0EB)),
-        _AsignaturaData(name: 'Programación', placeholderColor: Color(0xFFF0EBF5)),
-        _AsignaturaData(name: 'Base de datos', placeholderColor: Color(0xFFEBF5F0)),
-        _AsignaturaData(name: 'Sistemas', placeholderColor: Color(0xFFF5EBEB)),
-      ],
-    ),
-    _CursoData(
-      profesor: 'profesor',
-      asignaturas: [
-        _AsignaturaData(name: 'Entorns', placeholderColor: Color(0xFFF5F0EB)),
-        _AsignaturaData(name: 'FOL', placeholderColor: Color(0xFFF0EBF5)),
-        _AsignaturaData(name: 'Empresa', placeholderColor: Color(0xFFEBF5F0)),
-        _AsignaturaData(name: 'Inglés', placeholderColor: Color(0xFFF5EBEB)),
-      ],
-    ),
-  ];
+  Color _tagColor(int faltas, int total) {
+    if (total == 0) return AppColors.tagGreen;
+    final ratio = faltas / total;
+    if (ratio >= 0.5) return AppColors.tagRed;
+    if (ratio >= 0.25) return AppColors.tagYellow;
+    return AppColors.tagGreen;
+  }
+
+  Map<String, Map<String, int>> _computeSummary(List<AttendanceRecord> history) {
+    final map = <String, Map<String, int>>{};
+    for (final r in history) {
+      map.putIfAbsent(r.groupId, () => {'faltas': 0, 'total': 0});
+      map[r.groupId]!['total'] = map[r.groupId]!['total']! + 1;
+      if (r.status == 1) {
+        map[r.groupId]!['faltas'] = map[r.groupId]!['faltas']! + 1;
+      }
+    }
+    return map;
+  }
 
   @override
   Widget build(BuildContext context) {
     final isDark = context.watch<ThemeProvider>().isDark;
+    final provider = context.watch<UserProvider>();
     final appBg = isDark ? AppColors.darkBg : AppColors.homeLightBg;
     final headerBg = isDark ? AppColors.green : AppColors.homeDarkGreen;
     final headerText = isDark ? AppColors.darkBg : AppColors.homeLightBg;
     final labelColor = isDark ? AppColors.green : AppColors.homeDarkGreen;
+
+    final isProfessor = provider.isProfessor;
 
     return Scaffold(
       backgroundColor: appBg,
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Header
           Container(
             width: double.infinity,
             color: headerBg,
@@ -66,7 +56,7 @@ class ClasesScreen extends StatelessWidget {
               child: Padding(
                 padding: const EdgeInsets.fromLTRB(24, 56, 24, 20),
                 child: Text(
-                  'Tus clases',
+                  isProfessor ? 'Mis clases' : 'Tus clases',
                   style: GoogleFonts.rowdies(
                     fontSize: 36,
                     fontWeight: FontWeight.w700,
@@ -76,22 +66,16 @@ class ClasesScreen extends StatelessWidget {
               ),
             ),
           ),
-
-          // Lista de cursos
           Expanded(
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: _cursos.map((curso) {
-                  return _CursoSection(
-                    curso: curso,
+            child: isProfessor
+                ? _ProfessorView(labelColor: labelColor, isDark: isDark)
+                : _StudentView(
                     labelColor: labelColor,
                     isDark: isDark,
-                  );
-                }).toList(),
-              ),
-            ),
+                    groups: provider.studentGroups ?? [],
+                    summary: _computeSummary(provider.attendanceHistory ?? []),
+                    tagColorFn: _tagColor,
+                  ),
           ),
         ],
       ),
@@ -99,74 +83,205 @@ class ClasesScreen extends StatelessWidget {
   }
 }
 
-class _CursoSection extends StatelessWidget {
-  final _CursoData curso;
+// ─── Vista profesor ───────────────────────────────────────────────────────────
+
+class _ProfessorView extends StatelessWidget {
   final Color labelColor;
   final bool isDark;
 
-  const _CursoSection({
-    required this.curso,
-    required this.labelColor,
-    required this.isDark,
-  });
+  const _ProfessorView({required this.labelColor, required this.isDark});
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          curso.profesor,
-          style: GoogleFonts.rowdies(
-            fontSize: 18,
-            fontWeight: FontWeight.w700,
-            color: labelColor,
-          ),
+    final groups = context.watch<UserProvider>().teacherGroups ?? [];
+    final cardBg = isDark ? AppColors.homeDarkGreen : AppColors.green;
+    final cardText = isDark ? AppColors.homeLightBg : AppColors.homeDarkGreen;
+
+    if (groups.isEmpty) {
+      return Center(
+        child: Text(
+          'No hay clases asignadas',
+          style: GoogleFonts.rowdies(color: labelColor, fontSize: 16),
         ),
-        const SizedBox(height: 12),
-        // Grid de 2 columnas con carrusel horizontal
-        SizedBox(
-          height: 220,
-          child: ListView.separated(
-            scrollDirection: Axis.horizontal,
-            itemCount: curso.asignaturas.length,
-            separatorBuilder: (_, __) => const SizedBox(width: 16),
-            itemBuilder: (context, index) {
-              final asig = curso.asignaturas[index];
-              return _AsignaturaCard(
-                asignatura: asig,
-                labelColor: labelColor,
-                isDark: isDark,
-              );
-            },
-          ),
-        ),
-        const SizedBox(height: 28),
-      ],
+      );
+    }
+
+    return SingleChildScrollView(
+      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: groups.map((g) {
+          return Padding(
+            padding: const EdgeInsets.only(bottom: 12),
+            child: _TeacherGroupCard(
+              group: g,
+              cardBg: cardBg,
+              cardText: cardText,
+            ),
+          );
+        }).toList(),
+      ),
     );
   }
 }
 
-class _AsignaturaCard extends StatelessWidget {
-  final _AsignaturaData asignatura;
-  final Color labelColor;
-  final bool isDark;
+class _TeacherGroupCard extends StatelessWidget {
+  final StudentGroup group;
+  final Color cardBg;
+  final Color cardText;
 
-  const _AsignaturaCard({
-    required this.asignatura,
-    required this.labelColor,
-    required this.isDark,
+  const _TeacherGroupCard({
+    required this.group,
+    required this.cardBg,
+    required this.cardText,
   });
 
   @override
   Widget build(BuildContext context) {
-    final cardWidth = (MediaQuery.of(context).size.width - 24 * 2 - 16) / 2;
+    final cardWidth =
+        (MediaQuery.of(context).size.width - 24 * 2).toDouble();
+
+    return GestureDetector(
+      onTap: () {
+        context.push(AppRoutes.faltasClase, extra: {
+          'groupId': group.groupId,
+          'groupName': group.groupName,
+        });
+      },
+      child: Container(
+        width: cardWidth,
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        decoration: BoxDecoration(
+          color: cardBg,
+          borderRadius: BorderRadius.circular(16),
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  group.groupName,
+                  style: GoogleFonts.rowdies(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w700,
+                    color: cardText,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  group.level,
+                  style: GoogleFonts.rowdies(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w300,
+                    color: cardText,
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+// ─── Vista alumno ─────────────────────────────────────────────────────────────
+
+class _StudentView extends StatelessWidget {
+  final Color labelColor;
+  final bool isDark;
+  final List<StudentGroup> groups;
+  final Map<String, Map<String, int>> summary;
+  final Color Function(int faltas, int total) tagColorFn;
+
+  const _StudentView({
+    required this.labelColor,
+    required this.isDark,
+    required this.groups,
+    required this.summary,
+    required this.tagColorFn,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    if (groups.isEmpty) {
+      return Center(
+        child: Text(
+          'No hay asignaturas',
+          style: GoogleFonts.rowdies(color: labelColor, fontSize: 16),
+        ),
+      );
+    }
+
+    final placeholderColors = [
+      const Color(0xFFF5F0EB),
+      const Color(0xFFF0EBF5),
+      const Color(0xFFEBF5F0),
+      const Color(0xFFF5EBEB),
+    ];
+
+    return SingleChildScrollView(
+      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
+      child: Wrap(
+        spacing: 16,
+        runSpacing: 16,
+        children: groups.asMap().entries.map((entry) {
+          final index = entry.key;
+          final group = entry.value;
+          final att = summary[group.groupId] ?? {'faltas': 0, 'total': 0};
+          final faltas = att['faltas']!;
+          final total = att['total']!;
+          final tagColor = tagColorFn(faltas, total);
+          final ph = placeholderColors[index % placeholderColors.length];
+          return _StudentGroupCard(
+            group: group,
+            faltas: faltas,
+            total: total,
+            tagColor: tagColor,
+            placeholderColor: ph,
+            labelColor: labelColor,
+          );
+        }).toList(),
+      ),
+    );
+  }
+}
+
+class _StudentGroupCard extends StatelessWidget {
+  final StudentGroup group;
+  final int faltas;
+  final int total;
+  final Color tagColor;
+  final Color placeholderColor;
+  final Color labelColor;
+
+  const _StudentGroupCard({
+    required this.group,
+    required this.faltas,
+    required this.total,
+    required this.tagColor,
+    required this.placeholderColor,
+    required this.labelColor,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final cardWidth =
+        (MediaQuery.of(context).size.width - 24 * 2 - 16) / 2;
 
     return GestureDetector(
       onTap: () {
         context.push(
-          AppRoutes.faltasClase,
-          extra: asignatura.name,
+          AppRoutes.faltasAsignatura,
+          extra: {
+            'groupId': group.groupId,
+            'subject': group.groupName,
+            'faltas': faltas,
+            'total': total,
+            'tagColor': tagColor,
+          },
         );
       },
       child: SizedBox(
@@ -174,18 +289,33 @@ class _AsignaturaCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Imagen placeholder
-            Container(
-              width: cardWidth,
-              height: 170,
-              decoration: BoxDecoration(
-                color: asignatura.placeholderColor,
-                borderRadius: BorderRadius.circular(16),
-              ),
+            Stack(
+              children: [
+                Container(
+                  width: cardWidth,
+                  height: 170,
+                  decoration: BoxDecoration(
+                    color: placeholderColor,
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                ),
+                Positioned(
+                  top: 8,
+                  right: 8,
+                  child: Container(
+                    width: 18,
+                    height: 18,
+                    decoration: BoxDecoration(
+                      color: tagColor,
+                      borderRadius: BorderRadius.circular(5),
+                    ),
+                  ),
+                ),
+              ],
             ),
             const SizedBox(height: 8),
             Text(
-              asignatura.name,
+              group.groupName,
               style: GoogleFonts.rowdies(
                 fontSize: 13,
                 fontWeight: FontWeight.w700,

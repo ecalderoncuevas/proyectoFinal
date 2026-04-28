@@ -1,23 +1,28 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
+import 'package:proyecto_final_synquid/core/providers/user_provider.dart';
 import 'package:proyecto_final_synquid/core/theme/app_theme.dart';
 import 'package:proyecto_final_synquid/core/theme/theme_provider.dart';
 import 'package:proyecto_final_synquid/widgets/legend_popup.dart';
+import 'package:go_router/go_router.dart';
+import 'package:proyecto_final_synquid/core/router/app_router.dart';
 
 class _FaltaItem {
+  final String groupId;
   final String subject;
   final int faltas;
   final int total;
 
-
-const _FaltaItem({
-  required this.subject,
-  required this.faltas,
-  required this.total,
-});
+  _FaltaItem({
+    required this.groupId,
+    required this.subject,
+    required this.faltas,
+    required this.total,
+  });
 
   Color get tagColor {
+    if (total == 0) return AppColors.tagGreen;
     final ratio = faltas / total;
     if (ratio >= 0.5) return AppColors.tagRed;
     if (ratio >= 0.25) return AppColors.tagYellow;
@@ -28,25 +33,38 @@ const _FaltaItem({
 class FaltasGeneralesScreen extends StatelessWidget {
   const FaltasGeneralesScreen({super.key});
 
+  List<_FaltaItem> _buildItems(UserProvider provider) {
+    final history = provider.attendanceHistory ?? [];
+    final map = <String, Map<String, dynamic>>{};
+    for (final r in history) {
+      map.putIfAbsent(
+        r.groupId,
+        () => {'name': r.groupName, 'faltas': 0, 'total': 0},
+      );
+      map[r.groupId]!['total'] = (map[r.groupId]!['total'] as int) + 1;
+      if (r.status == 1) {
+        map[r.groupId]!['faltas'] = (map[r.groupId]!['faltas'] as int) + 1;
+      }
+    }
+    return map.entries
+        .map((e) => _FaltaItem(
+              groupId: e.key,
+              subject: e.value['name'] as String,
+              faltas: e.value['faltas'] as int,
+              total: e.value['total'] as int,
+            ))
+        .toList();
+  }
 
-  static const _faltas = [
-    _FaltaItem(subject: 'Interfaces', faltas: 10, total: 17),
-    _FaltaItem(subject: 'Programación', faltas: 12, total: 17),
-    _FaltaItem(subject: 'Base de datos', faltas: 14, total: 17),
-    _FaltaItem(subject: 'Sistemas', faltas: 7, total: 17),
-    _FaltaItem(subject: 'Entorns', faltas: 8, total: 17),
-    _FaltaItem(subject: 'Inglés tecnico', faltas: 7, total: 17),
-    _FaltaItem(subject: 'FOL', faltas: 3, total: 17),
-    _FaltaItem(subject: 'Empresa', faltas: 4, total: 17),
-    _FaltaItem(subject: 'Sistemas de gestion', faltas: 2, total: 17),
-  ];
-  
   @override
   Widget build(BuildContext context) {
     final isDark = context.watch<ThemeProvider>().isDark;
+    final provider = context.watch<UserProvider>();
     final appBg = isDark ? AppColors.darkBg : AppColors.homeLightBg;
     final appGreen = isDark ? AppColors.green : AppColors.homeDarkGreen;
     final cardTextColor = isDark ? AppColors.darkBg : AppColors.homeLightBg;
+
+    final faltas = _buildItems(provider);
 
     return Scaffold(
       backgroundColor: appBg,
@@ -60,7 +78,8 @@ class FaltasGeneralesScreen extends StatelessWidget {
             child: Align(
               alignment: Alignment.centerRight,
               child: GestureDetector(
-                onTap: () => LegendPopup.show(context, items: LegendPopup.faltasItems),
+                onTap: () =>
+                    LegendPopup.show(context, items: LegendPopup.faltasItems),
                 child: Text(
                   'Ver leyenda',
                   style: GoogleFonts.rowdies(
@@ -74,18 +93,45 @@ class FaltasGeneralesScreen extends StatelessWidget {
           ),
           const SizedBox(height: 16),
           Expanded(
-            child: ListView.separated(
-              padding: const EdgeInsets.symmetric(horizontal: 24),
-              itemCount: _faltas.length,
-              separatorBuilder: (context, index) => const SizedBox(height: 10),
-              itemBuilder: (context, index) {
-                return _FaltaCard(
-                  item: _faltas[index],
-                  cardBgColor: appGreen,
-                  cardTextColor: cardTextColor,
-                );
-              },
-            ),
+            child: faltas.isEmpty
+                ? Center(
+                    child: Text(
+                      provider.attendanceHistory == null
+                          ? 'Cargando...'
+                          : 'Sin registros de asistencia',
+                      style: GoogleFonts.rowdies(
+                        color: appGreen,
+                        fontSize: 16,
+                      ),
+                    ),
+                  )
+                : ListView.separated(
+                    padding: const EdgeInsets.symmetric(horizontal: 24),
+                    itemCount: faltas.length,
+                    separatorBuilder: (_, _) => const SizedBox(height: 10),
+                    itemBuilder: (context, index) {
+                      final item = faltas[index];
+                      return GestureDetector(
+                        onTap: () {
+                          context.push(
+                            AppRoutes.faltasAsignatura,
+                            extra: {
+                              'groupId': item.groupId,
+                              'subject': item.subject,
+                              'faltas': item.faltas,
+                              'total': item.total,
+                              'tagColor': item.tagColor,
+                            },
+                          );
+                        },
+                        child: _FaltaCard(
+                          item: item,
+                          cardBgColor: appGreen,
+                          cardTextColor: cardTextColor,
+                        ),
+                      );
+                    },
+                  ),
           ),
           const SizedBox(height: 24),
         ],
@@ -133,18 +179,15 @@ class _FaltaCard extends StatelessWidget {
     required this.cardBgColor,
     required this.cardTextColor,
   });
-  
+
   @override
   Widget build(BuildContext context) {
     return Container(
       height: 52,
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(12),
-      ),
+      decoration: BoxDecoration(borderRadius: BorderRadius.circular(12)),
       clipBehavior: Clip.antiAlias,
       child: Row(
         children: [
-         
           Expanded(
             child: Container(
               color: cardBgColor,
@@ -160,7 +203,6 @@ class _FaltaCard extends StatelessWidget {
               ),
             ),
           ),
-          
           Container(
             width: 72,
             color: item.tagColor,

@@ -1,17 +1,32 @@
 class ApiConstants {
-  
-  static const String baseUrl = 'https://dentinal-uncompounded-erma.ngrok-free.dev/api';
+  static const String baseUrl =
+      'https://dentinal-uncompounded-erma.ngrok-free.dev/api';
 
+  // Auth
   static const String login = '/Auth/login';
-static const String logout = '/Auth/logout';
+  static const String logout = '/Auth/logout';
   static const String refresh = '/Auth/refresh';
-  static const String forgotPassword = '/Auth/forgotPassword';
-  static const String changePassword = '/Auth/changePasword';
-  static const String institutions = '/Institutions';
-  static const String devices = '/Devices';
-  static const String userMe = '/User/me';
-  static const String user = '/User';
-  static const String attendanceCheck = '/Attendance/check';
-  static const String attendanceRegister = '/Attendance/Register';
+  static const String forgotPassword = '/auth/forgotPassword';
+  static const String resetPassword = '/auth/resetPassword';
   static const String verifyEmail = '/Auth/verifyEmail';
+
+  // Institutions
+  static const String institutions = '/Institutions';
+
+  // User
+  static const String userMe = '/user/me';
+  static String userGroups(String userId) => '/User/$userId/groups';
+
+  // Group
+  static String groupSchedules(String groupId) => '/Group/$groupId/schedules';
+
+  // Teacher (students list only)
+  static String teacherGroupStudents(String groupId) =>
+      '/teacher/groups/$groupId/students';
+
+  // Attendance
+  static const String attendanceMyHistory = '/attendance/myHistory';
+  static const String attendanceHistory = '/attendance/history';
+  static const String attendanceToday = '/attendance/today';
+  static const String attendanceManual = '/attendance/manual';
 }

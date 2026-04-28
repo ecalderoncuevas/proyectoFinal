@@ -21,33 +21,55 @@ class AuthService {
         data: request.toJson(),
       );
       final loginResponse = LoginResponse.fromJson(response.data);
-
       if (loginResponse.isSuccess) {
         await _tokenStorage.saveToken(loginResponse.token);
       }
-
       return loginResponse;
     } catch (e) {
-      print('Error en login() $e');
       rethrow;
     }
   }
 
-Future<bool> sendVerificationCode(String email) async {
-  try {
-    final response = await _client.dio.post(
-      ApiConstants.verifyEmail,
-      data: {'email': email},
-    );
-    return response.data['errorCode'] == 0;
-  } catch (e) {
-    print('Error en sendVerificationCode(): $e');
-    rethrow;
+  Future<bool> sendVerificationCode(String email) async {
+    try {
+      final response = await _client.dio.post(
+        ApiConstants.verifyEmail,
+        data: {'email': email},
+      );
+      return response.data['errorCode'] == 0;
+    } catch (e) {
+      rethrow;
+    }
   }
-}
+
+  Future<String> forgotPassword(String email) async {
+    try {
+      final response = await _client.dio.post(
+        ApiConstants.forgotPassword,
+        data: {'email': email},
+      );
+      return (response.data['message'] ?? '').toString();
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  Future<String> resetPassword({
+    required String token,
+    required String newPassword,
+  }) async {
+    try {
+      final response = await _client.dio.post(
+        ApiConstants.resetPassword,
+        data: {'token': token, 'newPassword': newPassword},
+      );
+      return (response.data['message'] ?? '').toString();
+    } catch (e) {
+      rethrow;
+    }
+  }
 
   Future<void> logout() async {
     await _tokenStorage.deleteToken();
   }
-  
 }

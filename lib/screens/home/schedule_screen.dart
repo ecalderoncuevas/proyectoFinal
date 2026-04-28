@@ -2,20 +2,24 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:table_calendar/table_calendar.dart';
+import 'package:proyecto_final_synquid/core/providers/user_provider.dart';
 import 'package:proyecto_final_synquid/core/theme/app_theme.dart';
 import 'package:proyecto_final_synquid/core/theme/theme_provider.dart';
+import 'package:proyecto_final_synquid/models/student_group.dart';
+import 'package:proyecto_final_synquid/services/api_client.dart';
+import 'package:proyecto_final_synquid/services/group_service.dart';
+import 'package:proyecto_final_synquid/services/user_service.dart';
 
-class _ClassItem {
-  final String subject;
-  final String time;
-  final String professor;
-  final String days;
+// Combined display model: group name + schedule slot
+class _ClassSlot {
+  final String groupName;
+  final String startTime;
+  final String endTime;
 
-  const _ClassItem({
-    required this.subject,
-    required this.time,
-    required this.professor,
-    required this.days,
+  _ClassSlot({
+    required this.groupName,
+    required this.startTime,
+    required this.endTime,
   });
 }
 
@@ -31,141 +35,76 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
   late DateTime _selectedDay;
   CalendarFormat _calendarFormat = CalendarFormat.week;
 
+  // dayOfWeek (0=Sun,1=Mon,...,6=Sat) → slots
+  final Map<int, List<_ClassSlot>> _cache = {};
+  bool _loading = false;
+  String? _error;
+
   static const _monthNames = [
     '',
-    'Enero',
-    'Febrero',
-    'Marzo',
-    'Abril',
-    'Mayo',
-    'Junio',
-    'Julio',
-    'Agosto',
-    'Septiembre',
-    'Octubre',
-    'Noviembre',
-    'Diciembre'
+    'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
+    'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre',
   ];
-
-  static const _weekdayNames = [
-    'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'
-  ];
-
-  static const _allClasses = {
-    0: [
-      _ClassItem(
-          subject: 'Interfaces',
-          time: '13:14',
-          professor: 'Javier',
-          days: 'Mar,Mie'),
-      _ClassItem(
-          subject: 'Programación',
-          time: '15:00',
-          professor: 'Ana',
-          days: 'Lun,Mie'),
-      _ClassItem(
-          subject: 'Base de datos',
-          time: '16:30',
-          professor: 'Carlos',
-          days: 'Lun'),
-    ],
-    1: [
-      _ClassItem(
-          subject: 'Interfaces',
-          time: '13:14',
-          professor: 'Javier',
-          days: 'Mar,Mie'),
-      _ClassItem(
-          subject: 'Sistemas',
-          time: '15:00',
-          professor: 'Pedro',
-          days: 'Mar,Jue'),
-      _ClassItem(
-          subject: 'Entorns',
-          time: '16:30',
-          professor: 'Laura',
-          days: 'Mar'),
-      _ClassItem(
-          subject: 'FOL', time: '18:00', professor: 'María', days: 'Mar,Jue'),
-    ],
-    2: [
-      _ClassItem(
-          subject: 'Interfaces',
-          time: '13:14',
-          professor: 'Javier',
-          days: 'Mar,Mie'),
-      _ClassItem(
-          subject: 'Programación',
-          time: '15:00',
-          professor: 'Ana',
-          days: 'Lun,Mie'),
-      _ClassItem(
-          subject: 'Inglés técnico',
-          time: '16:30',
-          professor: 'Sara',
-          days: 'Mie,Vie'),
-      _ClassItem(
-          subject: 'Interfaces',
-          time: '17:00',
-          professor: 'Javier',
-          days: 'Mar,Mie'),
-      _ClassItem(
-          subject: 'Interfaces',
-          time: '18:00',
-          professor: 'Javier',
-          days: 'Mar,Mie'),
-      _ClassItem(
-          subject: 'Interfaces',
-          time: '19:00',
-          professor: 'Javier',
-          days: 'Mar,Mie'),
-    ],
-    3: [
-      _ClassItem(
-          subject: 'Sistemas',
-          time: '13:14',
-          professor: 'Pedro',
-          days: 'Mar,Jue'),
-      _ClassItem(
-          subject: 'FOL', time: '15:00', professor: 'María', days: 'Mar,Jue'),
-      _ClassItem(
-          subject: 'Empresa',
-          time: '16:30',
-          professor: 'Roberto',
-          days: 'Jue'),
-    ],
-    4: [
-      _ClassItem(
-          subject: 'Inglés técnico',
-          time: '13:14',
-          professor: 'Sara',
-          days: 'Mie,Vie'),
-      _ClassItem(
-          subject: 'Sistemas de gestión',
-          time: '15:00',
-          professor: 'Luis',
-          days: 'Vie'),
-    ],
-  };
+  static const _weekdayNames = ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'];
 
   @override
   void initState() {
     super.initState();
     _focusedDay = DateTime.now();
     _selectedDay = DateTime.now();
+    _loadSchedules();
   }
 
-  List<_ClassItem> get _selectedClasses {
-    final index = _selectedDay.weekday - 1; // 0=Lun … 6=Dom
-    return _allClasses[index] ?? [];
+  // DateTime.weekday: 1=Mon … 7=Sun  →  API: 0=Sun, 1=Mon … 6=Sat
+  int _apiDow(DateTime date) => date.weekday % 7;
+
+  Future<void> _loadSchedules() async {
+    setState(() {
+      _loading = true;
+      _error = null;
+    });
+    try {
+      final provider = context.read<UserProvider>();
+      final userId = provider.user?.id ?? '';
+      final client = ApiClient();
+
+      List<StudentGroup> groups = provider.studentGroups ?? [];
+      if (groups.isEmpty) {
+        groups = await UserService(client).getUserGroups(userId);
+      }
+
+      final schedulesList = await Future.wait(
+        groups.map((g) => GroupService(client).getGroupSchedules(g.groupId)),
+      );
+
+      final newCache = <int, List<_ClassSlot>>{};
+      for (var i = 0; i < groups.length; i++) {
+        for (final sched in schedulesList[i]) {
+          newCache.putIfAbsent(sched.dayOfWeek, () => []).add(
+            _ClassSlot(
+              groupName: groups[i].groupName,
+              startTime: sched.startTime,
+              endTime: sched.endTime,
+            ),
+          );
+        }
+      }
+
+      if (mounted) setState(() => _cache.addAll(newCache));
+    } catch (e) {
+      if (mounted) setState(() => _error = e.toString());
+    } finally {
+      if (mounted) setState(() => _loading = false);
+    }
   }
+
+  List<_ClassSlot> get _slotsForSelectedDay =>
+      _cache[_apiDow(_selectedDay)] ?? [];
 
   String _formatSelectedDate() {
     final date = _selectedDay;
     final month = _monthNames[date.month];
-    if (isSameDay(date, DateTime.now())) {
-      return 'Hoy, $month ${date.day}';
-    }
+    if (isSameDay(date, DateTime.now())) return 'Hoy, $month ${date.day}';
     final dayName = _weekdayNames[date.weekday - 1];
     return '$dayName, $month ${date.day}';
   }
@@ -186,7 +125,6 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Cabecera con calendario
           Container(
             color: headerBg,
             child: SafeArea(
@@ -201,7 +139,6 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
               ),
             ),
           ),
-          // Etiqueta del día seleccionado
           Padding(
             padding: const EdgeInsets.fromLTRB(24, 20, 24, 0),
             child: Text(
@@ -214,29 +151,58 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
             ),
           ),
           const SizedBox(height: 16),
-          // Lista de clases
           Expanded(
-            child: _selectedClasses.isEmpty
-                ? Center(
-                    child: Text(
-                      'No hay clases este día',
-                      style: GoogleFonts.rowdies(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w300,
-                        color: labelColor,
-                      ),
-                    ),
-                  )
-                : ListView.separated(
-                    padding: const EdgeInsets.symmetric(horizontal: 24),
-                    itemCount: _selectedClasses.length,
-                    separatorBuilder: (_, _) =>
-                        Divider(color: dividerColor, height: 1),
-                    itemBuilder: (context, index) => _ClassRow(
-                      item: _selectedClasses[index],
-                      textColor: labelColor,
-                    ),
-                  ),
+            child: _loading
+                ? Center(child: CircularProgressIndicator(color: labelColor))
+                : _error != null
+                    ? Center(
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(
+                              'Error al cargar horario',
+                              style: GoogleFonts.rowdies(
+                                color: labelColor,
+                                fontSize: 14,
+                              ),
+                            ),
+                            const SizedBox(height: 12),
+                            GestureDetector(
+                              onTap: _loadSchedules,
+                              child: Text(
+                                'Reintentar',
+                                style: GoogleFonts.rowdies(
+                                  color: labelColor,
+                                  fontSize: 14,
+                                  decoration: TextDecoration.underline,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      )
+                    : _slotsForSelectedDay.isEmpty
+                        ? Center(
+                            child: Text(
+                              'No hay clases este día',
+                              style: GoogleFonts.rowdies(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w300,
+                                color: labelColor,
+                              ),
+                            ),
+                          )
+                        : ListView.separated(
+                            padding:
+                                const EdgeInsets.symmetric(horizontal: 24),
+                            itemCount: _slotsForSelectedDay.length,
+                            separatorBuilder: (_, _) =>
+                                Divider(color: dividerColor, height: 1),
+                            itemBuilder: (context, index) => _ClassRow(
+                              slot: _slotsForSelectedDay[index],
+                              textColor: labelColor,
+                            ),
+                          ),
           ),
         ],
       ),
@@ -318,10 +284,7 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
         isTodayHighlighted: true,
         outsideDaysVisible: true,
         cellMargin: const EdgeInsets.all(3),
-        defaultTextStyle: GoogleFonts.rowdies(
-          color: headerText,
-          fontSize: 13,
-        ),
+        defaultTextStyle: GoogleFonts.rowdies(color: headerText, fontSize: 13),
         weekendTextStyle: GoogleFonts.rowdies(
           color: headerText.withValues(alpha: 0.38),
           fontSize: 13,
@@ -330,10 +293,8 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
           color: headerText.withValues(alpha: 0.28),
           fontSize: 13,
         ),
-        selectedDecoration: BoxDecoration(
-          color: selectedDayBg,
-          shape: BoxShape.circle,
-        ),
+        selectedDecoration:
+            BoxDecoration(color: selectedDayBg, shape: BoxShape.circle),
         selectedTextStyle: GoogleFonts.rowdies(
           color: selectedDayText,
           fontSize: 13,
@@ -354,13 +315,10 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
 }
 
 class _ClassRow extends StatelessWidget {
-  final _ClassItem item;
+  final _ClassSlot slot;
   final Color textColor;
 
-  const _ClassRow({
-    required this.item,
-    required this.textColor,
-  });
+  const _ClassRow({required this.slot, required this.textColor});
 
   @override
   Widget build(BuildContext context) {
@@ -374,7 +332,7 @@ class _ClassRow extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  item.subject,
+                  slot.groupName,
                   style: GoogleFonts.rowdies(
                     fontSize: 16,
                     fontWeight: FontWeight.w700,
@@ -383,7 +341,7 @@ class _ClassRow extends StatelessWidget {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  item.time,
+                  '${slot.startTime} – ${slot.endTime}',
                   style: GoogleFonts.rowdies(
                     fontSize: 14,
                     fontWeight: FontWeight.w700,
@@ -392,28 +350,6 @@ class _ClassRow extends StatelessWidget {
                 ),
               ],
             ),
-          ),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              Text(
-                item.professor,
-                style: GoogleFonts.rowdies(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w300,
-                  color: textColor,
-                ),
-              ),
-              const SizedBox(height: 4),
-              Text(
-                item.days,
-                style: GoogleFonts.rowdies(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w300,
-                  color: textColor,
-                ),
-              ),
-            ],
           ),
         ],
       ),

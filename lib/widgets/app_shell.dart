@@ -268,12 +268,6 @@ class _DrawerContent extends StatelessWidget {
               const SizedBox(height: 24),
               if (isProfessor) ...[
                 _DrawerItem(
-                  label: 'Reducir Faltas',
-                  color: textColor,
-                  onTap: () => onNavigate(AppRoutes.reducirFaltas),
-                ),
-                const SizedBox(height: 24),
-                _DrawerItem(
                   label: 'Clases',
                   color: textColor,
                   onTap: () => onNavigate(AppRoutes.clases),

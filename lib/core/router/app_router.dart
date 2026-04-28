@@ -17,8 +17,9 @@ import 'package:proyecto_final_synquid/screens/home/home_professor_screen.dart';
 import 'package:proyecto_final_synquid/screens/attendance/faltas_clase_screen.dart';
 import 'package:proyecto_final_synquid/screens/home/clases_screen.dart';
 import 'package:proyecto_final_synquid/screens/home/schedule_professor_screen.dart';
-import 'package:proyecto_final_synquid/screens/attendance/reducir_faltas_screen.dart'; 
+import 'package:proyecto_final_synquid/screens/attendance/reducir_faltas_screen.dart';
 import 'package:proyecto_final_synquid/screens/acc/account_screen.dart';
+import 'package:proyecto_final_synquid/models/student.dart';
 
 class AppRoutes {
   static const welcome = '/';
@@ -110,8 +111,7 @@ final appRouter = GoRouter(
         return ValidationScreen(
           email: email,
           onValidate: (code, _) {
-            debugPrint('Código forgot password: $code');
-            context.push(AppRoutes.changePassword);
+            context.push(AppRoutes.changePassword, extra: code);
           },
         );
       },
@@ -122,7 +122,10 @@ final appRouter = GoRouter(
     ),
     GoRoute(
       path: AppRoutes.changePassword,
-      builder: (context, state) => const ChangePasswordScreen(),
+      builder: (context, state) {
+        final resetToken = state.extra as String?;
+        return ChangePasswordScreen(resetToken: resetToken);
+      },
     ),
     ShellRoute(
       builder: (context, state, child) => AppShell(child: child),
@@ -144,6 +147,7 @@ final appRouter = GoRouter(
         builder: (context, state) {
           final data = state.extra as Map<String, dynamic>;
           return FaltasAsignaturaScreen(
+            groupId: data['groupId'] as String,
             subject: data['subject'] as String,
             faltas: data['faltas'] as int,
             total: data['total'] as int,
@@ -162,8 +166,11 @@ final appRouter = GoRouter(
       GoRoute(
         path: AppRoutes.faltasClase,
         builder: (context, state) {
-          final subject = state.extra as String? ?? '';
-          return FaltasClaseScreen(subject: subject);
+          final data = state.extra as Map<String, dynamic>;
+          return FaltasClaseScreen(
+            groupId: data['groupId'] as String,
+            groupName: data['groupName'] as String,
+          );
         },
       ),
       GoRoute(
@@ -176,7 +183,13 @@ final appRouter = GoRouter(
       ),
       GoRoute(
         path: AppRoutes.reducirFaltas,
-        builder: (context, state) => const ReducirFaltasScreen(),
+        builder: (context, state) {
+          final data = state.extra as Map<String, dynamic>;
+          return ReducirFaltasScreen(
+            groupId: data['groupId'] as String,
+            students: data['students'] as List<Student>,
+          );
+        },
       ),
       GoRoute(
         path: AppRoutes.account,

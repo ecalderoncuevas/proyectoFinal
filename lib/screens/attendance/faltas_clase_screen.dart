@@ -1,22 +1,29 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
+import 'package:proyecto_final_synquid/core/router/app_router.dart';
 import 'package:proyecto_final_synquid/core/theme/app_theme.dart';
 import 'package:proyecto_final_synquid/core/theme/theme_provider.dart';
+import 'package:proyecto_final_synquid/models/student.dart';
+import 'package:proyecto_final_synquid/services/api_client.dart';
+import 'package:proyecto_final_synquid/services/attendance_service.dart';
+import 'package:proyecto_final_synquid/services/teacher_service.dart';
 import 'package:proyecto_final_synquid/widgets/legend_popup.dart';
 
-class _AlumnoItem {
-  final String name;
+class _AlumnoData {
+  final Student student;
   final int faltas;
   final int total;
 
-  const _AlumnoItem({
-    required this.name,
+  _AlumnoData({
+    required this.student,
     required this.faltas,
     required this.total,
   });
 
   Color get tagColor {
+    if (total == 0) return AppColors.tagGreen;
     final ratio = faltas / total;
     if (ratio >= 0.5) return AppColors.tagRed;
     if (ratio >= 0.25) return AppColors.tagYellow;
@@ -24,21 +31,71 @@ class _AlumnoItem {
   }
 }
 
-class FaltasClaseScreen extends StatelessWidget {
-  final String subject;
+class FaltasClaseScreen extends StatefulWidget {
+  final String groupId;
+  final String groupName;
 
-  const FaltasClaseScreen({super.key, required this.subject});
+  const FaltasClaseScreen({
+    super.key,
+    required this.groupId,
+    required this.groupName,
+  });
 
-  static const _alumnos = [
-    _AlumnoItem(name: 'Alumno1', faltas: 19, total: 20),
-    _AlumnoItem(name: 'Alumno2', faltas: 17, total: 20),
-    _AlumnoItem(name: 'Alumno1', faltas: 16, total: 20),
-    _AlumnoItem(name: 'Alumno2', faltas: 17, total: 20),
-    _AlumnoItem(name: 'Alumno1', faltas: 19, total: 20),
-    _AlumnoItem(name: 'Alumno2', faltas: 17, total: 20),
-    _AlumnoItem(name: 'Alumno1', faltas: 19, total: 20),
-    _AlumnoItem(name: 'Alumno2', faltas: 17, total: 20),
-  ];
+  @override
+  State<FaltasClaseScreen> createState() => _FaltasClaseScreenState();
+}
+
+class _FaltasClaseScreenState extends State<FaltasClaseScreen> {
+  List<_AlumnoData> _alumnos = [];
+  List<Student> _students = [];
+  bool _loading = true;
+  String? _error;
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchData();
+  }
+
+  Future<void> _fetchData() async {
+    setState(() {
+      _loading = true;
+      _error = null;
+    });
+    try {
+      final client = ApiClient();
+      final students =
+          await TeacherService(client).getGroupStudents(widget.groupId);
+      _students = students;
+
+      // Parallel attendance history calls for all students
+      final histories = await Future.wait(
+        students.map(
+          (s) => AttendanceService(client).getHistory(
+            userId: s.userId,
+            groupId: widget.groupId,
+          ),
+        ),
+      );
+
+      final alumnoData = <_AlumnoData>[];
+      for (var i = 0; i < students.length; i++) {
+        final history = histories[i];
+        final faltas = history.where((r) => r.status == 1).length;
+        alumnoData.add(_AlumnoData(
+          student: students[i],
+          faltas: faltas,
+          total: history.length,
+        ));
+      }
+
+      if (mounted) setState(() => _alumnos = alumnoData);
+    } catch (e) {
+      if (mounted) setState(() => _error = e.toString());
+    } finally {
+      if (mounted) setState(() => _loading = false);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -48,21 +105,15 @@ class FaltasClaseScreen extends StatelessWidget {
     final headerText = isDark ? AppColors.darkBg : AppColors.homeLightBg;
     final labelColor = isDark ? AppColors.green : AppColors.homeDarkGreen;
     final dividerColor = isDark ? Colors.white24 : Colors.black26;
-    final avatarBg = isDark ? AppColors.green.withOpacity(0.3) : AppColors.green;
-
-   
-    final grupos = <List<_AlumnoItem>>[];
-    for (var i = 0; i < _alumnos.length; i += 2) {
-      final end = (i + 2 > _alumnos.length) ? _alumnos.length : i + 2;
-      grupos.add(_alumnos.sublist(i, end));
-    }
+    final avatarBg = isDark
+        ? AppColors.green.withValues(alpha:0.3)
+        : AppColors.green;
 
     return Scaffold(
       backgroundColor: appBg,
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          
           Container(
             width: double.infinity,
             color: headerBg,
@@ -71,7 +122,7 @@ class FaltasClaseScreen extends StatelessWidget {
               child: Padding(
                 padding: const EdgeInsets.fromLTRB(24, 56, 24, 20),
                 child: Text(
-                  subject,
+                  widget.groupName,
                   style: GoogleFonts.rowdies(
                     fontSize: 48,
                     fontWeight: FontWeight.w700,
@@ -81,47 +132,108 @@ class FaltasClaseScreen extends StatelessWidget {
               ),
             ),
           ),
-
           Padding(
             padding: const EdgeInsets.fromLTRB(24, 16, 24, 0),
-            child: Align(
-              alignment: Alignment.centerRight,
-              child: GestureDetector(
-                onTap: () => LegendPopup.show(
-                  context,
-                  items: LegendPopup.faltasItems,
-                ),
-                child: Text(
-                  'Ver leyenda',
-                  style: GoogleFonts.rowdies(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w700,
-                    color: labelColor,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Align(
+                  alignment: Alignment.centerRight,
+                  child: GestureDetector(
+                    onTap: () => LegendPopup.show(
+                      context,
+                      items: LegendPopup.faltasItems,
+                    ),
+                    child: Text(
+                      'Ver leyenda',
+                      style: GoogleFonts.rowdies(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w700,
+                        color: labelColor,
+                      ),
+                    ),
                   ),
                 ),
-              ),
+                if (!_loading && _error == null)
+                  GestureDetector(
+                    onTap: () {
+                      context.push(
+                        AppRoutes.reducirFaltas,
+                        extra: {
+                          'groupId': widget.groupId,
+                          'students': _students,
+                        },
+                      );
+                    },
+                    child: Text(
+                      'Reducir faltas →',
+                      style: GoogleFonts.rowdies(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w700,
+                        color: labelColor,
+                      ),
+                    ),
+                  ),
+              ],
             ),
           ),
-
           const SizedBox(height: 16),
-
-        
           Expanded(
-            child: ListView.separated(
-              padding: const EdgeInsets.symmetric(horizontal: 24),
-              itemCount: grupos.length,
-              separatorBuilder: (_, __) => Padding(
-                padding: const EdgeInsets.symmetric(vertical: 8),
-                child: Divider(color: dividerColor, height: 1),
-              ),
-              itemBuilder: (context, index) {
-                return _AlumnoGrupo(
-                  alumnos: grupos[index],
-                  labelColor: labelColor,
-                  avatarBg: avatarBg,
-                );
-              },
-            ),
+            child: _loading
+                ? Center(child: CircularProgressIndicator(color: labelColor))
+                : _error != null
+                    ? Center(
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(
+                              'Error al cargar alumnos',
+                              style: GoogleFonts.rowdies(
+                                color: labelColor,
+                                fontSize: 14,
+                              ),
+                            ),
+                            const SizedBox(height: 12),
+                            GestureDetector(
+                              onTap: _fetchData,
+                              child: Text(
+                                'Reintentar',
+                                style: GoogleFonts.rowdies(
+                                  color: labelColor,
+                                  fontSize: 14,
+                                  decoration: TextDecoration.underline,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      )
+                    : _alumnos.isEmpty
+                        ? Center(
+                            child: Text(
+                              'No hay alumnos en este grupo',
+                              style: GoogleFonts.rowdies(
+                                color: labelColor,
+                                fontSize: 16,
+                                fontWeight: FontWeight.w300,
+                              ),
+                            ),
+                          )
+                        : ListView.separated(
+                            padding: const EdgeInsets.symmetric(horizontal: 24),
+                            itemCount: _alumnos.length,
+                            separatorBuilder: (_, _) => Padding(
+                              padding: const EdgeInsets.symmetric(vertical: 4),
+                              child: Divider(color: dividerColor, height: 1),
+                            ),
+                            itemBuilder: (context, index) {
+                              return _AlumnoRow(
+                                alumno: _alumnos[index],
+                                labelColor: labelColor,
+                                avatarBg: avatarBg,
+                              );
+                            },
+                          ),
           ),
         ],
       ),
@@ -129,36 +241,8 @@ class FaltasClaseScreen extends StatelessWidget {
   }
 }
 
-class _AlumnoGrupo extends StatelessWidget {
-  final List<_AlumnoItem> alumnos;
-  final Color labelColor;
-  final Color avatarBg;
-
-  const _AlumnoGrupo({
-    required this.alumnos,
-    required this.labelColor,
-    required this.avatarBg,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      children: alumnos.map((alumno) {
-        return Padding(
-          padding: const EdgeInsets.symmetric(vertical: 10),
-          child: _AlumnoRow(
-            alumno: alumno,
-            labelColor: labelColor,
-            avatarBg: avatarBg,
-          ),
-        );
-      }).toList(),
-    );
-  }
-}
-
 class _AlumnoRow extends StatelessWidget {
-  final _AlumnoItem alumno;
+  final _AlumnoData alumno;
   final Color labelColor;
   final Color avatarBg;
 
@@ -170,52 +254,51 @@ class _AlumnoRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      children: [
-
-        Container(
-          width: 44,
-          height: 44,
-          decoration: BoxDecoration(
-            color: avatarBg,
-            shape: BoxShape.circle,
-          ),
-          child: Icon(
-            Icons.person,
-            color: AppColors.homeDarkGreen.withOpacity(0.5),
-            size: 24,
-          ),
-        ),
-        const SizedBox(width: 14),
-
-        Expanded(
-          child: Text(
-            alumno.name,
-            style: GoogleFonts.rowdies(
-              fontSize: 16,
-              fontWeight: FontWeight.w700,
-              color: labelColor,
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 10),
+      child: Row(
+        children: [
+          Container(
+            width: 44,
+            height: 44,
+            decoration: BoxDecoration(
+              color: avatarBg,
+              shape: BoxShape.circle,
+            ),
+            child: Icon(
+              Icons.person,
+              color: AppColors.homeDarkGreen.withValues(alpha:0.5),
+              size: 24,
             ),
           ),
-        ),
-
-
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
-          decoration: BoxDecoration(
-            color: alumno.tagColor,
-            borderRadius: BorderRadius.circular(20),
-          ),
-          child: Text(
-            '${alumno.faltas}/${alumno.total}',
-            style: GoogleFonts.rowdies(
-              fontSize: 14,
-              fontWeight: FontWeight.w700,
-              color: AppColors.darkBg,
+          const SizedBox(width: 14),
+          Expanded(
+            child: Text(
+              alumno.student.fullName,
+              style: GoogleFonts.rowdies(
+                fontSize: 16,
+                fontWeight: FontWeight.w700,
+                color: labelColor,
+              ),
             ),
           ),
-        ),
-      ],
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+            decoration: BoxDecoration(
+              color: alumno.tagColor,
+              borderRadius: BorderRadius.circular(20),
+            ),
+            child: Text(
+              '${alumno.faltas}/${alumno.total}',
+              style: GoogleFonts.rowdies(
+                fontSize: 14,
+                fontWeight: FontWeight.w700,
+                color: AppColors.darkBg,
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

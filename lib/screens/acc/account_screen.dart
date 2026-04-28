@@ -134,18 +134,23 @@ class AccountScreen extends StatelessWidget {
     if (confirmed != true) return;
     await TokenStorage().deleteToken();
     if (!context.mounted) return;
-    context.read<UserProvider>().clearRole();
+    context.read<UserProvider>().clear();
     context.go(AppRoutes.welcome);
   }
 
   @override
   Widget build(BuildContext context) {
     final isDark = context.watch<ThemeProvider>().isDark;
+    final provider = context.watch<UserProvider>();
     final bgColor = isDark ? AppColors.darkBg : AppColors.homeLightBg;
     final textColor = isDark ? AppColors.green : AppColors.homeDarkGreen;
     final avatarInner = isDark ? Colors.grey.shade800 : Colors.grey.shade300;
     final dividerColor = isDark ? Colors.white12 : Colors.black12;
     final iconColor = isDark ? Colors.white54 : Colors.black38;
+
+    final user = provider.user;
+    final fullName = user?.fullName ?? '—';
+    final email = user?.email ?? '—';
 
     return Scaffold(
       backgroundColor: bgColor,
@@ -176,9 +181,7 @@ class AccountScreen extends StatelessWidget {
               ),
             ],
           ),
-
           const SizedBox(height: 62),
-
           Expanded(
             child: SingleChildScrollView(
               padding: const EdgeInsets.symmetric(horizontal: 24.0),
@@ -187,7 +190,7 @@ class AccountScreen extends StatelessWidget {
                 children: [
                   Center(
                     child: Text(
-                      'Nombre Persona',
+                      fullName,
                       style: GoogleFonts.rowdies(
                         fontSize: 32,
                         fontWeight: FontWeight.w700,
@@ -198,7 +201,7 @@ class AccountScreen extends StatelessWidget {
                   const SizedBox(height: 32),
                   _InfoField(
                     label: 'Correo',
-                    value: 'ceducalderon@gmail.com',
+                    value: email,
                     textColor: textColor,
                   ),
                   _Divider(color: dividerColor),
@@ -208,7 +211,7 @@ class AccountScreen extends StatelessWidget {
                     actionIcon: Icons.lock_reset_rounded,
                     textColor: textColor,
                     iconColor: iconColor,
-                    onActionTap: () => context.push(AppRoutes.changePassword),
+                    onActionTap: () => context.push(AppRoutes.forgotPassword),
                   ),
                   _Divider(color: dividerColor),
                   const SizedBox(height: 8),
@@ -227,7 +230,6 @@ class AccountScreen extends StatelessWidget {
               ),
             ),
           ),
-
           Padding(
             padding: const EdgeInsets.only(bottom: 32),
             child: GestureDetector(
@@ -339,11 +341,7 @@ class _InfoFieldWithAction extends StatelessWidget {
           ),
           GestureDetector(
             onTap: onActionTap,
-            child: Icon(
-              actionIcon,
-              color: iconColor,
-              size: 22,
-            ),
+            child: Icon(actionIcon, color: iconColor, size: 22),
           ),
         ],
       ),
@@ -353,7 +351,6 @@ class _InfoFieldWithAction extends StatelessWidget {
 
 class _Divider extends StatelessWidget {
   final Color color;
-
   const _Divider({required this.color});
 
   @override

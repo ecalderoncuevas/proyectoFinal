@@ -7,11 +7,12 @@ import 'package:proyecto_final_synquid/core/router/app_router.dart';
 import 'package:proyecto_final_synquid/core/storage/token_storage.dart';
 import 'package:proyecto_final_synquid/core/theme/app_theme.dart';
 import 'package:proyecto_final_synquid/core/theme/theme_provider.dart';
+import 'package:proyecto_final_synquid/core/providers/user_provider.dart';
 import 'package:proyecto_final_synquid/services/api_client.dart';
 import 'package:proyecto_final_synquid/services/auth_service.dart';
+import 'package:proyecto_final_synquid/services/user_service.dart';
 import 'package:proyecto_final_synquid/widgets/back_app_bar.dart';
 import 'package:proyecto_final_synquid/widgets/primary_button.dart';
-import 'package:proyecto_final_synquid/core/providers/user_provider.dart';
 
 class LoginScreen extends StatefulWidget {
   final String role;
@@ -26,12 +27,15 @@ class _LoginScreenState extends State<LoginScreen> {
   final TextEditingController _passwordController = TextEditingController();
 
   late final AuthService _authService;
+  late final UserService _userService;
   bool _isLoading = false;
 
   @override
   void initState() {
     super.initState();
-    _authService = AuthService(ApiClient(), TokenStorage());
+    final client = ApiClient();
+    _authService = AuthService(client, TokenStorage());
+    _userService = UserService(client);
   }
 
   @override
@@ -53,23 +57,25 @@ class _LoginScreenState extends State<LoginScreen> {
     setState(() => _isLoading = true);
 
     try {
-      final response = await _authService.login(
-        email: email,
-        password: password,
-      );
+      final response = await _authService.login(email: email, password: password);
 
       if (!mounted) return;
 
       if (response.isSuccess) {
-        _showMessage(response.message, isError: false);
-        context.read<UserProvider>().setRole(widget.role);
+        final userProvider = context.read<UserProvider>();
+        userProvider.setRole(widget.role);
 
-        if (widget.role == 'professor'){
+        try {
+          final user = await _userService.getMe();
+          if (mounted) userProvider.setUser(user);
+        } catch (_) {}
+
+        if (!mounted) return;
+        if (widget.role == 'professor') {
           context.go(AppRoutes.homeProfessor);
         } else {
           context.go(AppRoutes.homeStudent);
         }
-        
       } else {
         _showMessage(response.message, isError: true);
       }
@@ -98,7 +104,6 @@ class _LoginScreenState extends State<LoginScreen> {
       case 503:
         return 'Server error. Please try again later';
     }
-
     switch (e.type) {
       case DioExceptionType.connectionTimeout:
       case DioExceptionType.receiveTimeout:

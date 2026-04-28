@@ -3,34 +3,40 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:table_calendar/table_calendar.dart';
+import 'package:proyecto_final_synquid/core/providers/user_provider.dart';
 import 'package:proyecto_final_synquid/core/theme/app_theme.dart';
 import 'package:proyecto_final_synquid/core/theme/theme_provider.dart';
+import 'package:proyecto_final_synquid/models/student_group.dart';
+import 'package:proyecto_final_synquid/services/api_client.dart';
+import 'package:proyecto_final_synquid/services/group_service.dart';
+import 'package:proyecto_final_synquid/services/user_service.dart';
 
-class _ClassItem {
-  final String subject;
+class _ClassSlot {
+  final String groupName;
+  final String level;
   final String startTime;
   final String endTime;
 
-  const _ClassItem({
-    required this.subject,
+  _ClassSlot({
+    required this.groupName,
+    required this.level,
     required this.startTime,
     required this.endTime,
   });
 }
 
-// ─── Días laborables 2020-2035 (calculado una sola vez) ───────────────────────
 List<DateTime> _buildWorkingDays() {
   final days = <DateTime>[];
   var d = DateTime.utc(2020, 1, 1);
   final end = DateTime.utc(2035, 12, 31);
   while (!d.isAfter(end)) {
-    if (d.weekday <= 5) days.add(d);
+    if (d.weekday <= 5) {
+      days.add(d);
+    }
     d = d.add(const Duration(days: 1));
   }
   return days;
 }
-
-// ─────────────────────────────────────────────────────────────────────────────
 
 class ScheduleProfessorScreen extends StatefulWidget {
   const ScheduleProfessorScreen({super.key});
@@ -52,48 +58,23 @@ class _ScheduleProfessorScreenState extends State<ScheduleProfessorScreen> {
   final _dayNameFormat = DateFormat('EEE', 'es_ES');
   final _monthYearFormat = DateFormat('MMMM yyyy', 'es_ES');
 
-  static final _classesByWeekday = <int, List<_ClassItem>>{
-    1: const [
-      _ClassItem(subject: 'Interfaces DAM1', startTime: '08:00', endTime: '10:00'),
-      _ClassItem(subject: 'Programación DAM1', startTime: '10:00', endTime: '12:00'),
-      _ClassItem(subject: 'Sistemas', startTime: '14:00', endTime: '16:00'),
-    ],
-    2: const [
-      _ClassItem(subject: 'Interfaces DAM2', startTime: '08:00', endTime: '10:00'),
-      _ClassItem(subject: 'Inglés técnico', startTime: '12:00', endTime: '14:00'),
-    ],
-    3: const [
-      _ClassItem(subject: 'Bases de datos', startTime: '08:00', endTime: '10:00'),
-      _ClassItem(subject: 'Entornos de desarrollo', startTime: '10:00', endTime: '12:00'),
-      _ClassItem(subject: 'Programación DAM2', startTime: '14:00', endTime: '16:00'),
-      _ClassItem(subject: 'FOL', startTime: '16:00', endTime: '17:00'),
-    ],
-    4: const [
-      _ClassItem(subject: 'Interfaces DAM1', startTime: '10:00', endTime: '12:00'),
-      _ClassItem(subject: 'Sistemas de gestión', startTime: '14:00', endTime: '15:00'),
-    ],
-    5: const [
-      _ClassItem(subject: 'Programación de Servicios', startTime: '08:00', endTime: '10:00'),
-      _ClassItem(subject: 'Programación Multimedia', startTime: '10:00', endTime: '12:00'),
-      _ClassItem(subject: 'Empresa e Iniciativa', startTime: '14:00', endTime: '15:00'),
-    ],
-  };
+  // dayOfWeek (0=Sun,1=Mon,...,6=Sat) → slots for that weekday
+  final Map<int, List<_ClassSlot>> _cache = {};
+  bool _loadingSchedule = false;
 
-  static const _specialDay = 23;
-  static const _specialDayClasses = [
-    _ClassItem(subject: 'Interfaces DAM1', startTime: '08:00', endTime: '10:00'),
-    _ClassItem(subject: 'Programación DAM1', startTime: '10:00', endTime: '12:00'),
-    _ClassItem(subject: 'Bases de datos', startTime: '12:00', endTime: '14:00'),
-    _ClassItem(subject: 'Sistemas', startTime: '14:00', endTime: '15:00'),
-    _ClassItem(subject: 'Clase de recuperación', startTime: '15:00', endTime: '16:00'),
-  ];
+  // DateTime.weekday: 1=Mon … 7=Sun  →  API: 0=Sun, 1=Mon … 6=Sat
+  static int _apiDow(DateTime date) => date.weekday % 7;
 
-  // ─── Índice del primer día laborable a partir de hoy ──────────────────────
   int get _todayIndex {
     var today = DateTime.now();
-    while (today.weekday > 5) today = today.add(const Duration(days: 1));
+    while (today.weekday > 5) {
+      today = today.add(const Duration(days: 1));
+    }
     final idx = _workingDays.indexWhere(
-      (d) => d.year == today.year && d.month == today.month && d.day == today.day,
+      (d) =>
+          d.year == today.year &&
+          d.month == today.month &&
+          d.day == today.day,
     );
     return idx >= 0 ? idx : (_workingDays.length ~/ 2);
   }
@@ -110,6 +91,89 @@ class _ScheduleProfessorScreenState extends State<ScheduleProfessorScreen> {
       }
       _updateMonthFromOffset();
     });
+
+    _fetchSchedules();
+  }
+
+  Future<void> _fetchSchedules() async {
+    setState(() => _loadingSchedule = true);
+    try {
+      final provider = context.read<UserProvider>();
+      final userId = provider.user?.id ?? '';
+      final client = ApiClient();
+
+      List<StudentGroup> groups = provider.teacherGroups ?? [];
+      if (groups.isEmpty) {
+        groups = await UserService(client).getUserGroups(userId);
+      }
+
+      final schedulesList = await Future.wait(
+        groups.map((g) => GroupService(client).getGroupSchedules(g.groupId)),
+      );
+
+      final newCache = <int, List<_ClassSlot>>{};
+      for (var i = 0; i < groups.length; i++) {
+        for (final sched in schedulesList[i]) {
+          newCache.putIfAbsent(sched.dayOfWeek, () => []).add(
+            _ClassSlot(
+              groupName: groups[i].groupName,
+              level: groups[i].level,
+              startTime: sched.startTime,
+              endTime: sched.endTime,
+            ),
+          );
+        }
+      }
+
+      if (mounted) setState(() => _cache.addAll(newCache));
+    } catch (_) {
+    } finally {
+      if (mounted) setState(() => _loadingSchedule = false);
+    }
+  }
+
+  List<_ClassSlot> _classesForDate(DateTime date) =>
+      _cache[_apiDow(date)] ?? [];
+
+  String _formatDayName(DateTime date) {
+    final raw = _dayNameFormat.format(date);
+    return raw[0].toUpperCase() + raw.substring(1);
+  }
+
+  String _formatMonth(DateTime date) {
+    final raw = _monthYearFormat.format(date);
+    return raw[0].toUpperCase() + raw.substring(1);
+  }
+
+  void _updateMonthFromOffset() {
+    if (!_mainController.hasClients || _workingDays.isEmpty) return;
+    final offset = _mainController.offset;
+    final idx =
+        (offset / _dayItemHeight).floor().clamp(0, _workingDays.length - 1);
+    final newMonth = _formatMonth(_workingDays[idx]);
+    if (newMonth != _currentMonth) {
+      setState(() => _currentMonth = newMonth);
+    }
+  }
+
+  void _scrollToDate(DateTime date) {
+    var target = date;
+    if (target.weekday > 5) {
+      target = target.add(Duration(days: 8 - target.weekday));
+    }
+    final idx = _workingDays.indexWhere(
+      (d) =>
+          d.year == target.year &&
+          d.month == target.month &&
+          d.day == target.day,
+    );
+    if (idx >= 0 && _mainController.hasClients) {
+      _mainController.animateTo(
+        idx * _dayItemHeight,
+        duration: const Duration(milliseconds: 450),
+        curve: Curves.easeInOut,
+      );
+    }
   }
 
   @override
@@ -133,52 +197,11 @@ class _ScheduleProfessorScreenState extends State<ScheduleProfessorScreen> {
     }
   }
 
-  List<_ClassItem> _classesForDate(DateTime date) {
-    if (date.day == _specialDay) return _specialDayClasses;
-    return _classesByWeekday[date.weekday] ?? [];
-  }
-
-  String _formatDayName(DateTime date) {
-    final raw = _dayNameFormat.format(date);
-    return raw[0].toUpperCase() + raw.substring(1);
-  }
-
-  String _formatMonth(DateTime date) {
-    final raw = _monthYearFormat.format(date);
-    return raw[0].toUpperCase() + raw.substring(1);
-  }
-
-  void _updateMonthFromOffset() {
-    if (!_mainController.hasClients || _workingDays.isEmpty) return;
-    final offset = _mainController.offset;
-    final idx = (offset / _dayItemHeight).floor().clamp(0, _workingDays.length - 1);
-    final newMonth = _formatMonth(_workingDays[idx]);
-    if (newMonth != _currentMonth) {
-      setState(() => _currentMonth = newMonth);
-    }
-  }
-
-  // Anima el scroll hasta la fecha seleccionada en el calendario.
-  void _scrollToDate(DateTime date) {
-    var target = date;
-    if (target.weekday > 5) {
-      target = target.add(Duration(days: 8 - target.weekday));
-    }
-    final idx = _workingDays.indexWhere(
-      (d) => d.year == target.year && d.month == target.month && d.day == target.day,
-    );
-    if (idx >= 0 && _mainController.hasClients) {
-      _mainController.animateTo(
-        idx * _dayItemHeight,
-        duration: const Duration(milliseconds: 450),
-        curve: Curves.easeInOut,
-      );
-    }
-  }
-
   void _openCalendar(BuildContext context) {
     final idx = _mainController.hasClients
-        ? (_mainController.offset / _dayItemHeight).floor().clamp(0, _workingDays.length - 1)
+        ? (_mainController.offset / _dayItemHeight)
+            .floor()
+            .clamp(0, _workingDays.length - 1)
         : _todayIndex;
     final focused = _workingDays[idx];
 
@@ -218,7 +241,6 @@ class _ScheduleProfessorScreenState extends State<ScheduleProfessorScreen> {
       backgroundColor: appBg,
       body: Row(
         children: [
-          // ── Sidebar izquierdo ──────────────────────────────────────────────
           _SidebarColumn(
             scrollController: _sidebarController,
             currentMonth: _currentMonth,
@@ -229,28 +251,31 @@ class _ScheduleProfessorScreenState extends State<ScheduleProfessorScreen> {
             totalItems: _workingDays.length,
             onMonthTap: () => _openCalendar(context),
           ),
-          // ── Contenido: bloques de asignaturas ─────────────────────────────
           Expanded(
             child: SafeArea(
               bottom: false,
               left: false,
               child: Padding(
                 padding: const EdgeInsets.only(top: 56),
-                child: ListView.builder(
-                  controller: _mainController,
-                  itemCount: _workingDays.length,
-                  itemBuilder: (context, index) {
-                    final date = _workingDays[index];
-                    final classes = _classesForDate(date);
-                    return _DayClassesBlock(
-                      classes: classes,
-                      labelColor: labelColor,
-                      lineColor: lineColor,
-                      dotColor: dotColor,
-                      itemHeight: _dayItemHeight,
-                    );
-                  },
-                ),
+                child: _loadingSchedule
+                    ? Center(
+                        child: CircularProgressIndicator(color: labelColor),
+                      )
+                    : ListView.builder(
+                        controller: _mainController,
+                        itemCount: _workingDays.length,
+                        itemBuilder: (context, index) {
+                          final date = _workingDays[index];
+                          final classes = _classesForDate(date);
+                          return _DayClassesBlock(
+                            classes: classes,
+                            labelColor: labelColor,
+                            lineColor: lineColor,
+                            dotColor: dotColor,
+                            itemHeight: _dayItemHeight,
+                          );
+                        },
+                      ),
               ),
             ),
           ),
@@ -259,8 +284,6 @@ class _ScheduleProfessorScreenState extends State<ScheduleProfessorScreen> {
     );
   }
 }
-
-// ─── Sidebar izquierdo ────────────────────────────────────────────────────────
 
 class _SidebarColumn extends StatelessWidget {
   final ScrollController scrollController;
@@ -285,9 +308,7 @@ class _SidebarColumn extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // El sidebar siempre usa homeDarkGreen (385144) independientemente del modo.
     const sidebarBg = AppColors.homeDarkGreen;
-    // Los bloques de día usan green (C2D8C4) con texto homeDarkGreen.
     const blockBg = AppColors.green;
     const blockText = AppColors.homeDarkGreen;
     const monthText = AppColors.homeLightBg;
@@ -304,7 +325,6 @@ class _SidebarColumn extends StatelessWidget {
       ),
       child: Row(
         children: [
-          // Columna del mes: tappable para abrir el calendario
           GestureDetector(
             onTap: onMonthTap,
             child: SizedBox(
@@ -326,13 +346,11 @@ class _SidebarColumn extends StatelessWidget {
               ),
             ),
           ),
-          // Separador sutil
           Container(
             width: 1,
             margin: const EdgeInsets.symmetric(vertical: 20),
             color: monthText.withValues(alpha: 0.15),
           ),
-          // Lista de bloques de días (sincronizada con el scroll principal)
           Expanded(
             child: SafeArea(
               bottom: false,
@@ -394,10 +412,8 @@ class _SidebarColumn extends StatelessWidget {
   }
 }
 
-// ─── Bloque de asignaturas de un día ─────────────────────────────────────────
-
 class _DayClassesBlock extends StatelessWidget {
-  final List<_ClassItem> classes;
+  final List<_ClassSlot> classes;
   final Color labelColor;
   final Color lineColor;
   final Color dotColor;
@@ -418,9 +434,7 @@ class _DayClassesBlock extends StatelessWidget {
     return Container(
       height: itemHeight,
       decoration: BoxDecoration(
-        border: Border(
-          bottom: BorderSide(color: lineColor, width: 1),
-        ),
+        border: Border(bottom: BorderSide(color: lineColor, width: 1)),
       ),
       child: Padding(
         padding: const EdgeInsets.fromLTRB(14, 8, 10, 8),
@@ -445,12 +459,11 @@ class _DayClassesBlock extends StatelessWidget {
                 separatorBuilder: (_, _) => SizedBox(
                   height: 5,
                   child: Center(
-                    child: Divider(
-                        color: lineColor, thickness: 0.5, height: 1),
+                    child: Divider(color: lineColor, thickness: 0.5, height: 1),
                   ),
                 ),
                 itemBuilder: (context, index) => _ClassRow(
-                  classItem: classes[index],
+                  slot: classes[index],
                   labelColor: labelColor,
                   lineColor: lineColor,
                   dotColor: dotColor,
@@ -462,17 +475,15 @@ class _DayClassesBlock extends StatelessWidget {
   }
 }
 
-// ─── Fila de una asignatura ───────────────────────────────────────────────────
-
 class _ClassRow extends StatelessWidget {
-  final _ClassItem classItem;
+  final _ClassSlot slot;
   final Color labelColor;
   final Color lineColor;
   final Color dotColor;
   final bool showDot;
 
   const _ClassRow({
-    required this.classItem,
+    required this.slot,
     required this.labelColor,
     required this.lineColor,
     required this.dotColor,
@@ -481,8 +492,6 @@ class _ClassRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // IntrinsicHeight asegura que la barra vertical escala con el contenido
-    // sin importar el tipo de fuente del sistema.
     return IntrinsicHeight(
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -500,7 +509,7 @@ class _ClassRow extends StatelessWidget {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Text(
-                    classItem.subject,
+                    slot.groupName,
                     style: GoogleFonts.rowdies(
                       fontSize: 12,
                       fontWeight: FontWeight.w700,
@@ -513,7 +522,7 @@ class _ClassRow extends StatelessWidget {
                   Row(
                     children: [
                       Text(
-                        classItem.startTime,
+                        slot.startTime,
                         style: GoogleFonts.rowdies(
                           fontSize: 10,
                           fontWeight: FontWeight.w700,
@@ -522,7 +531,7 @@ class _ClassRow extends StatelessWidget {
                       ),
                       const SizedBox(width: 10),
                       Text(
-                        classItem.endTime,
+                        slot.endTime,
                         style: GoogleFonts.rowdies(
                           fontSize: 10,
                           fontWeight: FontWeight.w700,
@@ -553,8 +562,6 @@ class _ClassRow extends StatelessWidget {
     );
   }
 }
-
-// ─── Bottom sheet con table_calendar ─────────────────────────────────────────
 
 class _CalendarBottomSheet extends StatefulWidget {
   final DateTime focusedDay;
@@ -642,9 +649,13 @@ class _CalendarBottomSheetState extends State<_CalendarBottomSheet> {
               defaultTextStyle:
                   GoogleFonts.rowdies(color: textColor, fontSize: 14),
               weekendTextStyle: GoogleFonts.rowdies(
-                  color: textColor.withValues(alpha: 0.38), fontSize: 14),
+                color: textColor.withValues(alpha: 0.38),
+                fontSize: 14,
+              ),
               outsideTextStyle: GoogleFonts.rowdies(
-                  color: textColor.withValues(alpha: 0.25), fontSize: 14),
+                color: textColor.withValues(alpha: 0.25),
+                fontSize: 14,
+              ),
               selectedDecoration: const BoxDecoration(
                 color: AppColors.green,
                 shape: BoxShape.circle,
