@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -15,7 +16,7 @@ class AccountScreen extends StatelessWidget {
     return showGeneralDialog<bool>(
       context: context,
       barrierDismissible: true,
-      barrierLabel: 'Cancelar logout',
+      barrierLabel: 'close',
       barrierColor: Colors.black.withValues(alpha: 0.4),
       transitionDuration: const Duration(milliseconds: 300),
       transitionBuilder: (context, animation, secondaryAnimation, child) {
@@ -56,7 +57,7 @@ class AccountScreen extends StatelessWidget {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Text(
-                    'Cerrar sesión',
+                    'log_out'.tr(),
                     style: GoogleFonts.rowdies(
                       fontSize: 22,
                       fontWeight: FontWeight.w700,
@@ -65,7 +66,7 @@ class AccountScreen extends StatelessWidget {
                   ),
                   const SizedBox(height: 12),
                   Text(
-                    '¿Estás seguro de que quieres salir?',
+                    'logout_confirm'.tr(),
                     textAlign: TextAlign.center,
                     style: GoogleFonts.rowdies(
                       fontSize: 14,
@@ -85,7 +86,7 @@ class AccountScreen extends StatelessWidget {
                       ),
                       child: Center(
                         child: Text(
-                          'Confirmar',
+                          'confirm'.tr(),
                           style: GoogleFonts.rowdies(
                             fontSize: 16,
                             fontWeight: FontWeight.w700,
@@ -110,7 +111,7 @@ class AccountScreen extends StatelessWidget {
                       ),
                       child: Center(
                         child: Text(
-                          'Cancelar',
+                          'cancel'.tr(),
                           style: GoogleFonts.rowdies(
                             fontSize: 16,
                             fontWeight: FontWeight.w700,
@@ -200,13 +201,13 @@ class AccountScreen extends StatelessWidget {
                   ),
                   const SizedBox(height: 32),
                   _InfoField(
-                    label: 'Correo',
+                    label: 'correo'.tr(),
                     value: email,
                     textColor: textColor,
                   ),
                   _Divider(color: dividerColor),
                   _InfoFieldWithAction(
-                    label: 'Password',
+                    label: 'password'.tr(),
                     value: '····················',
                     actionIcon: Icons.lock_reset_rounded,
                     textColor: textColor,
@@ -218,7 +219,7 @@ class AccountScreen extends StatelessWidget {
                   GestureDetector(
                     onTap: () {},
                     child: Text(
-                      'Delete account',
+                      'delete_account'.tr(),
                       style: GoogleFonts.rowdies(
                         fontSize: 14,
                         fontWeight: FontWeight.w300,
@@ -235,7 +236,7 @@ class AccountScreen extends StatelessWidget {
             child: GestureDetector(
               onTap: () => _logout(context),
               child: Text(
-                'Log out',
+                'log_out'.tr(),
                 style: GoogleFonts.rowdies(
                   fontSize: 32,
                   fontWeight: FontWeight.w700,

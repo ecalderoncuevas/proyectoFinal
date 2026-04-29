@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
@@ -98,7 +99,7 @@ class _FaltasAsignaturaScreenState extends State<FaltasAsignaturaScreen> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  'Ausencias',
+                  'ausencias'.tr(),
                   style: GoogleFonts.rowdies(
                     fontSize: 13,
                     fontWeight: FontWeight.w700,
@@ -140,7 +141,7 @@ class _FaltasAsignaturaScreenState extends State<FaltasAsignaturaScreen> {
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             Text(
-                              'Error al cargar ausencias',
+                              'error_load_absences'.tr(),
                               style: GoogleFonts.rowdies(
                                 color: labelColor,
                                 fontSize: 14,
@@ -150,7 +151,7 @@ class _FaltasAsignaturaScreenState extends State<FaltasAsignaturaScreen> {
                             GestureDetector(
                               onTap: _fetchAbsences,
                               child: Text(
-                                'Reintentar',
+                                'retry'.tr(),
                                 style: GoogleFonts.rowdies(
                                   color: labelColor,
                                   fontSize: 14,
@@ -164,7 +165,7 @@ class _FaltasAsignaturaScreenState extends State<FaltasAsignaturaScreen> {
                     : _absences.isEmpty
                         ? Center(
                             child: Text(
-                              'Sin ausencias registradas',
+                              'no_absences'.tr(),
                               style: GoogleFonts.rowdies(
                                 color: labelColor,
                                 fontSize: 16,

@@ -1,6 +1,6 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:table_calendar/table_calendar.dart';
 import 'package:proyecto_final_synquid/core/theme/app_theme.dart';
@@ -50,8 +50,8 @@ class _ScheduleProfessorScreenState extends State<ScheduleProfessorScreen> {
 
   static final _workingDays = _buildWorkingDays();
 
-  final _dayNameFormat = DateFormat('EEE', 'es_ES');
-  final _monthYearFormat = DateFormat('MMMM yyyy', 'es_ES');
+  DateFormat _dayNameFormat = DateFormat('EEE', 'es');
+  DateFormat _monthYearFormat = DateFormat('MMMM yyyy', 'es');
 
   // dayOfWeek (0=Sun,1=Mon,...,6=Sat) → slots for that weekday
   final Map<int, List<_ClassSlot>> _cache = {};
@@ -169,6 +169,9 @@ class _ScheduleProfessorScreenState extends State<ScheduleProfessorScreen> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
+    final locale = context.locale.toString();
+    _dayNameFormat = DateFormat('EEE', locale);
+    _monthYearFormat = DateFormat('MMMM yyyy', locale);
     final screenHeight = MediaQuery.of(context).size.height;
     final computed = (screenHeight * 0.20).clamp(110.0, 155.0);
     if ((computed - _dayItemHeight).abs() > 1.0) {

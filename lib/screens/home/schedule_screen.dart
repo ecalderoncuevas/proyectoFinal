@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
@@ -35,13 +36,6 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
   final Map<int, List<_ClassSlot>> _cache = {};
   bool _loading = false;
   String? _error;
-
-  static const _monthNames = [
-    '',
-    'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
-    'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre',
-  ];
-  static const _weekdayNames = ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'];
 
   @override
   void initState() {
@@ -88,12 +82,17 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
   List<_ClassSlot> get _slotsForSelectedDay =>
       _cache[_apiDow(_selectedDay)] ?? [];
 
-  String _formatSelectedDate() {
+  String _capitalize(String s) =>
+      s.isEmpty ? s : '${s[0].toUpperCase()}${s.substring(1)}';
+
+  String _formatSelectedDate(String locale) {
     final date = _selectedDay;
-    final month = _monthNames[date.month];
-    if (isSameDay(date, DateTime.now())) return 'Hoy, $month ${date.day}';
-    final dayName = _weekdayNames[date.weekday - 1];
-    return '$dayName, $month ${date.day}';
+    final month = DateFormat('MMMM', locale).format(date);
+    if (isSameDay(date, DateTime.now())) {
+      return '${'hoy'.tr()}, ${_capitalize(month)} ${date.day}';
+    }
+    final dayName = DateFormat('EEE', locale).format(date);
+    return '${_capitalize(dayName)}, ${_capitalize(month)} ${date.day}';
   }
 
   @override
@@ -106,6 +105,7 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
     final dividerColor = isDark ? Colors.white24 : Colors.black26;
     final selectedDayBg = isDark ? AppColors.darkBg : AppColors.homeLightBg;
     final selectedDayText = isDark ? AppColors.green : AppColors.homeDarkGreen;
+    final locale = context.locale.toString();
 
     return Scaffold(
       backgroundColor: appBg,
@@ -122,6 +122,7 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                   headerText: headerText,
                   selectedDayBg: selectedDayBg,
                   selectedDayText: selectedDayText,
+                  locale: locale,
                 ),
               ),
             ),
@@ -129,7 +130,7 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
           Padding(
             padding: const EdgeInsets.fromLTRB(24, 20, 24, 0),
             child: Text(
-              _formatSelectedDate(),
+              _formatSelectedDate(locale),
               style: GoogleFonts.rowdies(
                 fontSize: 24,
                 fontWeight: FontWeight.w700,
@@ -147,7 +148,7 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             Text(
-                              'Error al cargar horario',
+                              'error_load_schedule'.tr(),
                               style: GoogleFonts.rowdies(
                                 color: labelColor,
                                 fontSize: 14,
@@ -157,7 +158,7 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                             GestureDetector(
                               onTap: _loadSchedules,
                               child: Text(
-                                'Reintentar',
+                                'retry'.tr(),
                                 style: GoogleFonts.rowdies(
                                   color: labelColor,
                                   fontSize: 14,
@@ -171,7 +172,7 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                     : _slotsForSelectedDay.isEmpty
                         ? Center(
                             child: Text(
-                              'No hay clases este día',
+                              'no_classes_today'.tr(),
                               style: GoogleFonts.rowdies(
                                 fontSize: 16,
                                 fontWeight: FontWeight.w300,
@@ -200,18 +201,19 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
     required Color headerText,
     required Color selectedDayBg,
     required Color selectedDayText,
+    required String locale,
   }) {
     return TableCalendar(
-      locale: 'es_ES',
+      locale: locale,
       firstDay: DateTime.utc(2020, 1, 1),
       lastDay: DateTime.utc(2035, 12, 31),
       focusedDay: _focusedDay,
       selectedDayPredicate: (day) => isSameDay(_selectedDay, day),
       calendarFormat: _calendarFormat,
       startingDayOfWeek: StartingDayOfWeek.monday,
-      availableCalendarFormats: const {
-        CalendarFormat.month: 'Mes',
-        CalendarFormat.week: 'Semana',
+      availableCalendarFormats: {
+        CalendarFormat.month: 'mes'.tr(),
+        CalendarFormat.week: 'semana'.tr(),
       },
       onDaySelected: (selectedDay, focusedDay) {
         setState(() {

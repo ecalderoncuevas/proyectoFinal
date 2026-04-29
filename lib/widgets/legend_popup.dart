@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:proyecto_final_synquid/core/theme/app_theme.dart';
@@ -11,15 +12,15 @@ class LegendItem {
 
 class LegendPopup {
   static const _defaultItems = [
-    LegendItem(label: 'Presente', color: AppColors.tagGreen),
-    LegendItem(label: 'Pendiente', color: AppColors.tagYellow),
-    LegendItem(label: 'Ausente', color: AppColors.tagRed),
+    LegendItem(label: 'presente', color: AppColors.tagGreen),
+    LegendItem(label: 'pendiente', color: AppColors.tagYellow),
+    LegendItem(label: 'ausente', color: AppColors.tagRed),
   ];
 
   static const faltasItems = [
-    LegendItem(label: 'Bien', color: AppColors.tagGreen),
-    LegendItem(label: 'Cuidado', color: AppColors.tagYellow),
-    LegendItem(label: 'Crítico', color: AppColors.tagRed),
+    LegendItem(label: 'bien', color: AppColors.tagGreen),
+    LegendItem(label: 'cuidado', color: AppColors.tagYellow),
+    LegendItem(label: 'critico', color: AppColors.tagRed),
   ];
 
   static Future<void> show(
@@ -31,8 +32,8 @@ class LegendPopup {
     return showGeneralDialog(
       context: context,
       barrierDismissible: true,
-      barrierLabel: 'Cerrar leyenda',
-      barrierColor: Colors.black.withOpacity(0.4),
+      barrierLabel: 'cerrar',
+      barrierColor: Colors.black.withValues(alpha: 0.4),
       transitionDuration: const Duration(milliseconds: 300),
       transitionBuilder: (context, animation, secondaryAnimation, child) {
         final curve = CurvedAnimation(
@@ -62,7 +63,7 @@ class LegendPopup {
                 borderRadius: BorderRadius.circular(24),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.15),
+                    color: Colors.black.withValues(alpha: 0.15),
                     blurRadius: 30,
                     offset: const Offset(0, 10),
                   ),
@@ -72,7 +73,7 @@ class LegendPopup {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Text(
-                    'Leyenda',
+                    'leyenda'.tr(),
                     style: GoogleFonts.rowdies(
                       fontSize: 22,
                       fontWeight: FontWeight.w700,
@@ -96,7 +97,7 @@ class LegendPopup {
                       ),
                       child: Center(
                         child: Text(
-                          'Cerrar',
+                          'cerrar'.tr(),
                           style: GoogleFonts.rowdies(
                             fontSize: 16,
                             fontWeight: FontWeight.w700,
@@ -127,7 +128,7 @@ class _LegendRow extends StatelessWidget {
     return Row(
       children: [
         Text(
-          label,
+          label.tr(),
           style: GoogleFonts.rowdies(
             fontSize: 15,
             fontWeight: FontWeight.w300,

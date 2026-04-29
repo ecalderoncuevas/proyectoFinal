@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -57,7 +58,7 @@ class ClasesScreen extends StatelessWidget {
               child: Padding(
                 padding: const EdgeInsets.fromLTRB(24, 56, 24, 20),
                 child: Text(
-                  isProfessor ? 'Mis clases' : 'Tus clases',
+                  isProfessor ? 'mis_clases'.tr() : 'tus_clases'.tr(),
                   style: GoogleFonts.rowdies(
                     fontSize: 36,
                     fontWeight: FontWeight.w700,
@@ -101,7 +102,7 @@ class _ProfessorView extends StatelessWidget {
     if (groups.isEmpty) {
       return Center(
         child: Text(
-          'No hay clases asignadas',
+          'no_classes_assigned'.tr(),
           style: GoogleFonts.rowdies(color: labelColor, fontSize: 16),
         ),
       );
@@ -210,7 +211,7 @@ class _StudentView extends StatelessWidget {
     if (groups.isEmpty) {
       return Center(
         child: Text(
-          'No hay asignaturas',
+          'no_subjects'.tr(),
           style: GoogleFonts.rowdies(color: labelColor, fontSize: 16),
         ),
       );

@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -71,11 +72,11 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
     final confirmPass = _confirmPasswordController.text;
 
     if (!_hasMinChars || !_hasSpecialChar) {
-      _showMessage('La contraseña no cumple los requisitos', isError: true);
+      _showMessage('password_requirements'.tr(), isError: true);
       return;
     }
     if (newPass != confirmPass) {
-      _showMessage('Las contraseñas no coinciden', isError: true);
+      _showMessage('passwords_mismatch'.tr(), isError: true);
       return;
     }
 
@@ -89,20 +90,20 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
         );
       }
       if (!mounted) return;
-      _showMessage('Contraseña cambiada con éxito', isError: false);
+      _showMessage('password_changed'.tr(), isError: false);
       await Future.delayed(const Duration(milliseconds: 800));
       if (!mounted) return;
       context.go(AppRoutes.login);
     } on DioException catch (e) {
       if (!mounted) return;
       final status = e.response?.statusCode;
-      String msg = 'Error al cambiar la contraseña';
-      if (status == 400) msg = 'El código de verificación no es válido';
-      if (status == 401) msg = 'El código ha expirado';
+      String msg = 'error_change_password'.tr();
+      if (status == 400) msg = 'error_invalid_code'.tr();
+      if (status == 401) msg = 'error_code_expired'.tr();
       _showMessage(msg, isError: true);
     } catch (e) {
       if (!mounted) return;
-      _showMessage('Error inesperado. Inténtalo de nuevo.', isError: true);
+      _showMessage('error_unexpected'.tr(), isError: true);
     } finally {
       if (mounted) setState(() => _isLoading = false);
     }
@@ -133,7 +134,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
               const SizedBox(height: 8),
               Center(
                 child: Text(
-                  'Change Password',
+                  'change_password_title'.tr(),
                   style: GoogleFonts.rowdies(
                     fontSize: 32,
                     fontWeight: FontWeight.w700,
@@ -143,20 +144,20 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
               ),
               const SizedBox(height: 48),
               _LabeledPasswordField(
-                label: 'New Password',
+                label: 'new_password'.tr(),
                 controller: _newPasswordController,
                 appGreen: appGreen,
               ),
               const SizedBox(height: 24),
               _LabeledPasswordField(
-                label: 'Confirm New Password',
+                label: 'confirm_new_password'.tr(),
                 controller: _confirmPasswordController,
                 appGreen: appGreen,
               ),
               const SizedBox(height: 4),
               if (_showMismatch)
                 Text(
-                  'No coinciden las contraseñas',
+                  'passwords_mismatch'.tr(),
                   style: GoogleFonts.rowdies(
                     fontSize: 11,
                     color: Colors.red.shade400,
@@ -165,19 +166,19 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
                 ),
               const SizedBox(height: 24),
               _ValidationRow(
-                label: 'At least 8 Characters',
+                label: 'password_min_chars'.tr(),
                 isValid: _hasMinChars,
                 appGreen: appGreen,
               ),
               const SizedBox(height: 8),
               _ValidationRow(
-                label: 'At least 1 Special Character',
+                label: 'password_special_char'.tr(),
                 isValid: _hasSpecialChar,
                 appGreen: appGreen,
               ),
               const SizedBox(height: 80),
               PrimaryButton(
-                label: 'Change',
+                label: 'change'.tr(),
                 isLoading: _isLoading,
                 onPressed: _doChange,
               ),

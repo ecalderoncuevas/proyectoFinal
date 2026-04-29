@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
@@ -81,7 +82,7 @@ class FaltasGeneralesScreen extends StatelessWidget {
                 onTap: () =>
                     LegendPopup.show(context, items: LegendPopup.faltasItems),
                 child: Text(
-                  'Ver leyenda',
+                  'ver_leyenda'.tr(),
                   style: GoogleFonts.rowdies(
                     fontSize: 14,
                     fontWeight: FontWeight.w700,
@@ -97,8 +98,8 @@ class FaltasGeneralesScreen extends StatelessWidget {
                 ? Center(
                     child: Text(
                       provider.attendanceHistory == null
-                          ? 'Cargando...'
-                          : 'Sin registros de asistencia',
+                          ? 'loading'.tr()
+                          : 'no_attendance_records'.tr(),
                       style: GoogleFonts.rowdies(
                         color: appGreen,
                         fontSize: 16,
@@ -156,7 +157,7 @@ class _FaltasHeader extends StatelessWidget {
         child: Padding(
           padding: const EdgeInsets.fromLTRB(24, 56, 24, 20),
           child: Text(
-            'Faltas',
+            'faltas'.tr(),
             style: GoogleFonts.rowdies(
               fontSize: 48,
               fontWeight: FontWeight.w700,

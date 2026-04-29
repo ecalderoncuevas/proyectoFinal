@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
@@ -13,6 +14,14 @@ class SettingsScreen extends StatefulWidget {
 
 class _SettingsScreenState extends State<SettingsScreen> {
   bool _notificationsEnabled = true;
+
+  Locale _localeFromDisplay(String lang) {
+    switch (lang) {
+      case 'Català': return const Locale('ca');
+      case 'English': return const Locale('en');
+      default: return const Locale('es');
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -36,7 +45,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               child: Padding(
                 padding: const EdgeInsets.fromLTRB(24, 56, 24, 28),
                 child: Text(
-                  'Configuration',
+                  'configuration'.tr(),
                   style: GoogleFonts.rowdies(
                     fontSize: 32,
                     fontWeight: FontWeight.w700,
@@ -61,21 +70,21 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     children: [
                       _SettingsNavItem(
                         icon: Icons.person_outline,
-                        label: 'Account',
+                        label: 'account'.tr(),
                         textColor: textColor,
                         onTap: () {},
                       ),
                       const SizedBox(height: 4),
                       _SettingsNavItem(
                         icon: Icons.lock_outline,
-                        label: 'Privacy',
+                        label: 'privacy'.tr(),
                         textColor: textColor,
                         onTap: () {},
                       ),
                       const SizedBox(height: 4),
                       _SettingsRow(
                         icon: Icons.contrast,
-                        label: 'Theme',
+                        label: 'theme'.tr(),
                         textColor: textColor,
                         trailing: _ThemeToggle(
                           isDark: isDark,
@@ -85,11 +94,15 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       const SizedBox(height: 4),
                       _SettingsRow(
                         icon: Icons.translate,
-                        label: 'Language',
+                        label: 'language'.tr(),
                         textColor: textColor,
                         trailing: _LanguageDropdown(
                           value: theme.language,
-                          onChanged: theme.setLanguage,
+                          onChanged: (lang) {
+                            theme.setLanguage(lang);
+                            final locale = _localeFromDisplay(lang);
+                            context.setLocale(locale);
+                          },
                           bgColor: appGreen,
                           labelColor: appBg,
                         ),
@@ -97,14 +110,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       const SizedBox(height: 4),
                       _SettingsRow(
                         icon: Icons.notifications_none,
-                        label: 'Notifications',
+                        label: 'notifications'.tr(),
                         textColor: textColor,
                         trailing: Switch(
                           value: _notificationsEnabled,
                           onChanged: (value) {
                             setState(() => _notificationsEnabled = value);
                           },
-                          activeColor: AppColors.darkBg,
+                          activeThumbColor: AppColors.darkBg,
                           activeTrackColor: AppColors.green,
                           inactiveThumbColor: Colors.white,
                           inactiveTrackColor: Colors.grey.shade600,
@@ -121,7 +134,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                             color: textColor,
                           ),
                         ),
-                        label: 'Font Size',
+                        label: 'font_size'.tr(),
                         textColor: textColor,
                         trailing: null,
                       ),
@@ -136,7 +149,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                               enabledThumbRadius: 8,
                             ),
                             trackHeight: 2,
-                            overlayColor: textColor.withOpacity(0.1),
+                            overlayColor: textColor.withValues(alpha: 0.1),
                           ),
                           child: Slider(
                             value: theme.fontSize,
@@ -228,10 +241,7 @@ class _SettingsRow extends StatelessWidget {
       padding: const EdgeInsets.symmetric(vertical: 14),
       child: Row(
         children: [
-          if (customIcon != null)
-            customIcon!
-          else if (icon != null)
-            Icon(icon, color: textColor, size: 22),
+          customIcon ?? (icon != null ? Icon(icon, color: textColor, size: 22) : const SizedBox.shrink()),
           const SizedBox(width: 16),
           Expanded(
             child: Text(
@@ -341,23 +351,23 @@ class _ThemeToggle extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
                   Text(
-                    'Light',
+                    'light'.tr(),
                     style: GoogleFonts.rowdies(
                       fontSize: 10,
                       fontWeight: FontWeight.w700,
                       color: isDark
-                          ? AppColors.green.withOpacity(0.5)
+                          ? AppColors.green.withValues(alpha: 0.5)
                           : Colors.white,
                     ),
                   ),
                   Text(
-                    'Dark',
+                    'dark'.tr(),
                     style: GoogleFonts.rowdies(
                       fontSize: 10,
                       fontWeight: FontWeight.w700,
                       color: isDark
                           ? AppColors.darkBg
-                          : AppColors.homeDarkGreen.withOpacity(0.5),
+                          : AppColors.homeDarkGreen.withValues(alpha: 0.5),
                     ),
                   ),
                 ],
@@ -376,7 +386,7 @@ class _ThemeToggle extends StatelessWidget {
                   borderRadius: BorderRadius.circular(15),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withOpacity(0.2),
+                      color: Colors.black.withValues(alpha: 0.2),
                       blurRadius: 4,
                       offset: const Offset(0, 2),
                     ),
@@ -384,7 +394,7 @@ class _ThemeToggle extends StatelessWidget {
                 ),
                 child: Center(
                   child: Text(
-                    isDark ? 'Dark' : 'Light',
+                    isDark ? 'dark'.tr() : 'light'.tr(),
                     style: GoogleFonts.rowdies(
                       fontSize: 10,
                       fontWeight: FontWeight.w700,

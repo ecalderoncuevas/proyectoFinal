@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -19,7 +20,7 @@ class SelectInstitutionScreen extends StatefulWidget {
     super.key,
     required this.icon,
     required this.onContinue,
-    this.title = 'Select your\ninstitution',
+    this.title = 'select_institution',
   });
 
   @override
@@ -57,7 +58,7 @@ class _SelectInstitutionScreenState extends State<SelectInstitutionScreen> {
               FaIcon(widget.icon, size: 90, color: appGreen),
               const SizedBox(height: 32),
               Text(
-                widget.title,
+                widget.title.tr(),
                 textAlign: TextAlign.center,
                 style: GoogleFonts.rowdies(
                   fontSize: 28,
@@ -92,7 +93,7 @@ class _SelectInstitutionScreenState extends State<SelectInstitutionScreen> {
               ),
               const SizedBox(height: 32),
               PrimaryButton(
-                label: 'Continue',
+                label: 'continue_btn'.tr(),
                 onPressed: _selectedInstitution == null
                     ? null
                     : () => widget.onContinue(_selectedInstitution!),

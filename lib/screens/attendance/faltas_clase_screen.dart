@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -68,7 +69,6 @@ class _FaltasClaseScreenState extends State<FaltasClaseScreen> {
           await TeacherService(client).getGroupStudents(widget.groupId);
       _students = students;
 
-      // Parallel attendance history calls for all students
       final histories = await Future.wait(
         students.map(
           (s) => AttendanceService(client).getHistory(
@@ -106,7 +106,7 @@ class _FaltasClaseScreenState extends State<FaltasClaseScreen> {
     final labelColor = isDark ? AppColors.green : AppColors.homeDarkGreen;
     final dividerColor = isDark ? Colors.white24 : Colors.black26;
     final avatarBg = isDark
-        ? AppColors.green.withValues(alpha:0.3)
+        ? AppColors.green.withValues(alpha: 0.3)
         : AppColors.green;
 
     return Scaffold(
@@ -145,7 +145,7 @@ class _FaltasClaseScreenState extends State<FaltasClaseScreen> {
                       items: LegendPopup.faltasItems,
                     ),
                     child: Text(
-                      'Ver leyenda',
+                      'ver_leyenda'.tr(),
                       style: GoogleFonts.rowdies(
                         fontSize: 14,
                         fontWeight: FontWeight.w700,
@@ -166,7 +166,7 @@ class _FaltasClaseScreenState extends State<FaltasClaseScreen> {
                       );
                     },
                     child: Text(
-                      'Reducir faltas →',
+                      '${'reducir_faltas'.tr()} →',
                       style: GoogleFonts.rowdies(
                         fontSize: 14,
                         fontWeight: FontWeight.w700,
@@ -187,7 +187,7 @@ class _FaltasClaseScreenState extends State<FaltasClaseScreen> {
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             Text(
-                              'Error al cargar alumnos',
+                              'error_load_students'.tr(),
                               style: GoogleFonts.rowdies(
                                 color: labelColor,
                                 fontSize: 14,
@@ -197,7 +197,7 @@ class _FaltasClaseScreenState extends State<FaltasClaseScreen> {
                             GestureDetector(
                               onTap: _fetchData,
                               child: Text(
-                                'Reintentar',
+                                'retry'.tr(),
                                 style: GoogleFonts.rowdies(
                                   color: labelColor,
                                   fontSize: 14,
@@ -211,7 +211,7 @@ class _FaltasClaseScreenState extends State<FaltasClaseScreen> {
                     : _alumnos.isEmpty
                         ? Center(
                             child: Text(
-                              'No hay alumnos en este grupo',
+                              'no_students'.tr(),
                               style: GoogleFonts.rowdies(
                                 color: labelColor,
                                 fontSize: 16,
@@ -267,7 +267,7 @@ class _AlumnoRow extends StatelessWidget {
             ),
             child: Icon(
               Icons.person,
-              color: AppColors.homeDarkGreen.withValues(alpha:0.5),
+              color: AppColors.homeDarkGreen.withValues(alpha: 0.5),
               size: 24,
             ),
           ),

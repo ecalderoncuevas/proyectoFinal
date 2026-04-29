@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -21,7 +22,7 @@ class ValidationScreen extends StatefulWidget {
     required this.email,
     required this.onValidate,
     this.showRememberDevice = false,
-    this.title = 'Verify email',
+    this.title = 'verify_email',
   });
 
   @override
@@ -59,7 +60,7 @@ class _ValidationScreenState extends State<ValidationScreen> {
 
   Future<void> _sendCode() async {
     if (widget.email.isEmpty) {
-      _showMessage('No email provided', isError: true);
+      _showMessage('error_no_email'.tr(), isError: true);
       return;
     }
     setState(() => _isSending = true);
@@ -67,12 +68,14 @@ class _ValidationScreenState extends State<ValidationScreen> {
       final ok = await _authService.sendVerificationCode(widget.email);
       if (!mounted) return;
       _showMessage(
-        ok ? 'Code sent to ${widget.email}' : 'Could not send code',
+        ok
+            ? 'code_sent'.tr(namedArgs: {'email': widget.email})
+            : 'error_send_code'.tr(),
         isError: !ok,
       );
     } catch (e) {
       if (!mounted) return;
-      _showMessage('Error: $e', isError: true);
+      _showMessage('error_send_code'.tr(), isError: true);
     } finally {
       if (mounted) setState(() => _isSending = false);
     }
@@ -110,7 +113,7 @@ class _ValidationScreenState extends State<ValidationScreen> {
               ),
               const SizedBox(height: 32),
               Text(
-                widget.title,
+                widget.title.tr(),
                 textAlign: TextAlign.center,
                 style: GoogleFonts.rowdies(
                   fontSize: 24,
@@ -141,7 +144,7 @@ class _ValidationScreenState extends State<ValidationScreen> {
               Align(
                 alignment: Alignment.centerLeft,
                 child: PrimaryButton(
-                  label: 'Send again',
+                  label: 'send_again'.tr(),
                   isLoading: _isSending,
                   onPressed: _sendCode,
                   width: 160,
@@ -160,7 +163,7 @@ class _ValidationScreenState extends State<ValidationScreen> {
                 const SizedBox(height: 24),
               ],
               PrimaryButton(
-                label: 'Validate',
+                label: 'validate'.tr(),
                 onPressed: () => widget.onValidate(_code, _rememberDevice),
               ),
               const SizedBox(height: 32),
@@ -254,7 +257,7 @@ class _RememberDeviceCheckbox extends StatelessWidget {
         ),
         const SizedBox(width: 12),
         Text(
-          'Remember this device',
+          'remember_device'.tr(),
           style: GoogleFonts.rowdies(
             fontSize: 13,
             color: appGreen,

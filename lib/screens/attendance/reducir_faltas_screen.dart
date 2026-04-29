@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
@@ -40,20 +41,19 @@ class _ReducirFaltasScreenState extends State<ReducirFaltasScreen> {
   bool _loadingToday = true;
   bool _saving = false;
 
-  static const _statusOptions = ['Presente', 'Ausente', 'Justificado', 'Tarde'];
-
+  // Translation keys used as internal values for the dropdown
+  static const _statusOptions = ['presente', 'ausente', 'justificado', 'tarde'];
   static const _statusLabels = {
-    0: 'Presente',
-    1: 'Ausente',
-    2: 'Justificado',
-    3: 'Tarde',
+    0: 'presente',
+    1: 'ausente',
+    2: 'justificado',
+    3: 'tarde',
   };
-
   static const _labelToStatus = {
-    'Presente': 0,
-    'Ausente': 1,
-    'Justificado': 2,
-    'Tarde': 3,
+    'presente': 0,
+    'ausente': 1,
+    'justificado': 2,
+    'tarde': 3,
   };
 
   @override
@@ -105,13 +105,13 @@ class _ReducirFaltasScreenState extends State<ReducirFaltasScreen> {
         ),
       );
       if (!mounted) return;
-      _showMessage('Asistencia guardada correctamente', isError: false);
+      _showMessage('attendance_saved'.tr(), isError: false);
     } on DioException {
       if (!mounted) return;
-      _showMessage('Error al guardar la asistencia', isError: true);
+      _showMessage('error_save_attendance'.tr(), isError: true);
     } catch (_) {
       if (!mounted) return;
-      _showMessage('Error inesperado', isError: true);
+      _showMessage('error_unexpected'.tr(), isError: true);
     } finally {
       if (mounted) setState(() => _saving = false);
     }
@@ -128,17 +128,13 @@ class _ReducirFaltasScreenState extends State<ReducirFaltasScreen> {
     );
   }
 
-  String _getMonthName(int month) {
-    const months = [
-      'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
-      'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre',
-    ];
-    return months[month - 1];
-  }
-
-  String _getWeekdayName(int weekday) {
-    const days = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo'];
-    return days[weekday - 1];
+  String _formatCurrentDate(String locale) {
+    final date = _selectedDay!;
+    final month = DateFormat('MMMM', locale).format(date);
+    final weekday = DateFormat('EEEE', locale).format(date);
+    final m = '${month[0].toUpperCase()}${month.substring(1)}';
+    final w = '${weekday[0].toUpperCase()}${weekday.substring(1)}';
+    return '$m $w';
   }
 
   @override
@@ -149,6 +145,7 @@ class _ReducirFaltasScreenState extends State<ReducirFaltasScreen> {
     final textColor = isDark ? Colors.white : AppColors.homeDarkGreen;
     final dropdownBgColor =
         isDark ? const Color(0xFFADC4A8) : appGreen.withValues(alpha: 0.8);
+    final locale = context.locale.toString();
 
     return Scaffold(
       backgroundColor: appBg,
@@ -209,7 +206,7 @@ class _ReducirFaltasScreenState extends State<ReducirFaltasScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    '${_getMonthName(_selectedDay!.month)} ${_getWeekdayName(_selectedDay!.weekday)}',
+                    _formatCurrentDate(locale),
                     style: GoogleFonts.rowdies(
                       fontSize: 32,
                       fontWeight: FontWeight.w700,
@@ -240,7 +237,7 @@ class _ReducirFaltasScreenState extends State<ReducirFaltasScreen> {
                   : _rows.isEmpty
                       ? Center(
                           child: Text(
-                            'No hay alumnos',
+                            'no_students_short'.tr(),
                             style: GoogleFonts.rowdies(
                               color: appGreen,
                               fontSize: 16,
@@ -298,7 +295,7 @@ class _ReducirFaltasScreenState extends State<ReducirFaltasScreen> {
                                             horizontal: 8.0,
                                           ),
                                           child: Text(
-                                            s,
+                                            s.tr(),
                                             style: GoogleFonts.rowdies(
                                               color: s ==
                                                       _statusLabels[row.status]
@@ -352,7 +349,7 @@ class _ReducirFaltasScreenState extends State<ReducirFaltasScreen> {
                           ),
                         )
                       : Text(
-                          'Guardar asistencia',
+                          'save_attendance'.tr(),
                           style: GoogleFonts.rowdies(
                             fontSize: 16,
                             fontWeight: FontWeight.w700,

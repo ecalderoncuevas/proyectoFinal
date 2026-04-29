@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:go_router/go_router.dart';
@@ -25,7 +26,7 @@ class WelcomeScreen extends StatelessWidget {
             children: [
               const Spacer(flex: 2),
               Text(
-                'Welcome to\nSynquid',
+                'welcome_to'.tr(),
                 textAlign: TextAlign.center,
                 style: GoogleFonts.rowdies(
                   fontSize: 36,
@@ -36,7 +37,7 @@ class WelcomeScreen extends StatelessWidget {
               ),
               const SizedBox(height: 12),
               Text(
-                'Who are you?',
+                'who_are_you'.tr(),
                 textAlign: TextAlign.center,
                 style: GoogleFonts.rowdies(
                   fontSize: 14,
@@ -50,7 +51,7 @@ class WelcomeScreen extends StatelessWidget {
                 children: [
                   _RoleButton(
                     icon: FontAwesomeIcons.userGraduate,
-                    label: 'student',
+                    label: 'student'.tr(),
                     color: appGreen,
                     onTap: () {
                       debugPrint('>>> Student tocado');
@@ -59,7 +60,7 @@ class WelcomeScreen extends StatelessWidget {
                   ),
                   _RoleButton(
                     icon: FontAwesomeIcons.schoolFlag,
-                    label: 'institution',
+                    label: 'institution'.tr(),
                     color: appGreen,
                     onTap: () {
                       debugPrint('>>> Institution tocado');

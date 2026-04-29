@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -50,7 +51,7 @@ class _LoginScreenState extends State<LoginScreen> {
     final password = _passwordController.text;
 
     if (email.isEmpty || password.isEmpty) {
-      _showMessage('Please enter email and password', isError: true);
+      _showMessage('login_error_empty'.tr(), isError: true);
       return;
     }
 
@@ -84,7 +85,7 @@ class _LoginScreenState extends State<LoginScreen> {
       _showMessage(_friendlyDioError(e), isError: true);
     } catch (e) {
       if (!mounted) return;
-      _showMessage('Unexpected error. Please try again.', isError: true);
+      _showMessage('error_unexpected'.tr(), isError: true);
     } finally {
       if (mounted) setState(() => _isLoading = false);
     }
@@ -94,25 +95,25 @@ class _LoginScreenState extends State<LoginScreen> {
     final status = e.response?.statusCode;
     switch (status) {
       case 400:
-        return 'Invalid email or password format';
+        return 'login_error_invalid_format'.tr();
       case 401:
-        return 'Incorrect password';
+        return 'login_error_incorrect_password'.tr();
       case 404:
-        return 'No account found with this email';
+        return 'login_error_no_account'.tr();
       case 500:
       case 502:
       case 503:
-        return 'Server error. Please try again later';
+        return 'login_error_server'.tr();
     }
     switch (e.type) {
       case DioExceptionType.connectionTimeout:
       case DioExceptionType.receiveTimeout:
       case DioExceptionType.sendTimeout:
-        return 'Connection timeout. Check your internet';
+        return 'login_error_timeout'.tr();
       case DioExceptionType.connectionError:
-        return 'No internet connection';
+        return 'login_error_no_internet'.tr();
       default:
-        return 'Login failed. Please try again';
+        return 'login_error_generic'.tr();
     }
   }
 
@@ -148,27 +149,27 @@ class _LoginScreenState extends State<LoginScreen> {
               ),
               const Spacer(flex: 2),
               _InputField(
-                label: 'Email',
+                label: 'email'.tr(),
                 controller: _emailController,
                 keyboardType: TextInputType.emailAddress,
                 appGreen: appGreen,
               ),
               const SizedBox(height: 24),
               _InputField(
-                label: 'Password',
+                label: 'password'.tr(),
                 controller: _passwordController,
                 isPassword: true,
                 appGreen: appGreen,
               ),
               const Spacer(flex: 3),
               PrimaryButton(
-                label: 'Sign in',
+                label: 'sign_in'.tr(),
                 isLoading: _isLoading,
                 onPressed: _doLogin,
               ),
               const Spacer(flex: 2),
               _LinkText(
-                label: 'forgot your password?',
+                label: 'forgot_password'.tr(),
                 fontWeight: FontWeight.w700,
                 color: appGreen,
                 onTap: () => context.push(AppRoutes.forgotPassword),

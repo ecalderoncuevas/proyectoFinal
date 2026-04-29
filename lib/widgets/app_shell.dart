@@ -1,4 +1,5 @@
 import 'dart:ui';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -261,28 +262,28 @@ class _DrawerContent extends StatelessWidget {
               ),
               const SizedBox(height: 48),
               _DrawerItem(
-                label: 'Perfil',
+                label: 'perfil'.tr(),
                 color: textColor,
                 onTap: () => onNavigate(AppRoutes.account),
               ),
               const SizedBox(height: 24),
               if (isProfessor) ...[
                 _DrawerItem(
-                  label: 'Clases',
+                  label: 'clases'.tr(),
                   color: textColor,
                   onTap: () => onNavigate(AppRoutes.clases),
                 ),
                 const SizedBox(height: 24),
               ] else ...[
                 _DrawerItem(
-                  label: 'Faltas',
+                  label: 'faltas'.tr(),
                   color: textColor,
                   onTap: () => onNavigate(AppRoutes.faltasGenerales),
                 ),
                 const SizedBox(height: 24),
               ],
               _DrawerItem(
-                label: 'Calendario',
+                label: 'calendario'.tr(),
                 color: textColor,
                 onTap: () => onNavigate(
                   isProfessor ? AppRoutes.scheduleProfessor : AppRoutes.schedule,
@@ -290,16 +291,16 @@ class _DrawerContent extends StatelessWidget {
               ),
               const SizedBox(height: 24),
               _DrawerItem(
-                label: 'Ajustes',
+                label: 'ajustes'.tr(),
                 color: textColor,
                 onTap: () => onNavigate(AppRoutes.settings),
               ),
               const Spacer(),
-              _FooterLink(label: 'Your Privacy', color: textColor),
+              _FooterLink(label: 'your_privacy'.tr(), color: textColor),
               const SizedBox(height: 16),
-              _FooterLink(label: 'Terms of Use', color: textColor),
+              _FooterLink(label: 'terms_of_use'.tr(), color: textColor),
               const SizedBox(height: 16),
-              _FooterLink(label: 'Política y Privacidad', color: textColor),
+              _FooterLink(label: 'politica_privacidad'.tr(), color: textColor),
               const SizedBox(height: 16),
             ],
           ),

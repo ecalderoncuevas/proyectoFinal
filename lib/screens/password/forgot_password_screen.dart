@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -39,7 +40,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
   Future<void> _sendReset() async {
     final email = _emailController.text.trim();
     if (email.isEmpty) {
-      _showMessage('Por favor introduce tu email', isError: true);
+      _showMessage('forgot_error_empty'.tr(), isError: true);
       return;
     }
 
@@ -51,16 +52,15 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
       context.push(AppRoutes.validationForgotPassword, extra: email);
     } on DioException catch (e) {
       if (!mounted) return;
-      final status = e.response?.statusCode;
-      String msg = 'Error al enviar el email';
-      if (status == 404) msg = 'No se encontró ninguna cuenta con ese email';
+      String msg = 'error_send_email'.tr();
+      if (e.response?.statusCode == 404) msg = 'login_error_no_account'.tr();
       if (e.type == DioExceptionType.connectionError) {
-        msg = 'Sin conexión a internet';
+        msg = 'login_error_no_internet'.tr();
       }
       _showMessage(msg, isError: true);
     } catch (e) {
       if (!mounted) return;
-      _showMessage('Error inesperado. Inténtalo de nuevo.', isError: true);
+      _showMessage('error_unexpected'.tr(), isError: true);
     } finally {
       if (mounted) setState(() => _isLoading = false);
     }
@@ -94,7 +94,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
             children: [
               const Spacer(flex: 2),
               Text(
-                'Forgot your\npassword?',
+                'forgot_password_title'.tr(),
                 textAlign: TextAlign.center,
                 style: GoogleFonts.rowdies(
                   fontSize: 36,
@@ -105,7 +105,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
               ),
               const SizedBox(height: 16),
               Text(
-                'Introduce tu email y te enviaremos\nun enlace para recuperar tu contraseña',
+                'forgot_password_subtitle'.tr(),
                 textAlign: TextAlign.center,
                 style: GoogleFonts.rowdies(
                   fontSize: 14,
@@ -119,7 +119,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                 keyboardType: TextInputType.emailAddress,
                 style: GoogleFonts.rowdies(color: appGreen, fontSize: 14),
                 decoration: InputDecoration(
-                  labelText: 'Email',
+                  labelText: 'email'.tr(),
                   labelStyle: GoogleFonts.rowdies(
                     color: appGreen,
                     fontSize: 14,
@@ -135,7 +135,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
               ),
               const SizedBox(height: 32),
               PrimaryButton(
-                label: 'SEND',
+                label: 'send'.tr(),
                 isLoading: _isLoading,
                 onPressed: _sendReset,
               ),

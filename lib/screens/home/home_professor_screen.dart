@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -84,7 +85,7 @@ class _HomeProfessorScreenState extends State<HomeProfessorScreen> {
                     : groups.isEmpty
                         ? Center(
                             child: Text(
-                              'No hay clases asignadas',
+                              'no_classes_assigned'.tr(),
                               style: GoogleFonts.rowdies(
                                 color: appGreen,
                                 fontSize: 16,
@@ -146,7 +147,7 @@ class _HeaderSection extends StatelessWidget {
             children: [
               const SizedBox(height: 24),
               Text(
-                'Buenos días,\n$userName',
+                'good_morning'.tr(namedArgs: {'name': userName}),
                 style: GoogleFonts.rowdies(
                   fontSize: 40,
                   fontWeight: FontWeight.w700,
@@ -230,7 +231,7 @@ class _ClassCard extends StatelessWidget {
                     );
                   },
                   child: Text(
-                    'ver faltas  →',
+                    '${'ver_faltas'.tr()}  →',
                     style: GoogleFonts.rowdies(
                       fontSize: 16,
                       fontWeight: FontWeight.w300,
@@ -260,7 +261,7 @@ class _ErrorView extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           Text(
-            'Error al cargar clases',
+            'error_load_classes'.tr(),
             style: GoogleFonts.rowdies(
               fontSize: 16,
               fontWeight: FontWeight.w700,
@@ -271,7 +272,7 @@ class _ErrorView extends StatelessWidget {
           GestureDetector(
             onTap: onRetry,
             child: Text(
-              'Reintentar',
+              'retry'.tr(),
               style: GoogleFonts.rowdies(
                 fontSize: 14,
                 fontWeight: FontWeight.w700,

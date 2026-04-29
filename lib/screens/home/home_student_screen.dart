@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
@@ -120,7 +121,7 @@ class _HomeStudentScreenState extends State<HomeStudentScreen> {
                     : groups.isEmpty
                         ? Center(
                             child: Text(
-                              'No hay asignaturas',
+                              'no_subjects'.tr(),
                               style: GoogleFonts.rowdies(
                                 color: appGreen,
                                 fontSize: 16,
@@ -139,7 +140,7 @@ class _HomeStudentScreenState extends State<HomeStudentScreen> {
                                   child: GestureDetector(
                                     onTap: () => LegendPopup.show(context),
                                     child: Text(
-                                      'Ver leyenda',
+                                      'ver_leyenda'.tr(),
                                       style: GoogleFonts.rowdies(
                                         fontSize: 15,
                                         fontWeight: FontWeight.w700,
@@ -206,7 +207,7 @@ class _HeaderSection extends StatelessWidget {
               _NfcCardButton(onTap: () {}, color: textColor),
               const SizedBox(height: 24),
               Text(
-                'Buenos días,\n$userName',
+                'good_morning'.tr(namedArgs: {'name': userName}),
                 style: GoogleFonts.rowdies(
                   fontSize: 40,
                   fontWeight: FontWeight.w700,
@@ -377,7 +378,7 @@ class _SubjectCard extends StatelessWidget {
                     );
                   },
                   child: Text(
-                    'ver faltas  →',
+                    '${'ver_faltas'.tr()}  →',
                     style: GoogleFonts.rowdies(
                       fontSize: 16,
                       fontWeight: FontWeight.w300,
@@ -414,7 +415,7 @@ class _ErrorView extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             Text(
-              'Error al cargar datos',
+              'error_load_data'.tr(),
               style: GoogleFonts.rowdies(
                 fontSize: 16,
                 fontWeight: FontWeight.w700,
@@ -425,7 +426,7 @@ class _ErrorView extends StatelessWidget {
             GestureDetector(
               onTap: onRetry,
               child: Text(
-                'Reintentar',
+                'retry'.tr(),
                 style: GoogleFonts.rowdies(
                   fontSize: 14,
                   fontWeight: FontWeight.w700,
