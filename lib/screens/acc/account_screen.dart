@@ -13,6 +13,14 @@ class AccountScreen extends StatelessWidget {
   const AccountScreen({super.key});
 
   static Future<bool?> _showLogoutDialog(BuildContext context) {
+
+    final isDark = context.read<ThemeProvider>().isDark;
+
+    final bgColor = isDark ? AppColors.darkBg : AppColors.homeLightBg;
+    
+    final accentColor = isDark ? AppColors.green : AppColors.homeDarkGreen;
+    final invertedText = isDark ? AppColors.darkBg : AppColors.homeLightBg;
+    
     return showGeneralDialog<bool>(
       context: context,
       barrierDismissible: true,
@@ -43,7 +51,7 @@ class AccountScreen extends StatelessWidget {
               width: 280,
               padding: const EdgeInsets.all(24),
               decoration: BoxDecoration(
-                color: AppColors.homeLightBg,
+                color: bgColor,
                 borderRadius: BorderRadius.circular(24),
                 boxShadow: [
                   BoxShadow(
@@ -61,7 +69,7 @@ class AccountScreen extends StatelessWidget {
                     style: GoogleFonts.rowdies(
                       fontSize: 22,
                       fontWeight: FontWeight.w700,
-                      color: AppColors.homeDarkGreen,
+                      color: accentColor,
                     ),
                   ),
                   const SizedBox(height: 12),
@@ -71,7 +79,7 @@ class AccountScreen extends StatelessWidget {
                     style: GoogleFonts.rowdies(
                       fontSize: 14,
                       fontWeight: FontWeight.w300,
-                      color: AppColors.homeDarkGreen,
+                      color: accentColor,
                     ),
                   ),
                   const SizedBox(height: 24),
@@ -90,7 +98,7 @@ class AccountScreen extends StatelessWidget {
                           style: GoogleFonts.rowdies(
                             fontSize: 16,
                             fontWeight: FontWeight.w700,
-                            color: AppColors.homeLightBg,
+                            color: accentColor,
                           ),
                         ),
                       ),
@@ -104,7 +112,7 @@ class AccountScreen extends StatelessWidget {
                       padding: const EdgeInsets.symmetric(vertical: 14),
                       decoration: BoxDecoration(
                         border: Border.all(
-                          color: AppColors.homeDarkGreen,
+                          color: accentColor,
                           width: 1.5,
                         ),
                         borderRadius: BorderRadius.circular(16),
@@ -115,7 +123,7 @@ class AccountScreen extends StatelessWidget {
                           style: GoogleFonts.rowdies(
                             fontSize: 16,
                             fontWeight: FontWeight.w700,
-                            color: AppColors.homeDarkGreen,
+                            color: accentColor,
                           ),
                         ),
                       ),
