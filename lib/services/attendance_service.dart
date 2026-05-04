@@ -25,7 +25,7 @@ class AttendanceService {
   }) async {
     try {
       final response = await _client.dio.get(
-        ApiConstants.attendanceMyHistory,
+        ApiConstants.attendanceHistory,
         queryParameters: {'userId': userId, 'groupId': groupId},
       );
 
@@ -72,7 +72,7 @@ class AttendanceService {
     if (data == null) return [];
     if (data is List) return data;
     if (data is Map) {
-      for (final key in ['data', 'items', 'history', 'records', 'result']) {
+      for (final key in ['data', 'items', 'history', 'records', 'result', 'attendances']) {
         if (data[key] is List) return data[key] as List;
       }
     }
@@ -102,6 +102,21 @@ class AttendanceService {
     }
   }
 
+  
+  Future<List<Attendance>> getMyHistoryByGroup({required String groupId}) async {
+    try {
+      final response = await _client.dio.get(
+        ApiConstants.attendanceMyHistory, // Usa el endpoint correcto para alumnos
+        queryParameters: {'groupId': groupId}, // El backend saca el userId del token
+      );
+      
+      // Reutilizamos tu función _toList que es súper segura
+      final list = _toList(response.data);
+      return list.map((e) => Attendance.fromJson(e as Map<String, dynamic>)).toList();
+    } catch (e) {
+      rethrow;
+    }
+  }
 
 
 }
