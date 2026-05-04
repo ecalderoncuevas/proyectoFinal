@@ -221,8 +221,8 @@ class _DrawerContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final bgColor = isDark ? AppColors.homeDarkGreen : AppColors.green;
-    final textColor = isDark ? AppColors.homeLightBg : AppColors.homeDarkGreen;
+    final bgColor = isDark ? AppColors.green : AppColors.homeDarkGreen;
+    final textColor = isDark ? AppColors.darkBg : AppColors.homeLightBg;
     final homeRoute =
         isProfessor ? AppRoutes.homeProfessor : AppRoutes.homeStudent;
 
