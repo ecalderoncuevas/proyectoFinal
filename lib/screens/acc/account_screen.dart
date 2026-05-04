@@ -98,7 +98,7 @@ class AccountScreen extends StatelessWidget {
                           style: GoogleFonts.rowdies(
                             fontSize: 16,
                             fontWeight: FontWeight.w700,
-                            color: accentColor,
+                            color: isDark ? AppColors.homeLightBg : AppColors.homeLightBg,
                           ),
                         ),
                       ),
