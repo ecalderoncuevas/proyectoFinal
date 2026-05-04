@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:go_router/go_router.dart';
+import 'package:proyecto_final_synquid/core/theme/app_theme.dart';
 import 'package:proyecto_final_synquid/screens/auth/login_screen.dart';
 import 'package:proyecto_final_synquid/screens/auth/validation_screen.dart';
 import 'package:proyecto_final_synquid/screens/auth/welcome_screen.dart';
@@ -45,8 +46,10 @@ class AppRoutes {
   
 }
 
+Map<dynamic, dynamic> empty = <dynamic, dynamic>{};
+
 final appRouter = GoRouter(
-  initialLocation: AppRoutes.homeStudent,
+  initialLocation: AppRoutes.welcome,
   routes: [
     GoRoute(
       path: AppRoutes.welcome,
@@ -145,13 +148,14 @@ final appRouter = GoRouter(
       GoRoute(
         path: AppRoutes.faltasAsignatura,
         builder: (context, state) {
-          final data = state.extra as Map<String, dynamic>;
+          
+          final data = state.extra != null ? state.extra as Map<String, dynamic> : empty;
           return FaltasAsignaturaScreen(
-            groupId: data['groupId'] as String,
-            subject: data['subject'] as String,
-            faltas: data['faltas'] as int,
-            total: data['total'] as int,
-            tagColor: data['tagColor'] as Color,
+            groupId: data['groupId'] ?? "" ,
+            subject: data['subject']  ?? "",
+            faltas: data['faltas'] ?? 0,
+            total: data['total'] ?? 0,
+            tagColor: data['tagColor'] ?? AppColors.homeDarkGreen,
           );
         },
       ),

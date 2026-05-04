@@ -10,7 +10,7 @@ class AttendanceService {
   Future<List<AttendanceRecord>> getMyHistory() async {
     try {
       final response = await _client.dio.get(ApiConstants.attendanceMyHistory);
-      final list = response.data as List<dynamic>;
+      final list = _toList(response.data);
       return list
           .map((e) => AttendanceRecord.fromJson(e as Map<String, dynamic>))
           .toList();
@@ -19,20 +19,17 @@ class AttendanceService {
     }
   }
 
-  Future<List<AttendanceHistoryItem>> getHistory({
+  Future<AttendanceResponse> getHistory({
     required String userId,
     required String groupId,
   }) async {
     try {
       final response = await _client.dio.get(
-        ApiConstants.attendanceHistory,
+        ApiConstants.attendanceMyHistory,
         queryParameters: {'userId': userId, 'groupId': groupId},
       );
-      final list = response.data as List<dynamic>;
-      return list
-          .map(
-              (e) => AttendanceHistoryItem.fromJson(e as Map<String, dynamic>))
-          .toList();
+
+      return AttendanceResponse.fromJson(response.data as Map<String, dynamic>);
     } catch (e) {
       rethrow;
     }
@@ -47,7 +44,7 @@ class AttendanceService {
         ApiConstants.attendanceToday,
         queryParameters: {'groupId': groupId, 'institutionId': institutionId},
       );
-      final list = response.data as List<dynamic>;
+      final list = _toList(response.data);
       return list
           .map((e) => TodayAttendance.fromJson(e as Map<String, dynamic>))
           .toList();
@@ -69,5 +66,16 @@ class AttendanceService {
     } catch (e) {
       rethrow;
     }
+  }
+
+  List<dynamic> _toList(dynamic data) {
+    if (data == null) return [];
+    if (data is List) return data;
+    if (data is Map) {
+      for (final key in ['data', 'items', 'history', 'records', 'result']) {
+        if (data[key] is List) return data[key] as List;
+      }
+    }
+    return [];
   }
 }

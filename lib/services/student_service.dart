@@ -11,7 +11,7 @@ class StudentService {
   Future<List<StudentGroup>> getMyGroups() async {
     try {
       final response = await _client.dio.get(ApiConstants.studentMyGroups);
-      final list = response.data as List<dynamic>;
+      final list = _toList(response.data);
       return list
           .map((e) => StudentGroup.fromJson(e as Map<String, dynamic>))
           .toList();
@@ -28,12 +28,23 @@ class StudentService {
         ApiConstants.studentSchedule,
         queryParameters: {'date': dateStr},
       );
-      final list = response.data as List<dynamic>;
+      final list = _toList(response.data);
       return list
           .map((e) => ScheduleItem.fromJson(e as Map<String, dynamic>))
           .toList();
     } catch (e) {
       rethrow;
     }
+  }
+
+  List<dynamic> _toList(dynamic data) {
+    if (data == null) return [];
+    if (data is List) return data;
+    if (data is Map) {
+      for (final key in ['data', 'items', 'groups', 'result', 'results']) {
+        if (data[key] is List) return data[key] as List;
+      }
+    }
+    return [];
   }
 }

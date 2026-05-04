@@ -422,6 +422,16 @@ class _ErrorView extends StatelessWidget {
                 color: color,
               ),
             ),
+            const SizedBox(height: 8),
+            Text(
+              error,
+              textAlign: TextAlign.center,
+              style: GoogleFonts.rowdies(
+                fontSize: 11,
+                fontWeight: FontWeight.w300,
+                color: color.withValues(alpha: 0.7),
+              ),
+            ),
             const SizedBox(height: 16),
             GestureDetector(
               onTap: onRetry,

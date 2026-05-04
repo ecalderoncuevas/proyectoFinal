@@ -30,7 +30,7 @@ class FaltasAsignaturaScreen extends StatefulWidget {
 }
 
 class _FaltasAsignaturaScreenState extends State<FaltasAsignaturaScreen> {
-  List<AttendanceHistoryItem> _absences = [];
+  List<Attendance> _absences = [];
   bool _loading = true;
   String? _error;
 
@@ -47,14 +47,15 @@ class _FaltasAsignaturaScreenState extends State<FaltasAsignaturaScreen> {
       _error = null;
     });
     try {
-      final all = await AttendanceService(ApiClient()).getHistory(
+      final response = await AttendanceService(ApiClient()).getHistory(
         userId: userId,
         groupId: widget.groupId,
       );
       if (mounted) {
-        setState(() => _absences = all.where((r) => r.status == 1).toList());
+        setState(() => _absences = response.attendances.where((r) => r.status == 1).toList());
       }
     } catch (e) {
+
       if (mounted) setState(() => _error = e.toString());
     } finally {
       if (mounted) setState(() => _loading = false);

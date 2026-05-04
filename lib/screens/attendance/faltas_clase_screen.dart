@@ -80,12 +80,12 @@ class _FaltasClaseScreenState extends State<FaltasClaseScreen> {
 
       final alumnoData = <_AlumnoData>[];
       for (var i = 0; i < students.length; i++) {
-        final history = histories[i];
-        final faltas = history.where((r) => r.status == 1).length;
+        final attendances = histories[i].attendances;
+        final faltas = attendances.where((r) => r.status == 1).length;
         alumnoData.add(_AlumnoData(
           student: students[i],
           faltas: faltas,
-          total: history.length,
+          total: attendances.length,
         ));
       }
 

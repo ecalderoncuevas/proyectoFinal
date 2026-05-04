@@ -79,6 +79,7 @@ class _HomeProfessorScreenState extends State<HomeProfessorScreen> {
                 ? Center(child: CircularProgressIndicator(color: appGreen))
                 : _error != null
                     ? _ErrorView(
+                        error: _error!,
                         color: appGreen,
                         onRetry: _loadIfNeeded,
                       )
@@ -178,6 +179,7 @@ class _ClassCard extends StatelessWidget {
     required this.bottomTextColor,
   });
 
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -249,39 +251,57 @@ class _ClassCard extends StatelessWidget {
 }
 
 class _ErrorView extends StatelessWidget {
+  final String error;
   final Color color;
   final VoidCallback onRetry;
 
-  const _ErrorView({required this.color, required this.onRetry});
+  const _ErrorView({
+    required this.error,
+    required this.color,
+    required this.onRetry,
+  });
 
   @override
   Widget build(BuildContext context) {
     return Center(
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Text(
-            'error_load_classes'.tr(),
-            style: GoogleFonts.rowdies(
-              fontSize: 16,
-              fontWeight: FontWeight.w700,
-              color: color,
-            ),
-          ),
-          const SizedBox(height: 16),
-          GestureDetector(
-            onTap: onRetry,
-            child: Text(
-              'retry'.tr(),
+      child: Padding(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              'error_load_classes'.tr(),
               style: GoogleFonts.rowdies(
-                fontSize: 14,
+                fontSize: 16,
                 fontWeight: FontWeight.w700,
                 color: color,
-                decoration: TextDecoration.underline,
               ),
             ),
-          ),
-        ],
+            const SizedBox(height: 8),
+            Text(
+              error,
+              textAlign: TextAlign.center,
+              style: GoogleFonts.rowdies(
+                fontSize: 11,
+                fontWeight: FontWeight.w300,
+                color: color.withValues(alpha: 0.7),
+              ),
+            ),
+            const SizedBox(height: 16),
+            GestureDetector(
+              onTap: onRetry,
+              child: Text(
+                'retry'.tr(),
+                style: GoogleFonts.rowdies(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w700,
+                  color: color,
+                  decoration: TextDecoration.underline,
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

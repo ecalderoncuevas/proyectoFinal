@@ -144,29 +144,43 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                 ? Center(child: CircularProgressIndicator(color: labelColor))
                 : _error != null
                     ? Center(
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Text(
-                              'error_load_schedule'.tr(),
-                              style: GoogleFonts.rowdies(
-                                color: labelColor,
-                                fontSize: 14,
-                              ),
-                            ),
-                            const SizedBox(height: 12),
-                            GestureDetector(
-                              onTap: _loadSchedules,
-                              child: Text(
-                                'retry'.tr(),
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 24),
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Text(
+                                'error_load_schedule'.tr(),
                                 style: GoogleFonts.rowdies(
                                   color: labelColor,
                                   fontSize: 14,
-                                  decoration: TextDecoration.underline,
+                                  fontWeight: FontWeight.w700,
                                 ),
                               ),
-                            ),
-                          ],
+                              const SizedBox(height: 6),
+                              Text(
+                                _error ?? '',
+                                textAlign: TextAlign.center,
+                                style: GoogleFonts.rowdies(
+                                  color: labelColor.withValues(alpha: 0.7),
+                                  fontSize: 10,
+                                  fontWeight: FontWeight.w300,
+                                ),
+                              ),
+                              const SizedBox(height: 12),
+                              GestureDetector(
+                                onTap: _loadSchedules,
+                                child: Text(
+                                  'retry'.tr(),
+                                  style: GoogleFonts.rowdies(
+                                    color: labelColor,
+                                    fontSize: 14,
+                                    decoration: TextDecoration.underline,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
                       )
                     : _slotsForSelectedDay.isEmpty
