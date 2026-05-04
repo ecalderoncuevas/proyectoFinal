@@ -78,4 +78,30 @@ class AttendanceService {
     }
     return [];
   }
+
+  Future<void> updateDailyAttendance({
+    required String userId,
+    required String scheduleId,
+    required String groupId,
+    required String date,
+    required int status,
+  }) async {
+    try {
+      await _client.dio.put(
+        ApiConstants.attendanceDaily, // Puedes mover esto a ApiConstants.attendanceDaily si prefieres
+        data: {
+          'userId': userId,
+          'scheduleId': scheduleId,
+          'groupId': groupId,
+          'date': date,
+          'status': status,
+        },
+      );
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+
+
 }

@@ -31,4 +31,5 @@ class ApiConstants {
   static const String attendanceHistory = '/attendance/history';
   static const String attendanceToday = '/attendance/today';
   static const String attendanceManual = '/attendance/manual';
+  static const String attendanceDaily = '/Attendance/daily';
 }

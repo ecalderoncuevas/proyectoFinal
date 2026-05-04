@@ -70,10 +70,13 @@ class _ReducirFaltasScreenState extends State<ReducirFaltasScreen> {
         context.read<UserProvider>().user?.institutionId ?? '';
     setState(() => _loadingToday = true);
     try {
+
       final todayList = await AttendanceService(ApiClient()).getToday(
         groupId: widget.groupId,
         institutionId: institutionId,
+        // date: _selectedDay?.toIso8601String() // Coméntale a tu compañero que añada este filtro
       );
+
       final statusMap = {for (final t in todayList) t.userId: t.status};
       if (mounted) {
         setState(() {
@@ -91,19 +94,26 @@ class _ReducirFaltasScreenState extends State<ReducirFaltasScreen> {
   }
 
   Future<void> _saveAttendance() async {
-    final profesorId = context.read<UserProvider>().user?.id ?? '';
     setState(() => _saving = true);
     try {
       final service = AttendanceService(ApiClient());
+      
+      // 👇 CAMBIO: Formatear la fecha seleccionada al formato ISO 8601 (UTC) que pide Swagger
+      final String formattedDate = _selectedDay!.toUtc().toIso8601String();
+
       await Future.wait(
         _rows.map(
-          (row) => service.postManual(
+          // 👇 CAMBIO: Usamos updateDailyAttendance en lugar de postManual
+          (row) => service.updateDailyAttendance(
             userId: row.student.userId,
+            scheduleId: "", // Se envía vacío a menos que lo extraigas de tu modelo
+            groupId: widget.groupId,
+            date: formattedDate,
             status: row.status,
-            profesorId: profesorId,
           ),
         ),
       );
+
       if (!mounted) return;
       _showMessage('attendance_saved'.tr(), isError: false);
     } on DioException {
@@ -165,6 +175,8 @@ class _ReducirFaltasScreenState extends State<ReducirFaltasScreen> {
                   _selectedDay = selectedDay;
                   _focusedDay = focusedDay;
                 });
+
+                _fetchTodayAttendance();
               },
               headerStyle: HeaderStyle(
                 formatButtonVisible: false,
