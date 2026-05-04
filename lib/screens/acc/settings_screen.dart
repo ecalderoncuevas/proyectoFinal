@@ -4,6 +4,8 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:proyecto_final_synquid/core/theme/app_theme.dart';
 import 'package:proyecto_final_synquid/core/theme/theme_provider.dart';
+import 'package:go_router/go_router.dart';
+import 'package:proyecto_final_synquid/core/router/app_router.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -72,7 +74,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         icon: Icons.person_outline,
                         label: 'account'.tr(),
                         textColor: textColor,
-                        onTap: () {},
+                        onTap: () {
+                          context.push(AppRoutes.account);
+                        },
                       ),
                       const SizedBox(height: 4),
                       _SettingsNavItem(
