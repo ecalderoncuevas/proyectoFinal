@@ -105,9 +105,7 @@ class _FaltasClaseScreenState extends State<FaltasClaseScreen> {
     final headerText = isDark ? AppColors.darkBg : AppColors.homeLightBg;
     final labelColor = isDark ? AppColors.green : AppColors.homeDarkGreen;
     final dividerColor = isDark ? Colors.white24 : Colors.black26;
-    final avatarBg = isDark
-        ? AppColors.green.withValues(alpha: 0.3)
-        : AppColors.green;
+    final avatarBg = isDark ? AppColors.green : AppColors.green;
 
     return Scaffold(
       backgroundColor: appBg,
@@ -267,7 +265,7 @@ class _AlumnoRow extends StatelessWidget {
             ),
             child: Icon(
               Icons.person,
-              color: AppColors.homeDarkGreen.withValues(alpha: 0.5),
+              color: AppColors.homeDarkGreen,
               size: 24,
             ),
           ),
