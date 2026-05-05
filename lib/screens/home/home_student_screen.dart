@@ -321,21 +321,26 @@ class _SubjectCard extends StatelessWidget {
         color: cardBgColor,
         borderRadius: BorderRadius.circular(16),
       ),
+
       child: Column(
         children: [
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
             child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(
-                  group.groupName,
-                  style: GoogleFonts.rowdies(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w700,
-                    color: cardTextColor,
+                Expanded(
+                  child: Text(
+                    group.groupName,
+                    style: GoogleFonts.rowdies(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w700,
+                      color: cardTextColor,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                   ),
                 ),
+                const SizedBox(width: 8),
                 Text(
                   group.level,
                   style: GoogleFonts.rowdies(
