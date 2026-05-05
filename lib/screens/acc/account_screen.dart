@@ -8,6 +8,9 @@ import 'package:proyecto_final_synquid/core/router/app_router.dart';
 import 'package:proyecto_final_synquid/core/storage/token_storage.dart';
 import 'package:proyecto_final_synquid/core/theme/app_theme.dart';
 import 'package:proyecto_final_synquid/core/theme/theme_provider.dart';
+import 'package:proyecto_final_synquid/services/auth_service.dart';
+import 'package:proyecto_final_synquid/services/api_client.dart';
+
 
 class AccountScreen extends StatelessWidget {
   const AccountScreen({super.key});
@@ -141,8 +144,14 @@ class AccountScreen extends StatelessWidget {
   Future<void> _logout(BuildContext context) async {
     final confirmed = await _showLogoutDialog(context);
     if (confirmed != true) return;
-    await TokenStorage().deleteToken();
+
+    
+    final authService = AuthService(ApiClient(), TokenStorage());
+    await authService.logout();
+
     if (!context.mounted) return;
+
+   
     context.read<UserProvider>().clear();
     context.go(AppRoutes.welcome);
   }

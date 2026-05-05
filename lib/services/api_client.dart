@@ -27,7 +27,40 @@ class ApiClient {
         }
         return handler.next(options);
       },
-      onError: (error, handler) {
+      
+      // 👇 AQUÍ HEMOS UNIFICADO EL ONERROR (Solo puede haber uno)
+      onError: (DioException error, ErrorInterceptorHandler handler) async {
+        if (error.response?.statusCode == 401) {
+          try {
+            // 0. Recuperamos el token actual (caducado)
+            final currentToken = await _storage.read(key: 'access_token');
+
+            if (currentToken != null) {
+              // 1. Pide token nuevo al servidor enviando el body requerido
+              final refreshResponse = await dio.post(
+                ApiConstants.refresh,
+                data: {
+                  "token": currentToken
+                },
+              );
+              
+              final newToken = refreshResponse.data['token'];
+
+              // 2. Guarda el nuevo token
+              await _storage.write(key: 'access_token', value: newToken);
+
+              // 3. Reintenta la petición original con el token nuevo
+              final opts = error.requestOptions;
+              opts.headers['Authorization'] = 'Bearer $newToken';
+              
+              final retryResponse = await dio.fetch(opts);
+              return handler.resolve(retryResponse);
+            }
+          } catch (_) {
+            // Si el refresh también falla, forzamos el logout local
+            await _storage.delete(key: 'access_token');
+          }
+        }
         return handler.next(error);
       },
     ));

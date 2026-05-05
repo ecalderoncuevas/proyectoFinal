@@ -6,8 +6,8 @@ class ApiConstants {
   static const String login = '/Auth/login';
   static const String logout = '/Auth/logout';
   static const String refresh = '/Auth/refresh';
-  static const String forgotPassword = '/auth/forgotPassword';
-  static const String resetPassword = '/auth/resetPassword';
+  static const String forgotPassword = '/Auth/forgotPassword';
+  static const String resetPassword = '/Auth/resetPassword';
   static const String verifyEmail = '/Auth/verifyEmail';
 
   // Institutions
@@ -27,9 +27,9 @@ class ApiConstants {
       '/teacher/groups/$groupId/students';
 
   // Attendance
-  static const String attendanceMyHistory = '/attendance/myHistory';
-  static const String attendanceHistory = '/attendance/history';
-  static const String attendanceToday = '/attendance/today';
-  static const String attendanceManual = '/attendance/manual';
+  static const String attendanceMyHistory = '/Attendance/myHistory';
+  static const String attendanceHistory = '/Attendance/history';
+  static const String attendanceToday = '/Attendance/today';
+  static const String attendanceManual = '/Attendance/manual';
   static const String attendanceDaily = '/Attendance/daily';
 }

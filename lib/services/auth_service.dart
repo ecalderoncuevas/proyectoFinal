@@ -70,6 +70,15 @@ class AuthService {
   }
 
   Future<void> logout() async {
+    try {
+    // Avisa al servidor para que el token quede invalidado en backend
+    await _client.dio.post(ApiConstants.logout);
+  } catch (e) {
+    // Ignoramos el error intencionadamente. Si el servidor falla,
+    // queremos cerrar la sesión localmente de todas formas.
+  } finally {
+    // Borrado local garantizado
     await _tokenStorage.deleteToken();
+  }
   }
 }
