@@ -64,12 +64,8 @@ class _AppShellState extends State<AppShell>
     final isDark = context.watch<ThemeProvider>().isDark;
     final isProfessor = context.watch<UserProvider>().isProfessor;
 
-    // Color del icono: C2D8C4 en dark, F8F5F2 en light (siempre visible
-    // gracias a la píldora de fondo homeDarkGreen detrás de cada icono).
-    final iconColor = isDark ? AppColors.green : AppColors.homeLightBg;
-    // Fondo de la píldora: homeDarkGreen con ligera opacidad. Contrasta
-    // con cualquier fondo de pantalla en ambos modos.
-    final pillBg = AppColors.homeDarkGreen.withValues(alpha: 0.88);
+    final hamburgerColor = isDark ? AppColors.homeDarkGreen : AppColors.homeLightBg; // #385144
+    final backArrowColor = isDark ? AppColors.darkBg : AppColors.homeLightBg; // #222222
 
     return Scaffold(
       body: Stack(
@@ -99,12 +95,12 @@ class _AppShellState extends State<AppShell>
                       width: 40,
                       height: 40,
                       decoration: BoxDecoration(
-                        color: pillBg,
+                        color: Colors.transparent,
                         borderRadius: BorderRadius.circular(10),
                       ),
                       child: Icon(
                         Icons.arrow_back_ios_new_rounded,
-                        color: iconColor,
+                        color: backArrowColor,
                         size: 20,
                       ),
                     ),
@@ -117,20 +113,17 @@ class _AppShellState extends State<AppShell>
                   child: Container(
                     width: 40,
                     height: 40,
-                    decoration: BoxDecoration(
-                      color: pillBg,
-                      borderRadius: BorderRadius.circular(10),
-                    ),
+                    color: Colors.transparent,
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       mainAxisAlignment: MainAxisAlignment.center,
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
-                        _MenuLine(color: iconColor),
+                        _MenuLine(color: hamburgerColor),
                         const SizedBox(height: 5),
-                        _MenuLine(color: iconColor),
+                        _MenuLine(color: hamburgerColor),
                         const SizedBox(height: 5),
-                        _MenuLine(color: iconColor),
+                        _MenuLine(color: hamburgerColor),
                       ],
                     ),
                   ),

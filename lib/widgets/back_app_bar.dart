@@ -10,12 +10,17 @@ class BackAppBar extends StatelessWidget implements PreferredSizeWidget {
   @override
   Widget build(BuildContext context) {
     final isDark = context.watch<ThemeProvider>().isDark;
+    
     final iconColor = isDark ? AppColors.darkBg : AppColors.homeLightBg;
 
     return AppBar(
       backgroundColor: Colors.transparent,
+      surfaceTintColor: Colors.transparent,
       elevation: 0,
+      scrolledUnderElevation: 0,
       leading: IconButton(
+        splashColor: Colors.transparent, 
+        highlightColor: Colors.transparent, 
         icon: Icon(
           Icons.arrow_back_ios_new_rounded,
           color: iconColor,
