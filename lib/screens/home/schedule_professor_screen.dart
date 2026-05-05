@@ -266,6 +266,7 @@ class _ScheduleProfessorScreenState extends State<ScheduleProfessorScreen> {
                     : ListView.builder(
                         controller: _mainController,
                         itemCount: _workingDays.length,
+                        itemExtent: _dayItemHeight,
                         itemBuilder: (context, index) {
                           final date = _workingDays[index];
                           final classes = _classesForDate(date);
@@ -365,6 +366,7 @@ class _SidebarColumn extends StatelessWidget {
                   controller: scrollController,
                   physics: const NeverScrollableScrollPhysics(),
                   itemCount: totalItems,
+                  itemExtent: itemHeight,
                   itemBuilder: (context, index) {
                     final date = dateForIndex(index);
                     return SizedBox(

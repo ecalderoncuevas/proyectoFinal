@@ -183,17 +183,24 @@ class _FaltaCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      height: 52,
-      decoration: BoxDecoration(borderRadius: BorderRadius.circular(12)),
-      clipBehavior: Clip.antiAlias,
+    return SizedBox(
+      height: 52, 
       child: Row(
         children: [
+         
           Expanded(
             child: Container(
-              color: cardBgColor,
               alignment: Alignment.centerLeft,
               padding: const EdgeInsets.symmetric(horizontal: 16),
+              decoration: BoxDecoration(
+                color: cardBgColor,
+                borderRadius: const BorderRadius.only(
+                  topLeft: Radius.circular(12),
+                  bottomLeft: Radius.circular(12),
+                  topRight: Radius.circular(4), 
+                  bottomRight: Radius.circular(4),
+                ),
+              ),
               child: Text(
                 item.subject,
                 style: GoogleFonts.rowdies(
@@ -201,13 +208,27 @@ class _FaltaCard extends StatelessWidget {
                   fontWeight: FontWeight.w700,
                   color: cardTextColor,
                 ),
+                maxLines: 1, 
+                overflow: TextOverflow.ellipsis, 
               ),
             ),
           ),
+          
+
+          const SizedBox(width: 4),
+          
+       
           Container(
             width: 72,
-            color: item.tagColor,
             alignment: Alignment.center,
+            decoration: BoxDecoration(
+              color: item.tagColor,
+              borderRadius: const BorderRadius.only(
+                topLeft: Radius.circular(4), 
+                topRight: Radius.circular(12),
+                bottomRight: Radius.circular(12),
+              ),
+            ),
             child: Text(
               '${item.faltas}/${item.total}',
               style: GoogleFonts.rowdies(
