@@ -46,7 +46,7 @@ class _ScheduleProfessorScreenState extends State<ScheduleProfessorScreen> {
   late final ScrollController _sidebarController;
   String _currentMonth = '';
   double _dayItemHeight = 130.0;
-  bool _scrollInitialized = false;
+  
 
   static final _workingDays = _buildWorkingDays();
 
@@ -118,7 +118,20 @@ class _ScheduleProfessorScreenState extends State<ScheduleProfessorScreen> {
       if (mounted) setState(() => _cache.addAll(newCache));
     } catch (_) {
     } finally {
-      if (mounted) setState(() => _loadingSchedule = false);
+      if (mounted) {
+        setState(() => _loadingSchedule = false);
+
+        WidgetsBinding.instance.addPostFrameCallback((_){
+          if (_mainController.hasClients) {
+            final offset = _todayIndex * _dayItemHeight;
+            _mainController.jumpTo(offset);
+            if (_sidebarController.hasClients) {
+              _sidebarController.jumpTo(offset);
+            }
+            _updateMonthFromOffset();
+          }
+        });
+      }
     }
   }
 
@@ -172,21 +185,16 @@ class _ScheduleProfessorScreenState extends State<ScheduleProfessorScreen> {
     final locale = context.locale.toString();
     _dayNameFormat = DateFormat('EEE', locale);
     _monthYearFormat = DateFormat('MMMM yyyy', locale);
+
+
     final screenHeight = MediaQuery.of(context).size.height;
     final computed = (screenHeight * 0.20).clamp(110.0, 155.0);
     if ((computed - _dayItemHeight).abs() > 1.0) {
       _dayItemHeight = computed;
     }
-    if (!_scrollInitialized) {
-      _scrollInitialized = true;
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (_mainController.hasClients) {
-          final offset = _todayIndex * _dayItemHeight;
-          _mainController.jumpTo(offset);
-          _sidebarController.jumpTo(offset);
-          _updateMonthFromOffset();
-        }
-      });
+
+    if (_currentMonth.isEmpty) {
+      _currentMonth = _formatMonth(DateTime.now());
     }
   }
 
@@ -221,6 +229,7 @@ class _ScheduleProfessorScreenState extends State<ScheduleProfessorScreen> {
 
   @override
   Widget build(BuildContext context) {
+
     final isDark = context.watch<ThemeProvider>().isDark;
     final appBg = isDark ? AppColors.darkBg : AppColors.homeLightBg;
     final labelColor = isDark ? AppColors.green : AppColors.homeDarkGreen;
@@ -228,7 +237,7 @@ class _ScheduleProfessorScreenState extends State<ScheduleProfessorScreen> {
     final dotColor = isDark ? AppColors.green : AppColors.homeDarkGreen;
 
     final screenWidth = MediaQuery.of(context).size.width;
-    final sidebarWidth = (screenWidth * 0.22).clamp(90.0, 120.0);
+    final sidebarWidth = (screenWidth * 0.22).clamp(110.0, 140.0);
 
     return Scaffold(
       backgroundColor: appBg,
@@ -301,23 +310,28 @@ class _SidebarColumn extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const sidebarBg = AppColors.homeDarkGreen;
-    const blockBg = AppColors.green;
-    const blockText = AppColors.homeDarkGreen;
-    const monthText = AppColors.homeLightBg;
+
+    final isDark = context.watch<ThemeProvider>().isDark;
+
+    final sidebarBg = isDark ? AppColors.green : AppColors.homeDarkGreen;
+    final blockBg = isDark ? AppColors.darkBg : AppColors.green;
+    final blockText = isDark ? AppColors.homeLightBg : AppColors.homeDarkGreen;
+    final monthText = isDark ? AppColors.darkBg : AppColors.homeLightBg;
+
 
     return Container(
       width: width,
       height: double.infinity,
-      decoration: const BoxDecoration(
+      decoration: BoxDecoration(
         color: sidebarBg,
         borderRadius: BorderRadius.only(
-          topRight: Radius.circular(20),
-          bottomRight: Radius.circular(20),
+          topRight: Radius.circular(24),
+          bottomRight: Radius.circular(24),
         ),
       ),
       child: Row(
         children: [
+          const SizedBox(width: 8),
           GestureDetector(
             onTap: onMonthTap,
             child: SizedBox(
@@ -328,7 +342,7 @@ class _SidebarColumn extends StatelessWidget {
                   child: Text(
                     currentMonth,
                     style: GoogleFonts.rowdies(
-                      fontSize: 18,
+                      fontSize: 22,
                       fontWeight: FontWeight.w700,
                       color: monthText,
                     ),
@@ -339,11 +353,8 @@ class _SidebarColumn extends StatelessWidget {
               ),
             ),
           ),
-          Container(
-            width: 1,
-            margin: const EdgeInsets.symmetric(vertical: 20),
-            color: monthText.withValues(alpha: 0.15),
-          ),
+          const SizedBox(width: 8),
+
           Expanded(
             child: SafeArea(
               bottom: false,
@@ -360,12 +371,12 @@ class _SidebarColumn extends StatelessWidget {
                       height: itemHeight,
                       child: Center(
                         child: Container(
-                          width: 50,
+                          width: 58,
                           padding: const EdgeInsets.symmetric(
-                              horizontal: 6, vertical: 10),
+                              horizontal: 4, vertical: 12),
                           decoration: BoxDecoration(
                             color: blockBg,
-                            borderRadius: BorderRadius.circular(12),
+                            borderRadius: BorderRadius.circular(16),
                           ),
                           child: Column(
                             mainAxisSize: MainAxisSize.min,
@@ -373,7 +384,7 @@ class _SidebarColumn extends StatelessWidget {
                               Text(
                                 formatDayName(date),
                                 style: GoogleFonts.rowdies(
-                                  fontSize: 11,
+                                  fontSize: 13,
                                   fontWeight: FontWeight.w700,
                                   color: blockText,
                                 ),
@@ -383,7 +394,7 @@ class _SidebarColumn extends StatelessWidget {
                               Text(
                                 '${date.day}',
                                 style: GoogleFonts.rowdies(
-                                  fontSize: 17,
+                                  fontSize: 18,
                                   fontWeight: FontWeight.w700,
                                   color: blockText,
                                 ),
@@ -399,6 +410,7 @@ class _SidebarColumn extends StatelessWidget {
               ),
             ),
           ),
+          const SizedBox(width: 12),
         ],
       ),
     );
