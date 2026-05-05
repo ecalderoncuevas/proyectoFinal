@@ -50,6 +50,7 @@ Map<dynamic, dynamic> empty = <dynamic, dynamic>{};
 
 final appRouter = GoRouter(
   initialLocation: AppRoutes.welcome,
+  //welcome
   routes: [
     GoRoute(
       path: AppRoutes.welcome,

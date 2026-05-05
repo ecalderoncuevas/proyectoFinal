@@ -285,55 +285,59 @@ class _ReducirFaltasScreenState extends State<ReducirFaltasScreen> {
                                     ),
                                   ),
                                 ),
-                                DropdownButtonHideUnderline(
-                                  child: DropdownButton<String>(
-                                    value: _statusLabels[row.status],
-                                    dropdownColor: dropdownBgColor,
-                                    borderRadius: BorderRadius.circular(16),
-                                    icon: Padding(
-                                      padding:
-                                          const EdgeInsets.only(left: 8.0),
-                                      child: Icon(
-                                        Icons.keyboard_arrow_down_rounded,
-                                        color: textColor,
-                                        size: 20,
+                                Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 12),
+                                  decoration: BoxDecoration(
+                                    color: appGreen,
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                  child: DropdownButtonHideUnderline(
+                                    child: DropdownButton<String>(
+                                      value: _statusLabels[row.status],
+                                      isDense: false,
+                                      dropdownColor: appGreen,
+                                      borderRadius: BorderRadius.circular(12),
+                                      icon: Padding(
+                                        padding: const EdgeInsets.only(left: 4),
+                                        child: Icon(
+                                          Icons.keyboard_arrow_down_rounded,
+                                          color: appBg,
+                                          size: 22,
+                                        ),
                                       ),
-                                    ),
-                                    items: _statusOptions.map((s) {
-                                      return DropdownMenuItem<String>(
-                                        value: s,
-                                        child: Padding(
-                                          padding: const EdgeInsets.symmetric(
-                                            horizontal: 8.0,
-                                          ),
-                                          child: Text(
-                                            s.tr(),
-                                            style: GoogleFonts.rowdies(
-                                              color: s ==
-                                                      _statusLabels[row.status]
-                                                  ? textColor
-                                                  : AppColors.darkBg,
-                                              fontSize: 16,
-                                              fontWeight: FontWeight.w700,
+                                      items: _statusOptions.map((s) {
+                                        return DropdownMenuItem<String>(
+                                          value: s,
+                                          child: Padding(
+                                            padding: const EdgeInsets.symmetric(
+                                                horizontal: 10, vertical: 6),
+                                            child: Text(
+                                              s.tr(),
+                                              style: GoogleFonts.rowdies(
+                                                color: appBg,
+                                                fontSize: 14,
+                                                fontWeight: FontWeight.w700,
+                                              ),
                                             ),
                                           ),
-                                        ),
-                                      );
-                                    }).toList(),
-                                    onChanged: (val) {
-                                      if (val != null) {
-                                        setState(() {
-                                          row.status =
-                                              _labelToStatus[val] ?? 1;
-                                        });
-                                      }
-                                    },
+                                        );
+                                      }).toList(),
+                                      onChanged: (val) {
+                                        if (val != null) {
+                                          setState(() {
+                                            row.status = _labelToStatus[val] ?? 1;
+                                          });
+                                        }
+                                      },
+                                    ),
                                   ),
                                 ),
+                                
                               ],
-                            );
+                            ); 
                           },
                         ),
+
             ),
             Padding(
               padding: const EdgeInsets.symmetric(
