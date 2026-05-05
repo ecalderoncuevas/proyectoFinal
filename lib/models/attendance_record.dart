@@ -30,6 +30,7 @@ class Attendance {
   final String endTime;
   final int status;
   final String createdAt;
+  final String userId;
 
   Attendance({
     required this.id,
@@ -41,6 +42,7 @@ class Attendance {
     required this.endTime,
     required this.status,
     required this.createdAt,
+    required this.userId,
   });
 
   String get hora => startTime;
@@ -68,6 +70,7 @@ class Attendance {
       endTime: (json['endTime'] ?? '').toString(),
       status: (json['status'] as num?)?.toInt() ?? 0,
       createdAt: (json['createdAt'] ?? '').toString(),
+      userId: json['userId'] ?? '',
     );
   }
 }

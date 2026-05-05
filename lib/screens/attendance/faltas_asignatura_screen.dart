@@ -54,9 +54,10 @@ class _FaltasAsignaturaScreenState extends State<FaltasAsignaturaScreen> {
       _currentTagColor = AppColors.tagGreen;
     } else {
       final ratio = _faltas / _total;
-      if (ratio >= 0.5) {
+
+      if (ratio >= 0.75) {
         _currentTagColor = AppColors.tagRed;
-      } else if (ratio >= 0.25) {
+      } else if (ratio >= 0.50) {
         _currentTagColor = AppColors.tagYellow;
       } else {
         _currentTagColor = AppColors.tagGreen;

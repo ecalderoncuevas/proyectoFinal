@@ -58,11 +58,34 @@ class _HomeStudentScreenState extends State<HomeStudentScreen> {
     }
   }
 
+  Future<void> _refreshData() async {
+    try {
+      final client = ApiClient();
+      final results = await Future.wait([
+        StudentService(client).getMyGroups(),
+        AttendanceService(client).getMyHistory(),
+      ]);
+      if (!mounted) return;
+      
+      // Esto actualiza el Provider con los datos nuevos (ej. de 2/7 pasa a 1/7)
+      context.read<UserProvider>().cacheStudentData(
+        groups: results[0] as List<StudentGroup>,
+        history: results[1] as List<AttendanceRecord>,
+      );
+    } catch (e) {
+      if (mounted) setState(() => _error = e.toString());
+    }
+  }
+
+
+
+
+
   Color _tagColor(int faltas, int total) {
     if (total == 0) return AppColors.tagGreen;
     final ratio = faltas / total;
-    if (ratio >= 0.5) return AppColors.tagRed;
-    if (ratio >= 0.25) return AppColors.tagYellow;
+    if (ratio >= 0.75) return AppColors.tagRed;    // 🔴 75% o más (Crítico)
+    if (ratio >= 0.50) return AppColors.tagYellow; // 🟡 50% o más (Cuidado)
     return AppColors.tagGreen;
   }
 
@@ -78,6 +101,9 @@ class _HomeStudentScreenState extends State<HomeStudentScreen> {
     }
     return map;
   }
+
+
+  
 
   @override
   Widget build(BuildContext context) {
@@ -128,50 +154,58 @@ class _HomeStudentScreenState extends State<HomeStudentScreen> {
                               ),
                             ),
                           )
-                        : SingleChildScrollView(
-                            padding:
-                                const EdgeInsets.symmetric(horizontal: 20.0),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                const SizedBox(height: 16),
-                                Align(
-                                  alignment: Alignment.centerRight,
-                                  child: GestureDetector(
-                                    onTap: () => LegendPopup.show(context),
-                                    child: Text(
-                                      'ver_leyenda'.tr(),
-                                      style: GoogleFonts.rowdies(
-                                        fontSize: 15,
-                                        fontWeight: FontWeight.w700,
-                                        color: appGreen,
+                          // 👇 AÑADIMOS EL REFRESH INDICATOR AQUÍ
+                        : RefreshIndicator(
+                            color: appGreen,
+                            backgroundColor: bgColor,
+                            onRefresh: _refreshData,
+                            child: SingleChildScrollView(
+                              // 👇 MUY IMPORTANTE: Permite hacer scroll aunque haya pocas asignaturas
+                              physics: const AlwaysScrollableScrollPhysics(), 
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 20.0),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  const SizedBox(height: 16),
+                                  Align(
+                                    alignment: Alignment.centerRight,
+                                    child: GestureDetector(
+                                      onTap: () => LegendPopup.show(context, items: LegendPopup.faltasItems),
+                                      child: Text(
+                                        'ver_leyenda'.tr(),
+                                        style: GoogleFonts.rowdies(
+                                          fontSize: 15,
+                                          fontWeight: FontWeight.w700,
+                                          color: appGreen,
+                                        ),
                                       ),
                                     ),
                                   ),
-                                ),
-                                const SizedBox(height: 12),
-                                ...groups.map((group) {
-                                  final att = summary[group.groupId] ??
-                                      {'faltas': 0, 'total': 0};
-                                  final faltas = att['faltas']!;
-                                  final total = att['total']!;
-                                  final tag = _tagColor(faltas, total);
-                                  return Padding(
-                                    padding: const EdgeInsets.only(bottom: 12),
-                                    child: _SubjectCard(
-                                      group: group,
-                                      faltas: faltas,
-                                      total: total,
-                                      tagColor: tag,
-                                      cardBgColor: cardTopBg,
-                                      cardTextColor: cardTopText,
-                                      bottomBgColor: cardBottomBg,
-                                      bottomTextColor: cardBottomText,
-                                    ),
-                                  );
-                                }),
-                                const SizedBox(height: 24),
-                              ],
+                                  const SizedBox(height: 12),
+                                  ...groups.map((group) {
+                                    final att = summary[group.groupId] ??
+                                        {'faltas': 0, 'total': 0};
+                                    final faltas = att['faltas']!;
+                                    final total = att['total']!;
+                                    final tag = _tagColor(faltas, total);
+                                    return Padding(
+                                      padding: const EdgeInsets.only(bottom: 12),
+                                      child: _SubjectCard(
+                                        group: group,
+                                        faltas: faltas,
+                                        total: total,
+                                        tagColor: tag,
+                                        cardBgColor: cardTopBg,
+                                        cardTextColor: cardTopText,
+                                        bottomBgColor: cardBottomBg,
+                                        bottomTextColor: cardBottomText,
+                                      ),
+                                    );
+                                  }),
+                                  const SizedBox(height: 24),
+                                ],
+                              ),
                             ),
                           ),
           ),
@@ -180,7 +214,6 @@ class _HomeStudentScreenState extends State<HomeStudentScreen> {
     );
   }
 }
-
 class _HeaderSection extends StatelessWidget {
   final Color headerColor;
   final Color textColor;

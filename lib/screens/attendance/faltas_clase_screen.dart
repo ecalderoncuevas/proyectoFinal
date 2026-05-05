@@ -26,8 +26,9 @@ class _AlumnoData {
   Color get tagColor {
     if (total == 0) return AppColors.tagGreen;
     final ratio = faltas / total;
-    if (ratio >= 0.5) return AppColors.tagRed;
-    if (ratio >= 0.25) return AppColors.tagYellow;
+
+    if (ratio >= 0.75) return AppColors.tagRed;
+    if (ratio >= 0.50) return AppColors.tagYellow;
     return AppColors.tagGreen;
   }
 }
@@ -62,40 +63,54 @@ class _FaltasClaseScreenState extends State<FaltasClaseScreen> {
     setState(() {
       _loading = true;
       _error = null;
+      _alumnos.clear();
     });
-    try {
-      final client = ApiClient();
-      final students =
-          await TeacherService(client).getGroupStudents(widget.groupId);
-      _students = students;
 
-      final histories = await Future.wait(
-        students.map(
-          (s) => AttendanceService(client).getHistory(
-            userId: s.userId,
-            groupId: widget.groupId,
-          ),
-        ),
+    try {
+      final client = ApiClient(); // 👈 1. Solucionado el error del client
+
+      // 👈 2. Volvemos a pedir los alumnos al servidor (ajusta el nombre del método si en tu TeacherService se llama distinto)
+      final studentsList = await TeacherService(client).getGroupStudents(widget.groupId); 
+      
+      // Pedimos el historial global
+      final historyResponse = await AttendanceService(client).getHistory(
+        groupId: widget.groupId,
       );
 
-      final alumnoData = <_AlumnoData>[];
-      for (var i = 0; i < students.length; i++) {
-        final attendances = histories[i].attendances;
-        final faltas = attendances.where((r) => r.status == 1).length;
-        alumnoData.add(_AlumnoData(
-          student: students[i],
-          faltas: faltas,
-          total: attendances.length,
-        ));
+      List<_AlumnoData> listaMapeada = [];
+
+      for (var student in studentsList) {
+        // Filtramos el historial gigante para este alumno
+        final studentRecords = historyResponse.attendances
+            .where((record) => record.userId == student.userId)
+            .toList();
+
+        int totalClases = studentRecords.length;
+        int totalFaltas = studentRecords.where((r) => r.status == 1).length;
+
+        listaMapeada.add(
+          _AlumnoData(
+            student: student,
+            faltas: totalFaltas,
+            total: totalClases,
+          ),
+        );
       }
 
-      if (mounted) setState(() => _alumnos = alumnoData);
+      // Guardamos todo en el estado de la pantalla
+      if (mounted) {
+        setState(() {
+          _students = studentsList;
+          _alumnos = listaMapeada;
+        });
+      }
     } catch (e) {
       if (mounted) setState(() => _error = e.toString());
     } finally {
       if (mounted) setState(() => _loading = false);
     }
   }
+
 
   @override
   Widget build(BuildContext context) {
@@ -154,14 +169,15 @@ class _FaltasClaseScreenState extends State<FaltasClaseScreen> {
                 ),
                 if (!_loading && _error == null)
                   GestureDetector(
-                    onTap: () {
-                      context.push(
+                    onTap: () async {
+                      await context.push(
                         AppRoutes.reducirFaltas,
-                        extra: {
-                          'groupId': widget.groupId,
-                          'students': _students,
-                        },
+                          extra: {
+                            'groupId': widget.groupId,
+                            'students': _students,
+                          },
                       );
+                      _fetchData();
                     },
                     child: Text(
                       '${'reducir_faltas'.tr()} →',

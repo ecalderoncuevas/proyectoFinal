@@ -20,13 +20,24 @@ class AttendanceService {
   }
 
   Future<AttendanceResponse> getHistory({
-    required String userId,
     required String groupId,
   }) async {
     try {
+      final DateTime toDate = DateTime.now();
+      final DateTime fromDate = toDate.subtract(const Duration(days: 365));
+
+      final String fromStr = "${fromDate.year}-${fromDate.month.toString().padLeft(2, '0')}-${fromDate.day.toString().padLeft(2, '0')}";
+      final String toStr = "${toDate.year}-${toDate.month.toString().padLeft(2, '0')}-${toDate.day.toString().padLeft(2, '0')}";
+      
       final response = await _client.dio.get(
         ApiConstants.attendanceHistory,
-        queryParameters: {'userId': userId, 'groupId': groupId},
+        queryParameters: {
+          'groupId': groupId,
+          'from': fromStr,
+          'to': toStr,
+          'page': 1,
+          'limit': 1000, // 👈 Límite alto para recibir las 7 clases (o más) sin cortes
+        },
       );
 
       return AttendanceResponse.fromJson(response.data as Map<String, dynamic>);

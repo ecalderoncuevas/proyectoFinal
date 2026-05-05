@@ -12,9 +12,9 @@ class LegendItem {
 
 class LegendPopup {
   static const _defaultItems = [
-    LegendItem(label: 'presente', color: AppColors.tagGreen),
-    LegendItem(label: 'pendiente', color: AppColors.tagYellow),
-    LegendItem(label: 'ausente', color: AppColors.tagRed),
+    LegendItem(label: 'dbiendd', color: AppColors.tagGreen),
+    LegendItem(label: 'cuidado', color: AppColors.tagYellow),
+    LegendItem(label: 'critico', color: AppColors.tagRed),
   ];
 
   static const faltasItems = [

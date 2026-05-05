@@ -25,8 +25,8 @@ class _FaltaItem {
   Color get tagColor {
     if (total == 0) return AppColors.tagGreen;
     final ratio = faltas / total;
-    if (ratio >= 0.5) return AppColors.tagRed;
-    if (ratio >= 0.25) return AppColors.tagYellow;
+    if (ratio >= 0.75) return AppColors.tagRed;
+    if (ratio >= 0.50) return AppColors.tagYellow;
     return AppColors.tagGreen;
   }
 }
