@@ -64,8 +64,40 @@ class _AppShellState extends State<AppShell>
     final isDark = context.watch<ThemeProvider>().isDark;
     final isProfessor = context.watch<UserProvider>().isProfessor;
 
-    final hamburgerColor = isDark ? AppColors.homeDarkGreen : AppColors.homeLightBg; // #385144
-    final backArrowColor = isDark ? AppColors.darkBg : AppColors.homeLightBg; // #222222
+    Color hamburgerColor;
+    Color backArrowColor;
+
+    if (location == AppRoutes.scheduleProfessor) {
+
+      if (isDark) {
+        hamburgerColor = AppColors.green;         
+        backArrowColor = AppColors.darkBg;        
+      } else {
+        hamburgerColor = AppColors.homeDarkGreen; 
+        backArrowColor = AppColors.homeLightBg;   
+      }
+      
+    } else if (location == AppRoutes.reducirFaltas) {
+
+      if (isDark) {
+        hamburgerColor = AppColors.green;        
+        backArrowColor = AppColors.green;         
+      } else {
+        hamburgerColor = AppColors.homeDarkGreen; 
+        backArrowColor = AppColors.homeDarkGreen; 
+      }
+      
+    } else {
+
+      if (isDark) {
+        hamburgerColor = AppColors.homeDarkGreen; 
+        backArrowColor = AppColors.darkBg;           
+      } else {
+        hamburgerColor = AppColors.homeLightBg;   
+        backArrowColor = AppColors.homeLightBg;   
+      }
+    }
+    
 
     return Scaffold(
       body: Stack(
