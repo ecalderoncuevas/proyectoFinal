@@ -144,14 +144,27 @@ class AttendanceService {
   
   Future<List<Attendance>> getMyHistoryByGroup({required String groupId}) async {
     try {
+      final DateTime toDate = DateTime.now();
+      final DateTime fromDate = toDate.subtract(const Duration(days: 365));
+      final String fromStr = '${fromDate.year}-${fromDate.month.toString().padLeft(2, '0')}-${fromDate.day.toString().padLeft(2, '0')}';
+      final String toStr = '${toDate.year}-${toDate.month.toString().padLeft(2, '0')}-${toDate.day.toString().padLeft(2, '0')}';
+
+      // myHistory no acepta groupId — el backend lo ignora.
+      // Pedimos todo el historial con el mismo rango que usa el profesor
+      // y filtramos por groupId en el cliente.
       final response = await _client.dio.get(
-        ApiConstants.attendanceMyHistory, // Usa el endpoint correcto para alumnos
-        queryParameters: {'groupId': groupId}, // El backend saca el userId del token
+        ApiConstants.attendanceMyHistory,
+        queryParameters: {
+          'from': fromStr,
+          'to': toStr,
+          'page': 1,
+          'limit': 1000,
+        },
       );
-      
-      // Reutilizamos tu función _toList que es súper segura
+
       final list = _toList(response.data);
-      return list.map((e) => Attendance.fromJson(e as Map<String, dynamic>)).toList();
+      final all = list.map((e) => Attendance.fromJson(e as Map<String, dynamic>)).toList();
+      return all.where((a) => a.groupId == groupId).toList();
     } catch (e) {
       rethrow;
     }
