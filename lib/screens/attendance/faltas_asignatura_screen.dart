@@ -1,8 +1,8 @@
+import 'dart:async';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
-import 'package:proyecto_final_synquid/core/providers/user_provider.dart';
 import 'package:proyecto_final_synquid/core/theme/app_theme.dart';
 import 'package:proyecto_final_synquid/core/theme/theme_provider.dart';
 import 'package:proyecto_final_synquid/models/attendance_record.dart';
@@ -37,24 +37,36 @@ class _FaltasAsignaturaScreenState extends State<FaltasAsignaturaScreen> {
   late int _faltas;
   late int _total;
   late Color _currentTagColor;
+  
+  Timer? _timer;
 
   @override
   void initState() {
     super.initState();
-    // Inicializamos con lo que viene de la navegación (por si tarda en cargar)
     _faltas = widget.faltas;
     _total = widget.total;
     _currentTagColor = widget.tagColor;
+    
     _fetchAbsences();
+
+    _timer = Timer.periodic(const Duration(seconds: 3), (timer) {
+      if (mounted) {
+        _fetchAbsences(isSilent: true);
+      }
+    });
   }
 
-  
+  @override
+  void dispose() {
+    _timer?.cancel();
+    super.dispose();
+  }
+
   void _updateColors() {
     if (_total == 0) {
       _currentTagColor = AppColors.tagGreen;
     } else {
       final ratio = _faltas / _total;
-
       if (ratio >= 0.75) {
         _currentTagColor = AppColors.tagRed;
       } else if (ratio >= 0.50) {
@@ -65,31 +77,35 @@ class _FaltasAsignaturaScreenState extends State<FaltasAsignaturaScreen> {
     }
   }
 
-  Future<void> _fetchAbsences() async {
-    final userId = context.read<UserProvider>().user?.id ?? '';
-    setState(() {
-      _loading = true;
-      _error = null;
-    });
+  Future<void> _fetchAbsences({bool isSilent = false}) async {
+    if (!isSilent) {
+      setState(() {
+        _loading = true;
+        _error = null;
+      });
+    }
+
     try {
       final attendances = await AttendanceService(ApiClient()).getMyHistoryByGroup(
         groupId: widget.groupId,
       );
+      
       if (mounted) {
         setState(() {
-          // 👇 Ahora recibimos directamente la lista de Attendance
           _total = attendances.length;
           _absences = attendances.where((r) => r.status == 1).toList();
           _faltas = _absences.length;
-
           _updateColors();
         });
       }
     } catch (e) {
-      print('🔥🔥🔥 ERROR EXACTO EN FALTAS: $e');
-      if (mounted) setState(() => _error = e.toString());
+      if (!isSilent && mounted) {
+        setState(() => _error = e.toString());
+      }
     } finally {
-      if (mounted) setState(() => _loading = false);
+      if (!isSilent && mounted) {
+        setState(() => _loading = false);
+      }
     }
   }
 
@@ -190,7 +206,7 @@ class _FaltasAsignaturaScreenState extends State<FaltasAsignaturaScreen> {
                             ),
                             const SizedBox(height: 12),
                             GestureDetector(
-                              onTap: _fetchAbsences,
+                              onTap: () => _fetchAbsences(),
                               child: Text(
                                 'retry'.tr(),
                                 style: GoogleFonts.rowdies(
