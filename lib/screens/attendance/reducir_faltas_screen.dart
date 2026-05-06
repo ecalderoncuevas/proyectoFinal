@@ -12,13 +12,6 @@ import 'package:proyecto_final_synquid/services/attendance_service.dart';
 import 'package:proyecto_final_synquid/widgets/back_app_bar.dart';
 import 'package:table_calendar/table_calendar.dart';
 
-class _StudentRow {
-  final Student student;
-  int status; // 0=Presente 1=Ausente 2=Justificado 3=Tarde
-
-  _StudentRow({required this.student, this.status = 1});
-}
-
 class ReducirFaltasScreen extends StatefulWidget {
   final String groupId;
   final List<Student> students;
@@ -37,11 +30,11 @@ class _ReducirFaltasScreenState extends State<ReducirFaltasScreen> {
   DateTime _focusedDay = DateTime.now();
   DateTime? _selectedDay = DateTime.now();
 
-  late List<_StudentRow> _rows;
+  // Estado de asistencia: userId → status (0=presente,1=ausente,2=justificado,3=tarde)
+  final Map<String, int> _statusById = {};
   bool _loadingToday = true;
   bool _saving = false;
 
-  // Translation keys used as internal values for the dropdown
   static const _statusOptions = ['presente', 'ausente', 'justificado', 'tarde'];
   static const _statusLabels = {
     0: 'presente',
@@ -59,31 +52,31 @@ class _ReducirFaltasScreenState extends State<ReducirFaltasScreen> {
   @override
   void initState() {
     super.initState();
-    _rows = widget.students
-        .map((s) => _StudentRow(student: s, status: 1))
-        .toList();
+    for (final s in widget.students) {
+      _statusById[s.userId] = 1;
+    }
     _fetchTodayAttendance();
   }
 
   Future<void> _fetchTodayAttendance() async {
-    final institutionId =
-        context.read<UserProvider>().user?.institutionId ?? '';
+    final institutionId = context.read<UserProvider>().user?.institutionId ?? '';
     setState(() => _loadingToday = true);
     try {
+      final d = _selectedDay!;
+      final String soloFecha =
+          '${d.year}-${d.month.toString().padLeft(2, '0')}-${d.day.toString().padLeft(2, '0')}';
 
       final todayList = await AttendanceService(ApiClient()).getToday(
         groupId: widget.groupId,
         institutionId: institutionId,
-        // date: _selectedDay?.toIso8601String() // Coméntale a tu compañero que añada este filtro
+        date: soloFecha,
       );
 
-      final statusMap = {for (final t in todayList) t.userId: t.status};
+      final apiMap = {for (final t in todayList) t.userId: t.status};
       if (mounted) {
         setState(() {
-          for (final row in _rows) {
-            if (statusMap.containsKey(row.student.userId)) {
-              row.status = statusMap[row.student.userId]!.clamp(0, 3);
-            }
+          for (final s in widget.students) {
+            _statusById[s.userId] = (apiMap[s.userId] ?? 1).clamp(0, 3);
           }
         });
       }
@@ -97,22 +90,17 @@ class _ReducirFaltasScreenState extends State<ReducirFaltasScreen> {
     setState(() => _saving = true);
     try {
       final service = AttendanceService(ApiClient());
-      
-      // 👇 CAMBIO: Formatear la fecha seleccionada al formato ISO 8601 (UTC) que pide Swagger
       final String formattedDate = _selectedDay!.toUtc().toIso8601String();
 
-      await Future.wait(
-        _rows.map(
-          // 👇 CAMBIO: Usamos updateDailyAttendance en lugar de postManual
-          (row) => service.updateDailyAttendance(
-            userId: row.student.userId,
-            scheduleId: "", // Se envía vacío a menos que lo extraigas de tu modelo
-            groupId: widget.groupId,
-            date: formattedDate,
-            status: row.status,
-          ),
-        ),
-      );
+      for (final student in widget.students) {
+        await service.updateDailyAttendance(
+          userId: student.userId,
+          scheduleId: '',
+          groupId: widget.groupId,
+          date: formattedDate,
+          status: _statusById[student.userId] ?? 1,
+        );
+      }
 
       if (!mounted) return;
       _showMessage('attendance_saved'.tr(), isError: false);
@@ -166,18 +154,17 @@ class _ReducirFaltasScreenState extends State<ReducirFaltasScreen> {
           children: [
             TableCalendar(
               locale: context.locale.toString(),
-              
               firstDay: DateTime.utc(2020, 1, 1),
-              lastDay: DateTime.utc(2030, 12, 31),
+              lastDay: DateTime.now(),
               focusedDay: _focusedDay,
               calendarFormat: CalendarFormat.week,
+              enabledDayPredicate: (day) => !day.isAfter(DateTime.now()),
               selectedDayPredicate: (day) => isSameDay(_selectedDay, day),
               onDaySelected: (selectedDay, focusedDay) {
                 setState(() {
                   _selectedDay = selectedDay;
                   _focusedDay = focusedDay;
                 });
-
                 _fetchTodayAttendance();
               },
               headerStyle: HeaderStyle(
@@ -185,10 +172,8 @@ class _ReducirFaltasScreenState extends State<ReducirFaltasScreen> {
                 titleCentered: true,
                 titleTextStyle:
                     GoogleFonts.rowdies(color: textColor, fontSize: 16),
-                leftChevronIcon:
-                    Icon(Icons.chevron_left, color: textColor),
-                rightChevronIcon:
-                    Icon(Icons.chevron_right, color: textColor),
+                leftChevronIcon: Icon(Icons.chevron_left, color: textColor),
+                rightChevronIcon: Icon(Icons.chevron_right, color: textColor),
               ),
               daysOfWeekStyle: DaysOfWeekStyle(
                 weekdayStyle:
@@ -248,7 +233,7 @@ class _ReducirFaltasScreenState extends State<ReducirFaltasScreen> {
             Expanded(
               child: _loadingToday
                   ? Center(child: CircularProgressIndicator(color: appGreen))
-                  : _rows.isEmpty
+                  : widget.students.isEmpty
                       ? Center(
                           child: Text(
                             'no_students_short'.tr(),
@@ -263,7 +248,7 @@ class _ReducirFaltasScreenState extends State<ReducirFaltasScreen> {
                             horizontal: 24.0,
                             vertical: 8.0,
                           ),
-                          itemCount: _rows.length,
+                          itemCount: widget.students.length,
                           separatorBuilder: (_, _) => Padding(
                             padding: const EdgeInsets.symmetric(vertical: 8.0),
                             child: Divider(
@@ -272,14 +257,15 @@ class _ReducirFaltasScreenState extends State<ReducirFaltasScreen> {
                             ),
                           ),
                           itemBuilder: (context, index) {
-                            final row = _rows[index];
+                            final student = widget.students[index];
+                            final status = _statusById[student.userId] ?? 1;
                             return Row(
                               mainAxisAlignment:
                                   MainAxisAlignment.spaceBetween,
                               children: [
                                 Expanded(
                                   child: Text(
-                                    row.student.fullName,
+                                    student.fullName,
                                     style: GoogleFonts.rowdies(
                                       fontSize: 18,
                                       fontWeight: FontWeight.w700,
@@ -288,19 +274,21 @@ class _ReducirFaltasScreenState extends State<ReducirFaltasScreen> {
                                   ),
                                 ),
                                 Container(
-                                  padding: const EdgeInsets.symmetric(horizontal: 12),
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 12),
                                   decoration: BoxDecoration(
                                     color: appGreen,
                                     borderRadius: BorderRadius.circular(12),
                                   ),
                                   child: DropdownButtonHideUnderline(
                                     child: DropdownButton<String>(
-                                      value: _statusLabels[row.status],
+                                      value: _statusLabels[status],
                                       isDense: false,
                                       dropdownColor: appGreen,
                                       borderRadius: BorderRadius.circular(12),
                                       icon: Padding(
-                                        padding: const EdgeInsets.only(left: 4),
+                                        padding:
+                                            const EdgeInsets.only(left: 4),
                                         child: Icon(
                                           Icons.keyboard_arrow_down_rounded,
                                           color: appBg,
@@ -311,8 +299,10 @@ class _ReducirFaltasScreenState extends State<ReducirFaltasScreen> {
                                         return DropdownMenuItem<String>(
                                           value: s,
                                           child: Padding(
-                                            padding: const EdgeInsets.symmetric(
-                                                horizontal: 10, vertical: 6),
+                                            padding:
+                                                const EdgeInsets.symmetric(
+                                                    horizontal: 10,
+                                                    vertical: 6),
                                             child: Text(
                                               s.tr(),
                                               style: GoogleFonts.rowdies(
@@ -327,19 +317,18 @@ class _ReducirFaltasScreenState extends State<ReducirFaltasScreen> {
                                       onChanged: (val) {
                                         if (val != null) {
                                           setState(() {
-                                            row.status = _labelToStatus[val] ?? 1;
+                                            _statusById[student.userId] =
+                                                _labelToStatus[val] ?? 1;
                                           });
                                         }
                                       },
                                     ),
                                   ),
                                 ),
-                                
                               ],
-                            ); 
+                            );
                           },
                         ),
-
             ),
             Padding(
               padding: const EdgeInsets.symmetric(

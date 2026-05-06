@@ -36,7 +36,7 @@ class AttendanceService {
           'from': fromStr,
           'to': toStr,
           'page': 1,
-          'limit': 1000, // 👈 Límite alto para recibir las 7 clases (o más) sin cortes
+          'limit': 1000, 
         },
       );
 
@@ -49,11 +49,16 @@ class AttendanceService {
   Future<List<TodayAttendance>> getToday({
     required String groupId,
     required String institutionId,
+    String? date, 
   }) async {
     try {
       final response = await _client.dio.get(
         ApiConstants.attendanceToday,
-        queryParameters: {'groupId': groupId, 'institutionId': institutionId},
+        queryParameters: {
+          'groupId': groupId, 
+          'institutionId': institutionId,
+          if (date != null) 'date': date, 
+        },
       );
       final list = _toList(response.data);
       return list
@@ -92,14 +97,14 @@ class AttendanceService {
 
   Future<void> updateDailyAttendance({
     required String userId,
-    required String scheduleId,
+    required String scheduleId, 
     required String groupId,
     required String date,
     required int status,
   }) async {
     try {
       await _client.dio.put(
-        ApiConstants.attendanceDaily, // Puedes mover esto a ApiConstants.attendanceDaily si prefieres
+        ApiConstants.attendanceDaily,
         data: {
           'userId': userId,
           'scheduleId': scheduleId,
