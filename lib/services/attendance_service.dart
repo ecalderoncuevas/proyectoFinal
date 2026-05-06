@@ -9,7 +9,20 @@ class AttendanceService {
 
   Future<List<AttendanceRecord>> getMyHistory() async {
     try {
-      final response = await _client.dio.get(ApiConstants.attendanceMyHistory);
+      final DateTime toDate = DateTime.now();
+      final DateTime fromDate = toDate.subtract(const Duration(days: 365));
+      final String fromStr = '${fromDate.year}-${fromDate.month.toString().padLeft(2, '0')}-${fromDate.day.toString().padLeft(2, '0')}';
+      final String toStr = '${toDate.year}-${toDate.month.toString().padLeft(2, '0')}-${toDate.day.toString().padLeft(2, '0')}';
+
+      final response = await _client.dio.get(
+        ApiConstants.attendanceMyHistory,
+        queryParameters: {
+          'from': fromStr,
+          'to': toStr,
+          'page': 1,
+          'limit': 1000,
+        },
+      );
       final list = _toList(response.data);
       return list
           .map((e) => AttendanceRecord.fromJson(e as Map<String, dynamic>))
