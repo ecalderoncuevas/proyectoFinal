@@ -3,7 +3,6 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
-import 'package:proyecto_final_synquid/core/providers/user_provider.dart';
 import 'package:proyecto_final_synquid/core/theme/app_theme.dart';
 import 'package:proyecto_final_synquid/core/theme/theme_provider.dart';
 import 'package:proyecto_final_synquid/models/student.dart';
@@ -30,8 +29,9 @@ class _ReducirFaltasScreenState extends State<ReducirFaltasScreen> {
   DateTime _focusedDay = DateTime.now();
   DateTime? _selectedDay = DateTime.now();
 
-  // Estado de asistencia: userId → status (0=presente,1=ausente,2=justificado,3=tarde)
-  final Map<String, int> _statusById = {};
+  // Cache por fecha: dateKey → (userId → status)
+  // Cada día guarda su propio estado independientemente
+  final Map<String, Map<String, int>> _statusByDate = {};
   bool _loadingToday = true;
   bool _saving = false;
 
@@ -49,38 +49,54 @@ class _ReducirFaltasScreenState extends State<ReducirFaltasScreen> {
     'tarde': 3,
   };
 
+  String get _dateKey {
+    final d = _selectedDay!;
+    return '${d.year}-${d.month.toString().padLeft(2, '0')}-${d.day.toString().padLeft(2, '0')}';
+  }
+
+  Map<String, int> get _currentStatus => _statusByDate[_dateKey] ?? {};
+
   @override
   void initState() {
     super.initState();
-    for (final s in widget.students) {
-      _statusById[s.userId] = 1;
-    }
     _fetchTodayAttendance();
   }
 
   Future<void> _fetchTodayAttendance() async {
-    final institutionId = context.read<UserProvider>().user?.institutionId ?? '';
+    final dateKey = _dateKey;
+
+    // Si ya tenemos datos para este día, no hace falta llamar a la API
+    if (_statusByDate.containsKey(dateKey)) {
+      setState(() => _loadingToday = false);
+      return;
+    }
+
     setState(() => _loadingToday = true);
     try {
-      final d = _selectedDay!;
-      final String soloFecha =
-          '${d.year}-${d.month.toString().padLeft(2, '0')}-${d.day.toString().padLeft(2, '0')}';
-
-      final todayList = await AttendanceService(ApiClient()).getToday(
+      // Usamos history con from=to=fecha para obtener la asistencia real de ese día
+      // getToday solo devuelve datos de HOY; para días pasados necesitamos history
+      final apiMap = await AttendanceService(ApiClient()).getStatusByDate(
         groupId: widget.groupId,
-        institutionId: institutionId,
-        date: soloFecha,
+        date: dateKey,
       );
 
-      final apiMap = {for (final t in todayList) t.userId: t.status};
+      final dayStatus = <String, int>{
+        for (final s in widget.students)
+          s.userId: (apiMap[s.userId] ?? 1).clamp(0, 3),
+      };
+
       if (mounted) {
-        setState(() {
-          for (final s in widget.students) {
-            _statusById[s.userId] = (apiMap[s.userId] ?? 1).clamp(0, 3);
-          }
-        });
+        setState(() => _statusByDate[dateKey] = dayStatus);
       }
     } catch (_) {
+      // En caso de error inicializamos con ausente para no mostrar datos de otro día
+      if (mounted) {
+        setState(() {
+          _statusByDate[dateKey] ??= {
+            for (final s in widget.students) s.userId: 1,
+          };
+        });
+      }
     } finally {
       if (mounted) setState(() => _loadingToday = false);
     }
@@ -98,7 +114,7 @@ class _ReducirFaltasScreenState extends State<ReducirFaltasScreen> {
           scheduleId: '',
           groupId: widget.groupId,
           date: formattedDate,
-          status: _statusById[student.userId] ?? 1,
+          status: _currentStatus[student.userId] ?? 1,
         );
       }
 
@@ -258,7 +274,7 @@ class _ReducirFaltasScreenState extends State<ReducirFaltasScreen> {
                           ),
                           itemBuilder: (context, index) {
                             final student = widget.students[index];
-                            final status = _statusById[student.userId] ?? 1;
+                            final status = _currentStatus[student.userId] ?? 1;
                             return Row(
                               mainAxisAlignment:
                                   MainAxisAlignment.spaceBetween,
@@ -317,7 +333,8 @@ class _ReducirFaltasScreenState extends State<ReducirFaltasScreen> {
                                       onChanged: (val) {
                                         if (val != null) {
                                           setState(() {
-                                            _statusById[student.userId] =
+                                            _statusByDate[_dateKey] ??= {};
+                                            _statusByDate[_dateKey]![student.userId] =
                                                 _labelToStatus[val] ?? 1;
                                           });
                                         }

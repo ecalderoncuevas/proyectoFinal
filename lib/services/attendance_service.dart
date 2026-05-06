@@ -69,6 +69,29 @@ class AttendanceService {
     }
   }
 
+  // Devuelve userId → status para una fecha concreta usando el endpoint de historial
+  Future<Map<String, int>> getStatusByDate({
+    required String groupId,
+    required String date, // formato "YYYY-MM-DD"
+  }) async {
+    try {
+      final response = await _client.dio.get(
+        ApiConstants.attendanceHistory,
+        queryParameters: {
+          'groupId': groupId,
+          'from': date,
+          'to': date,
+          'page': 1,
+          'limit': 1000,
+        },
+      );
+      final parsed = AttendanceResponse.fromJson(response.data as Map<String, dynamic>);
+      return {for (final a in parsed.attendances) a.userId: a.status};
+    } catch (e) {
+      rethrow;
+    }
+  }
+
   Future<void> postManual({
     required String userId,
     required int status,
