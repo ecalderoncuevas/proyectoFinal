@@ -1,12 +1,13 @@
 // Centraliza todas las URLs de la API REST del backend para evitar strings dispersos
 class ApiConstants {
-  // URL base del servidor (actualmente expuesto mediante ngrok)
+  // URL base del servidor
   static const String baseUrl =
       'https://dentinal-uncompounded-erma.ngrok-free.dev/api';
 
   // ── Autenticación ──────────────────────────────────────────────────────────
   static const String login = '/Auth/login';
   static const String logout = '/Auth/logout';
+
   // Renueva el access token enviando el token caducado en el body
   static const String refresh = '/Auth/refresh';
   static const String forgotPassword = '/Auth/forgotPassword';
@@ -37,7 +38,7 @@ class ApiConstants {
       '/teacher/groups/$groupId/students';
 
   // ── Asistencia ─────────────────────────────────────────────────────────────
-  // Historial de asistencia del alumno autenticado (no acepta groupId)
+  // Historial de asistencia del alumno autenticado 
   static const String attendanceMyHistory = '/Attendance/myHistory';
   // Historial global de asistencia con filtros de grupo, fechas y paginación
   static const String attendanceHistory = '/Attendance/history';
@@ -45,6 +46,6 @@ class ApiConstants {
   static const String attendanceToday = '/Attendance/today';
   // Registra asistencia manual por el profesor
   static const String attendanceManual = '/Attendance/manual';
-  // Actualiza el estado de asistencia de un día concreto (PUT)
+  // Actualiza el estado de asistencia de un día concreto 
   static const String attendanceDaily = '/Attendance/daily';
 }

@@ -3,7 +3,7 @@
 class StudentGroup {
   final String groupId;
   final String groupName;
-  final String level;        // Nivel educativo (p.ej. "DAW2")
+  final String level;        // Nivel educativo 
   final String institutionId;
   final String professorId;
   final String professorName;

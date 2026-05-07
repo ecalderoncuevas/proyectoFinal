@@ -85,7 +85,7 @@ class AttendanceHistoryItem {
   final String id;
   final String date;
   final int status;
-  final String timestampLocal; // ISO 8601 en hora local del dispositivo
+  final String timestampLocal; // hora local del dispositivo
 
   AttendanceHistoryItem({
     required this.id,

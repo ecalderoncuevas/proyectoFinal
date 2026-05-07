@@ -61,10 +61,12 @@ class SynquidApp extends StatelessWidget {
         brightness: Brightness.light,
         scaffoldBackgroundColor: AppColors.homeLightBg,
       ),
+
       darkTheme: ThemeData(
         brightness: Brightness.dark,
         scaffoldBackgroundColor: AppColors.darkBg,
       ),
+      
       // Configuración de localización tomada del contexto de EasyLocalization
       localizationsDelegates: context.localizationDelegates,
       supportedLocales: context.supportedLocales,
