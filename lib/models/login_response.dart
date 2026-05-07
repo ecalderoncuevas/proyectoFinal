@@ -1,9 +1,9 @@
+// Respuesta del endpoint /Auth/login
 class LoginResponse {
-  final int errorCode;
+  final int errorCode;  // 0 = éxito; cualquier otro valor = error del servidor
   final String message;
   final String timestamp;
-  final String token;
-
+  final String token;   // JWT vacío si el login falla
 
   LoginResponse({
     required this.errorCode,
@@ -12,6 +12,7 @@ class LoginResponse {
     required this.token,
   });
 
+  // Construye el objeto desde el JSON; usa valores por defecto si algún campo falta
   factory LoginResponse.fromJson(Map<String, dynamic> json){
     return LoginResponse(
       errorCode: json['errorCode'] as int? ?? 0,
@@ -21,5 +22,6 @@ class LoginResponse {
     );
   }
 
+  // Conveniencia: true solo si el servidor indica éxito Y hay un token válido
   bool get isSuccess => errorCode == 0 && token.isNotEmpty;
 }

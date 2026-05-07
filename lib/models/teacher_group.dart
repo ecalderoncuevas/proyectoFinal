@@ -1,9 +1,11 @@
+// Grupo asignado al profesor; devuelto por /teacher/myGroups
+// Incluye el número de alumnos del grupo (no disponible en StudentGroup)
 class TeacherGroup {
   final String groupId;
   final String groupName;
   final String level;
   final String institutionId;
-  final int studentCount;
+  final int studentCount; // Total de alumnos matriculados en el grupo
 
   TeacherGroup({
     required this.groupId,

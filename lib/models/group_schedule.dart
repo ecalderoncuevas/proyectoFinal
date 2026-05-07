@@ -1,9 +1,11 @@
+// Horario recurrente de un grupo con tolerancia de retraso
+// Actualmente no se usa en pantallas activas; se mantiene para referencia futura
 class GroupSchedule {
   final String scheduleId;
   final int dayOfWeek; // 0=Sun, 1=Mon, 2=Tue, 3=Wed, 4=Thu, 5=Fri, 6=Sat
   final String startTime;
   final String endTime;
-  final int lateToleranceMinutes;
+  final int lateToleranceMinutes; // Minutos de gracia antes de marcar como tarde
 
   GroupSchedule({
     required this.scheduleId,

@@ -1,7 +1,9 @@
+// Grupo al que pertenece el alumno; devuelto por /student/myGroups
+// Incluye el profesor responsable del grupo para mostrarlo en la UI
 class StudentGroup {
   final String groupId;
   final String groupName;
-  final String level;
+  final String level;        // Nivel educativo (p.ej. "DAW2")
   final String institutionId;
   final String professorId;
   final String professorName;

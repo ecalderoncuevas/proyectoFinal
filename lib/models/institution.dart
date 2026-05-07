@@ -1,11 +1,12 @@
+// Institución educativa; devuelta por /Institutions y mostrada en SelectInstitutionScreen
 class Institution {
   final String id;
   final String name;
   final String address;
   final String phone;
   final String contactEmail;
-  final int type;
-  final String? logoUrl;
+  final int type;          // Tipo de centro (p.ej. 1=universidad, 2=FP)
+  final String? logoUrl;   // Puede ser null si el centro no tiene logo configurado
   final String timezone;
   final bool isActive;
 

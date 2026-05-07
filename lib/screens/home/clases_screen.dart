@@ -11,9 +11,11 @@ import 'package:proyecto_final_synquid/models/attendance_record.dart';
 import 'package:proyecto_final_synquid/models/student_group.dart';
 import 'package:proyecto_final_synquid/models/teacher_group.dart';
 
+// Pantalla de clases compartida por alumno y profesor; renderiza vistas distintas según el rol
 class ClasesScreen extends StatelessWidget {
   const ClasesScreen({super.key});
 
+  // Calcula el color del tag con umbrales distintos a los de HomeStudentScreen (25 % y 50 %)
   Color _tagColor(int faltas, int total) {
     if (total == 0) return AppColors.tagGreen;
     final ratio = faltas / total;
@@ -86,6 +88,7 @@ class ClasesScreen extends StatelessWidget {
 }
 
 // ─── Vista profesor ───────────────────────────────────────────────────────────
+// Lista los grupos del profesor; cada tarjeta navega a FaltasClaseScreen
 
 class _ProfessorView extends StatelessWidget {
   final Color labelColor;
@@ -190,6 +193,7 @@ class _TeacherGroupCard extends StatelessWidget {
 }
 
 // ─── Vista alumno ─────────────────────────────────────────────────────────────
+// Muestra los grupos del alumno en una cuadrícula de 2 columnas con placeholder de color
 
 class _StudentView extends StatelessWidget {
   final Color labelColor;

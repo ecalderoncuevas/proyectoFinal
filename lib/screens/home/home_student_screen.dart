@@ -14,6 +14,7 @@ import 'package:proyecto_final_synquid/services/attendance_service.dart';
 import 'package:proyecto_final_synquid/services/student_service.dart';
 import 'package:proyecto_final_synquid/widgets/legend_popup.dart';
 
+// Pantalla principal del alumno: muestra las asignaturas y el resumen de faltas de cada una
 class HomeStudentScreen extends StatefulWidget {
   const HomeStudentScreen({super.key});
 
@@ -31,6 +32,7 @@ class _HomeStudentScreenState extends State<HomeStudentScreen> {
     _loadIfNeeded();
   }
 
+  // Carga grupos e historial solo si no están cacheados en UserProvider; evita llamadas duplicadas
   Future<void> _loadIfNeeded() async {
     final provider = context.read<UserProvider>();
     if (provider.studentGroups != null) return;
@@ -58,6 +60,8 @@ class _HomeStudentScreenState extends State<HomeStudentScreen> {
     }
   }
 
+  // Fuerza la recarga de datos desde la API (acción del pull-to-refresh)
+  // Actualiza el Provider para que las tarjetas reflejen los contadores actualizados
   Future<void> _refreshData() async {
     try {
       final client = ApiClient();
@@ -66,8 +70,8 @@ class _HomeStudentScreenState extends State<HomeStudentScreen> {
         AttendanceService(client).getMyHistory(),
       ]);
       if (!mounted) return;
-      
-      // Esto actualiza el Provider con los datos nuevos (ej. de 2/7 pasa a 1/7)
+
+      // Reemplaza los datos cacheados con los nuevos (p.ej. si el profesor redujo faltas)
       context.read<UserProvider>().cacheStudentData(
         groups: results[0] as List<StudentGroup>,
         history: results[1] as List<AttendanceRecord>,
@@ -81,14 +85,17 @@ class _HomeStudentScreenState extends State<HomeStudentScreen> {
 
 
 
+  // Determina el color del tag según el porcentaje de faltas sobre el total de clases
   Color _tagColor(int faltas, int total) {
     if (total == 0) return AppColors.tagGreen;
     final ratio = faltas / total;
-    if (ratio >= 0.75) return AppColors.tagRed;    // 🔴 75% o más (Crítico)
-    if (ratio >= 0.50) return AppColors.tagYellow; // 🟡 50% o más (Cuidado)
+    if (ratio >= 0.75) return AppColors.tagRed;    // ≥75 % → situación crítica
+    if (ratio >= 0.50) return AppColors.tagYellow; // ≥50 % → aviso
     return AppColors.tagGreen;
   }
 
+  // Agrupa el historial de asistencia por groupId calculando faltas y total de clases
+  // Devuelve un mapa groupId → { 'faltas': n, 'total': n } para pintar las tarjetas
   Map<String, Map<String, int>> _computeAttendanceSummary(
       List<AttendanceRecord> history) {
     final map = <String, Map<String, int>>{};
@@ -214,6 +221,7 @@ class _HomeStudentScreenState extends State<HomeStudentScreen> {
     );
   }
 }
+// Cabecera de color sólido con saludo al alumno y botón decorativo de NFC
 class _HeaderSection extends StatelessWidget {
   final Color headerColor;
   final Color textColor;
@@ -256,6 +264,7 @@ class _HeaderSection extends StatelessWidget {
   }
 }
 
+// Botón visual con apariencia de tarjeta NFC; reservado para integración futura de NFC/BLE
 class _NfcCardButton extends StatelessWidget {
   final VoidCallback onTap;
   final Color color;
@@ -326,6 +335,7 @@ class _CardLine extends StatelessWidget {
   }
 }
 
+// Tarjeta de asignatura: muestra el nombre del grupo, nivel, tag de color y enlace a los detalles
 class _SubjectCard extends StatelessWidget {
   final StudentGroup group;
   final int faltas;
@@ -433,6 +443,7 @@ class _SubjectCard extends StatelessWidget {
   }
 }
 
+// Vista de error genérica con mensaje y botón de reintento
 class _ErrorView extends StatelessWidget {
   final String error;
   final Color color;

@@ -9,6 +9,8 @@ import 'package:proyecto_final_synquid/core/theme/app_theme.dart';
 import 'package:proyecto_final_synquid/core/theme/theme_provider.dart';
 import 'package:proyecto_final_synquid/core/providers/user_provider.dart';
 
+// Shell que envuelve todas las rutas autenticadas: superpone el botón de menú, la flecha de retroceso
+// y el drawer lateral deslizante con difuminado de fondo
 class AppShell extends StatefulWidget {
   final Widget child;
 
@@ -27,10 +29,12 @@ class _AppShellState extends State<AppShell>
   @override
   void initState() {
     super.initState();
+    // Controlador de 300ms que gestiona la apertura/cierre animado del drawer
     _drawerController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 300),
     );
+    // El drawer entra desde la derecha (Offset(1,0) → Offset(0,0))
     _slideAnimation = Tween<Offset>(
       begin: const Offset(1, 0),
       end: Offset.zero,
@@ -38,6 +42,7 @@ class _AppShellState extends State<AppShell>
       parent: _drawerController,
       curve: Curves.easeOutCubic,
     ));
+    // El fondo se oscurece y desenfoca progresivamente al abrir el drawer
     _fadeAnimation = Tween<double>(
       begin: 0,
       end: 1,
@@ -214,6 +219,7 @@ class _AppShellState extends State<AppShell>
   }
 }
 
+// Línea horizontal del icono de menú hamburguesa
 class _MenuLine extends StatelessWidget {
   final Color color;
   const _MenuLine({required this.color});
@@ -231,6 +237,8 @@ class _MenuLine extends StatelessWidget {
   }
 }
 
+// Contenido del drawer lateral: logo, enlaces de navegación y links de pie de página
+// Los ítems cambian según el rol (alumno ve "Faltas", profesor ve "Clases")
 class _DrawerContent extends StatelessWidget {
   final bool isDark;
   final bool isProfessor;
@@ -335,6 +343,7 @@ class _DrawerContent extends StatelessWidget {
   }
 }
 
+// Elemento de navegación del drawer: texto tappable sin decoración adicional
 class _DrawerItem extends StatelessWidget {
   final String label;
   final Color color;
@@ -364,6 +373,7 @@ class _DrawerItem extends StatelessWidget {
   }
 }
 
+// Enlace de pie de página del drawer (privacidad, términos de uso) — actualmente sin acción
 class _FooterLink extends StatelessWidget {
   final String label;
   final Color color;

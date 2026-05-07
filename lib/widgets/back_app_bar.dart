@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:proyecto_final_synquid/core/theme/app_theme.dart';
 import 'package:proyecto_final_synquid/core/theme/theme_provider.dart';
 
+// AppBar transparente con solo el botón de retroceso; usado en pantallas fuera del ShellRoute
 class BackAppBar extends StatelessWidget implements PreferredSizeWidget {
   const BackAppBar({super.key});
 

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:proyecto_final_synquid/core/theme/app_theme.dart';
 
+// Par etiqueta-color para una entrada de la leyenda de asistencia
 class LegendItem {
   final String label;
   final Color color;
@@ -10,13 +11,16 @@ class LegendItem {
   const LegendItem({required this.label, required this.color});
 }
 
+// Popup de leyenda de colores de asistencia; se muestra al tocar "Ver leyenda"
 class LegendPopup {
+  // Ítems por defecto (no se usa actualmente; faltasItems lo reemplaza en todas las pantallas)
   static const _defaultItems = [
     LegendItem(label: 'dbiendd', color: AppColors.tagGreen),
     LegendItem(label: 'cuidado', color: AppColors.tagYellow),
     LegendItem(label: 'critico', color: AppColors.tagRed),
   ];
 
+  // Ítems usados en todas las pantallas de faltas para explicar el significado de los colores
   static const faltasItems = [
     LegendItem(label: 'bien', color: AppColors.tagGreen),
     LegendItem(label: 'cuidado', color: AppColors.tagYellow),

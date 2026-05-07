@@ -12,6 +12,7 @@ import 'package:proyecto_final_synquid/services/attendance_service.dart';
 import 'package:proyecto_final_synquid/services/teacher_service.dart';
 import 'package:proyecto_final_synquid/widgets/legend_popup.dart';
 
+// Agrupa un alumno con su conteo de faltas para la vista del profesor en FaltasClaseScreen
 class _AlumnoData {
   final Student student;
   final int faltas;
@@ -33,6 +34,8 @@ class _AlumnoData {
   }
 }
 
+// Pantalla del profesor: lista los alumnos de un grupo con su ratio de faltas
+// Permite navegar a ReducirFaltasScreen para editar la asistencia día a día
 class FaltasClaseScreen extends StatefulWidget {
   final String groupId;
   final String groupName;
@@ -59,6 +62,8 @@ class _FaltasClaseScreenState extends State<FaltasClaseScreen> {
     _fetchData();
   }
 
+  // Carga en paralelo los alumnos del grupo y el historial de asistencia del año
+  // Luego cruza los datos en cliente para calcular faltas y total de clases por alumno
   Future<void> _fetchData() async {
     setState(() {
       _loading = true;
@@ -67,12 +72,12 @@ class _FaltasClaseScreenState extends State<FaltasClaseScreen> {
     });
 
     try {
-      final client = ApiClient(); // 👈 1. Solucionado el error del client
+      final client = ApiClient();
 
-      // 👈 2. Volvemos a pedir los alumnos al servidor (ajusta el nombre del método si en tu TeacherService se llama distinto)
-      final studentsList = await TeacherService(client).getGroupStudents(widget.groupId); 
-      
-      // Pedimos el historial global
+      // Obtiene la lista de alumnos del grupo desde /teacher/groups/:id/students
+      final studentsList = await TeacherService(client).getGroupStudents(widget.groupId);
+
+      // Descarga todo el historial del grupo (hasta 1000 registros del último año)
       final historyResponse = await AttendanceService(client).getHistory(
         groupId: widget.groupId,
       );
@@ -80,7 +85,7 @@ class _FaltasClaseScreenState extends State<FaltasClaseScreen> {
       List<_AlumnoData> listaMapeada = [];
 
       for (var student in studentsList) {
-        // Filtramos el historial gigante para este alumno
+        // Filtra los registros del historial global que pertenecen a este alumno
         final studentRecords = historyResponse.attendances
             .where((record) => record.userId == student.userId)
             .toList();
@@ -97,7 +102,7 @@ class _FaltasClaseScreenState extends State<FaltasClaseScreen> {
         );
       }
 
-      // Guardamos todo en el estado de la pantalla
+      // Actualiza el estado con los datos construidos para renderizar la lista
       if (mounted) {
         setState(() {
           _students = studentsList;
@@ -255,6 +260,7 @@ class _FaltasClaseScreenState extends State<FaltasClaseScreen> {
   }
 }
 
+// Fila de un alumno en la lista: avatar, nombre completo y badge de faltas coloreado
 class _AlumnoRow extends StatelessWidget {
   final _AlumnoData alumno;
   final Color labelColor;

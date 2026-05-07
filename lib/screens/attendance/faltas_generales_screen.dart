@@ -9,6 +9,7 @@ import 'package:proyecto_final_synquid/widgets/legend_popup.dart';
 import 'package:go_router/go_router.dart';
 import 'package:proyecto_final_synquid/core/router/app_router.dart';
 
+// Modelo local que agrupa el resumen de faltas de un grupo para la vista de lista
 class _FaltaItem {
   final String groupId;
   final String subject;
@@ -31,9 +32,11 @@ class _FaltaItem {
   }
 }
 
+// Pantalla de resumen de faltas del alumno: lista todas las asignaturas con contador y tag de color
 class FaltasGeneralesScreen extends StatelessWidget {
   const FaltasGeneralesScreen({super.key});
 
+  // Construye la lista de _FaltaItem agrupando el historial cacheado en UserProvider por groupId
   List<_FaltaItem> _buildItems(UserProvider provider) {
     final history = provider.attendanceHistory ?? [];
     final map = <String, Map<String, dynamic>>{};
@@ -170,6 +173,7 @@ class _FaltasHeader extends StatelessWidget {
   }
 }
 
+// Fila de la lista de faltas: parte izquierda con nombre y parte derecha con contador coloreado
 class _FaltaCard extends StatelessWidget {
   final _FaltaItem item;
   final Color cardBgColor;

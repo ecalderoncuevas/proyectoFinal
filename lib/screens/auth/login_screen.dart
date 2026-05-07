@@ -15,6 +15,7 @@ import 'package:proyecto_final_synquid/services/user_service.dart';
 import 'package:proyecto_final_synquid/widgets/back_app_bar.dart';
 import 'package:proyecto_final_synquid/widgets/primary_button.dart';
 
+// Pantalla de inicio de sesión; recibe el rol elegido en WelcomeScreen ('student' o 'professor')
 class LoginScreen extends StatefulWidget {
   final String role;
   const LoginScreen({super.key, this.role = 'student'});
@@ -46,6 +47,7 @@ class _LoginScreenState extends State<LoginScreen> {
     super.dispose();
   }
 
+  // Orquesta el flujo de login: valida campos, llama a la API, guarda rol y perfil, y navega
   Future<void> _doLogin() async {
     final email = _emailController.text.trim();
     final password = _passwordController.text;
@@ -64,14 +66,17 @@ class _LoginScreenState extends State<LoginScreen> {
 
       if (response.isSuccess) {
         final userProvider = context.read<UserProvider>();
+        // Guarda el rol en el provider para que toda la app sepa qué pantallas mostrar
         userProvider.setRole(widget.role);
 
         try {
+          // Intenta cargar el perfil; si falla no bloquea la navegación
           final user = await _userService.getMe();
           if (mounted) userProvider.setUser(user);
         } catch (_) {}
 
         if (!mounted) return;
+        // Redirige a la pantalla principal según el rol
         if (widget.role == 'professor') {
           context.go(AppRoutes.homeProfessor);
         } else {
@@ -91,6 +96,7 @@ class _LoginScreenState extends State<LoginScreen> {
     }
   }
 
+  // Traduce los códigos HTTP y tipos de error de Dio a mensajes comprensibles para el usuario
   String _friendlyDioError(DioException e) {
     final status = e.response?.statusCode;
     switch (status) {
@@ -183,6 +189,7 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 }
 
+// Campo de texto reutilizable con soporte para modo contraseña (ocultar/mostrar)
 class _InputField extends StatefulWidget {
   final String label;
   final TextEditingController controller;
@@ -248,6 +255,7 @@ class _InputFieldState extends State<_InputField> {
   }
 }
 
+// Texto tappable con efecto subrayado al presionar; usado para "¿Olvidaste la contraseña?"
 class _LinkText extends StatefulWidget {
   final String label;
   final FontWeight fontWeight;

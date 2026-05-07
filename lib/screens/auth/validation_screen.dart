@@ -11,6 +11,8 @@ import 'package:proyecto_final_synquid/services/auth_service.dart';
 import 'package:proyecto_final_synquid/widgets/back_app_bar.dart';
 import 'package:proyecto_final_synquid/widgets/primary_button.dart';
 
+// Pantalla de validación OTP de 6 dígitos; usada tanto para verificar email como para recuperar contraseña
+// showRememberDevice controla si se muestra la opción "recordar dispositivo"
 class ValidationScreen extends StatefulWidget {
   final String email;
   final bool showRememberDevice;
@@ -30,6 +32,7 @@ class ValidationScreen extends StatefulWidget {
 }
 
 class _ValidationScreenState extends State<ValidationScreen> {
+  // Crea un controller y un FocusNode por cada una de las 6 casillas del OTP
   final List<TextEditingController> _controllers =
       List.generate(6, (_) => TextEditingController());
   final List<FocusNode> _focusNodes = List.generate(6, (_) => FocusNode());
@@ -56,6 +59,7 @@ class _ValidationScreenState extends State<ValidationScreen> {
     super.dispose();
   }
 
+  // Concatena el contenido de las 6 casillas para obtener el código completo
   String get _code => _controllers.map((c) => c.text).join();
 
   Future<void> _sendCode() async {
@@ -175,6 +179,7 @@ class _ValidationScreenState extends State<ValidationScreen> {
   }
 }
 
+// Casilla individual del código OTP: acepta solo un dígito y avanza el foco automáticamente
 class _OtpBox extends StatelessWidget {
   final TextEditingController controller;
   final FocusNode focusNode;
@@ -223,6 +228,7 @@ class _OtpBox extends StatelessWidget {
   }
 }
 
+// Checkbox personalizado "Recordar este dispositivo" visible en el flujo de validación de dispositivo
 class _RememberDeviceCheckbox extends StatelessWidget {
   final bool value;
   final ValueChanged<bool> onChanged;

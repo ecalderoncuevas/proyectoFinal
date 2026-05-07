@@ -7,6 +7,7 @@ import 'package:proyecto_final_synquid/core/theme/theme_provider.dart';
 import 'package:go_router/go_router.dart';
 import 'package:proyecto_final_synquid/core/router/app_router.dart';
 
+// Pantalla de ajustes: cuenta, privacidad, tema claro/oscuro, idioma, notificaciones y tamaño de fuente
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
 
@@ -17,6 +18,7 @@ class SettingsScreen extends StatefulWidget {
 class _SettingsScreenState extends State<SettingsScreen> {
   bool _notificationsEnabled = true;
 
+  // Traduce el nombre de idioma mostrado en el dropdown al Locale de Flutter
   Locale _localeFromDisplay(String lang) {
     switch (lang) {
       case 'Català': return const Locale('ca');
@@ -178,6 +180,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
   }
 }
 
+// Ítem de ajustes navegable: icono + etiqueta + flecha que lleva a otra pantalla
 class _SettingsNavItem extends StatelessWidget {
   final IconData icon;
   final String label;
@@ -224,6 +227,7 @@ class _SettingsNavItem extends StatelessWidget {
   }
 }
 
+// Fila de ajuste con icono (o widget personalizado), etiqueta y control a la derecha (switch, dropdown, etc.)
 class _SettingsRow extends StatelessWidget {
   final IconData? icon;
   final Widget? customIcon;
@@ -264,6 +268,7 @@ class _SettingsRow extends StatelessWidget {
   }
 }
 
+// Dropdown de selección de idioma; al cambiar aplica el nuevo Locale a EasyLocalization
 class _LanguageDropdown extends StatelessWidget {
   final String value;
   final ValueChanged<String> onChanged;
@@ -326,6 +331,7 @@ class _LanguageDropdown extends StatelessWidget {
   }
 }
 
+// Toggle animado de tema claro/oscuro con texto deslizante (no usa el ThemeSwitch widget por diseño diferente)
 class _ThemeToggle extends StatelessWidget {
   final bool isDark;
   final ValueChanged<bool> onChanged;

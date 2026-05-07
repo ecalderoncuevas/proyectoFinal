@@ -8,11 +8,13 @@ import 'package:proyecto_final_synquid/core/router/app_router.dart';
 import 'package:proyecto_final_synquid/core/theme/app_theme.dart';
 import 'package:proyecto_final_synquid/core/theme/theme_provider.dart';
 
+// Pantalla inicial de la app; el usuario elige si es alumno o institución (profesor)
 class WelcomeScreen extends StatelessWidget {
   const WelcomeScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
+    // Adapta colores según el tema activo
     final isDark = context.watch<ThemeProvider>().isDark;
     final appGreen = isDark ? AppColors.green : AppColors.homeDarkGreen;
     final appBg = isDark ? AppColors.darkBg : AppColors.homeLightBg;
@@ -78,6 +80,7 @@ class WelcomeScreen extends StatelessWidget {
   }
 }
 
+// Botón de selección de rol (alumno / institución) con icono y etiqueta
 class _RoleButton extends StatelessWidget {
   final IconData icon;
   final String label;

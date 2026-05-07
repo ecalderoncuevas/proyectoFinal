@@ -1,3 +1,5 @@
+// Alumno de un grupo; devuelto por /teacher/groups/:id/students
+// Se usa en FaltasClaseScreen y ReducirFaltasScreen para listar los alumnos
 class Student {
   final String userId;
   final String firstName;

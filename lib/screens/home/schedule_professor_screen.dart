@@ -8,6 +8,7 @@ import 'package:proyecto_final_synquid/core/theme/theme_provider.dart';
 import 'package:proyecto_final_synquid/services/api_client.dart';
 import 'package:proyecto_final_synquid/services/teacher_service.dart';
 
+// Datos de una clase del horario del profesor para mostrar en el bloque de un día
 class _ClassSlot {
   final String groupName;
   final String level;
@@ -22,6 +23,8 @@ class _ClassSlot {
   });
 }
 
+// Genera la lista completa de días laborables (lun-vie) entre 2020 y 2035
+// Se usa como fuente de datos del ListView principal y de la columna lateral de fechas
 List<DateTime> _buildWorkingDays() {
   final days = <DateTime>[];
   var d = DateTime.utc(2020, 1, 1);
@@ -33,6 +36,8 @@ List<DateTime> _buildWorkingDays() {
   return days;
 }
 
+// Pantalla de horario del profesor: agenda tipo timeline con columna lateral de fechas y clases por día
+// La columna lateral y el contenido se sincronizan mediante dos ScrollControllers sincronizados
 class ScheduleProfessorScreen extends StatefulWidget {
   const ScheduleProfessorScreen({super.key});
 
@@ -80,6 +85,8 @@ class _ScheduleProfessorScreenState extends State<ScheduleProfessorScreen> {
     _mainController = ScrollController();
     _sidebarController = ScrollController();
 
+    // Sincroniza el scroll de la columna lateral con el del contenido principal
+    // y actualiza el mes mostrado en la cabecera lateral cuando cambia el bloque visible
     _mainController.addListener(() {
       if (_sidebarController.hasClients) {
         _sidebarController.jumpTo(_mainController.offset);
@@ -90,11 +97,12 @@ class _ScheduleProfessorScreenState extends State<ScheduleProfessorScreen> {
     _fetchSchedules();
   }
 
+  // Descarga el horario del profesor para los próximos 7 días y lo indexa por dayOfWeek
   Future<void> _fetchSchedules() async {
     setState(() => _loadingSchedule = true);
     try {
       final now = DateTime.now();
-      final to = now.add(const Duration(days: 6));
+      final to = now.add(const Duration(days: 6)); // Rango de 7 días para cubrir la semana actual
       final items = await TeacherService(ApiClient()).getSchedule(
         from: now,
         to: to,
@@ -148,6 +156,7 @@ class _ScheduleProfessorScreenState extends State<ScheduleProfessorScreen> {
     return raw[0].toUpperCase() + raw.substring(1);
   }
 
+  // Calcula qué día es visible en el viewport según el offset del scroll y actualiza el mes en la cabecera
   void _updateMonthFromOffset() {
     if (!_mainController.hasClients || _workingDays.isEmpty) return;
     final offset = _mainController.offset;
@@ -159,6 +168,7 @@ class _ScheduleProfessorScreenState extends State<ScheduleProfessorScreen> {
     }
   }
 
+  // Anima el scroll hasta la fecha indicada; si cae en fin de semana avanza al lunes siguiente
   void _scrollToDate(DateTime date) {
     var target = date;
     if (target.weekday > 5) {
@@ -288,6 +298,8 @@ class _ScheduleProfessorScreenState extends State<ScheduleProfessorScreen> {
   }
 }
 
+// Columna lateral del horario: muestra el mes rotado y los bloques de día (nombre + número)
+// Su scroll es pasivo (NeverScrollableScrollPhysics) y lo controla el mainController
 class _SidebarColumn extends StatelessWidget {
   final ScrollController scrollController;
   final String currentMonth;
@@ -296,7 +308,7 @@ class _SidebarColumn extends StatelessWidget {
   final double itemHeight;
   final double width;
   final int totalItems;
-  final VoidCallback onMonthTap;
+  final VoidCallback onMonthTap; // Abre el selector de mes/día en un BottomSheet
 
   const _SidebarColumn({
     required this.scrollController,
@@ -419,6 +431,7 @@ class _SidebarColumn extends StatelessWidget {
   }
 }
 
+// Bloque de un día en el contenido principal: muestra las clases del día o "Sin clases"
 class _DayClassesBlock extends StatelessWidget {
   final List<_ClassSlot> classes;
   final Color labelColor;
@@ -570,6 +583,7 @@ class _ClassRow extends StatelessWidget {
   }
 }
 
+// BottomSheet con calendario mensual para saltar a cualquier fecha en la agenda del profesor
 class _CalendarBottomSheet extends StatefulWidget {
   final DateTime focusedDay;
   final void Function(DateTime) onDaySelected;

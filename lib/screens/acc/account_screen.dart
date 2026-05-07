@@ -12,9 +12,11 @@ import 'package:proyecto_final_synquid/services/auth_service.dart';
 import 'package:proyecto_final_synquid/services/api_client.dart';
 
 
+// Pantalla de perfil del usuario: muestra nombre, email, opción de cambiar contraseña y botón de logout
 class AccountScreen extends StatelessWidget {
   const AccountScreen({super.key});
 
+  // Muestra un diálogo de confirmación animado antes de ejecutar el logout
   static Future<bool?> _showLogoutDialog(BuildContext context) {
 
     final isDark = context.read<ThemeProvider>().isDark;
@@ -141,6 +143,7 @@ class AccountScreen extends StatelessWidget {
     );
   }
 
+  // Ejecuta el flujo completo de logout: confirmación → llamada a la API → limpia el provider → navega a welcome
   Future<void> _logout(BuildContext context) async {
     final confirmed = await _showLogoutDialog(context);
     if (confirmed != true) return;
@@ -268,6 +271,7 @@ class AccountScreen extends StatelessWidget {
   }
 }
 
+// Campo de solo lectura que muestra etiqueta y valor apilados verticalmente
 class _InfoField extends StatelessWidget {
   final String label;
   final String value;
@@ -309,6 +313,7 @@ class _InfoField extends StatelessWidget {
   }
 }
 
+// Campo con etiqueta/valor y un icono de acción a la derecha; usado para "Contraseña" con icono de reseteo
 class _InfoFieldWithAction extends StatelessWidget {
   final String label;
   final String value;

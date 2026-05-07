@@ -13,6 +13,7 @@ import 'package:proyecto_final_synquid/services/auth_service.dart';
 import 'package:proyecto_final_synquid/widgets/back_app_bar.dart';
 import 'package:proyecto_final_synquid/widgets/primary_button.dart';
 
+// Pantalla de recuperación de contraseña: pide el email y redirige a la validación OTP
 class ForgotPasswordScreen extends StatefulWidget {
   const ForgotPasswordScreen({super.key});
 
@@ -37,6 +38,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
     super.dispose();
   }
 
+  // Envía el email al backend para iniciar el flujo de reseteo y navega a la pantalla de validación OTP
   Future<void> _sendReset() async {
     final email = _emailController.text.trim();
     if (email.isEmpty) {

@@ -8,6 +8,7 @@ import 'package:proyecto_final_synquid/core/theme/theme_provider.dart';
 import 'package:proyecto_final_synquid/services/api_client.dart';
 import 'package:proyecto_final_synquid/services/student_service.dart';
 
+// Datos de una clase del horario del alumno para mostrar en la lista del día seleccionado
 class _ClassSlot {
   final String groupName;
   final String startTime;
@@ -20,6 +21,7 @@ class _ClassSlot {
   });
 }
 
+// Pantalla de horario del alumno: calendario semanal/mensual con las clases del día seleccionado
 class ScheduleScreen extends StatefulWidget {
   const ScheduleScreen({super.key});
 
@@ -32,7 +34,7 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
   late DateTime _selectedDay;
   CalendarFormat _calendarFormat = CalendarFormat.week;
 
-  // dayOfWeek (0=Sun,1=Mon,...,6=Sat) → slots
+  // Caché local: dayOfWeek (API: 0=Dom…6=Sáb) → lista de clases; evita repedir la API al cambiar de día
   final Map<int, List<_ClassSlot>> _cache = {};
   bool _loading = false;
   String? _error;
@@ -45,9 +47,10 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
     _loadSchedules();
   }
 
-  // DateTime.weekday: 1=Mon … 7=Sun  →  API: 0=Sun, 1=Mon … 6=Sat
+  // Convierte el weekday de Flutter (1=lun…7=dom) al formato de la API (0=dom…6=sáb)
   int _apiDow(DateTime date) => date.weekday % 7;
 
+  // Descarga el horario del alumno y lo organiza en la caché por dayOfWeek
   Future<void> _loadSchedules() async {
     setState(() {
       _loading = true;
@@ -317,6 +320,7 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
   }
 }
 
+// Fila de una clase en la lista del día: muestra nombre del grupo y franja horaria
 class _ClassRow extends StatelessWidget {
   final _ClassSlot slot;
   final Color textColor;

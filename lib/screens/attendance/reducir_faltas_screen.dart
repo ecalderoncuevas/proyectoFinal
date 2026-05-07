@@ -11,6 +11,8 @@ import 'package:proyecto_final_synquid/services/attendance_service.dart';
 import 'package:proyecto_final_synquid/widgets/back_app_bar.dart';
 import 'package:table_calendar/table_calendar.dart';
 
+// Pantalla del profesor para editar el estado de asistencia de cada alumno por día
+// Usa un calendario semanal para navegar entre días y un dropdown por alumno para cambiar su estado
 class ReducirFaltasScreen extends StatefulWidget {
   final String groupId;
   final List<Student> students;
@@ -29,8 +31,8 @@ class _ReducirFaltasScreenState extends State<ReducirFaltasScreen> {
   DateTime _focusedDay = DateTime.now();
   DateTime? _selectedDay = DateTime.now();
 
-  // Cache por fecha: dateKey → (userId → status)
-  // Cada día guarda su propio estado independientemente
+  // Caché local por fecha: "YYYY-MM-DD" → (userId → status)
+  // Cada día almacena sus estados de forma independiente para que cambiar de día no mezcle datos
   final Map<String, Map<String, int>> _statusByDate = {};
   bool _loadingToday = true;
   bool _saving = false;
@@ -62,10 +64,11 @@ class _ReducirFaltasScreenState extends State<ReducirFaltasScreen> {
     _fetchTodayAttendance();
   }
 
+  // Carga el estado de asistencia del día seleccionado desde la API (solo si no está en caché)
   Future<void> _fetchTodayAttendance() async {
     final dateKey = _dateKey;
 
-    // Si ya tenemos datos para este día, no hace falta llamar a la API
+    // Si el día ya fue cargado previamente, reutiliza la caché local sin llamar a la API
     if (_statusByDate.containsKey(dateKey)) {
       setState(() => _loadingToday = false);
       return;
@@ -73,8 +76,7 @@ class _ReducirFaltasScreenState extends State<ReducirFaltasScreen> {
 
     setState(() => _loadingToday = true);
     try {
-      // Usamos history con from=to=fecha para obtener la asistencia real de ese día
-      // getToday solo devuelve datos de HOY; para días pasados necesitamos history
+      // getStatusByDate usa /Attendance/history con from=to para restringir a un día concreto
       final apiMap = await AttendanceService(ApiClient()).getStatusByDate(
         groupId: widget.groupId,
         date: dateKey,
@@ -102,10 +104,12 @@ class _ReducirFaltasScreenState extends State<ReducirFaltasScreen> {
     }
   }
 
+  // Guarda el estado de asistencia de todos los alumnos del día seleccionado mediante PUT
   Future<void> _saveAttendance() async {
     setState(() => _saving = true);
     try {
       final service = AttendanceService(ApiClient());
+      // El backend espera la fecha en formato ISO 8601 UTC
       final String formattedDate = _selectedDay!.toUtc().toIso8601String();
 
       for (final student in widget.students) {

@@ -11,9 +11,12 @@ import 'package:proyecto_final_synquid/services/institution_service.dart';
 import 'package:proyecto_final_synquid/widgets/primary_button.dart';
 import 'package:proyecto_final_synquid/widgets/back_app_bar.dart';
 
+// Pantalla de selección de institución previa al login
+// Se reutiliza tanto para el flujo de alumno como para el de profesor (icono diferente)
 class SelectInstitutionScreen extends StatefulWidget {
   final IconData icon;
   final String title;
+  // Callback que recibe la institución elegida y navega al login con el rol correspondiente
   final void Function(Institution institution) onContinue;
 
   const SelectInstitutionScreen({

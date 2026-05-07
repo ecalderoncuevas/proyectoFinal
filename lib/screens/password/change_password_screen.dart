@@ -13,6 +13,8 @@ import 'package:proyecto_final_synquid/services/auth_service.dart';
 import 'package:proyecto_final_synquid/widgets/back_app_bar.dart';
 import 'package:proyecto_final_synquid/widgets/primary_button.dart';
 
+// Pantalla de nueva contraseña; recibe el token de reseteo del flujo de recuperación
+// Valida en tiempo real que la contraseña tenga 8+ caracteres y un carácter especial
 class ChangePasswordScreen extends StatefulWidget {
   final String? resetToken;
   const ChangePasswordScreen({super.key, this.resetToken});
@@ -40,6 +42,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
     _confirmPasswordController.addListener(_checkMatch);
   }
 
+  // Comprueba en tiempo real los requisitos de seguridad mientras el usuario escribe
   void _validatePassword() {
     final password = _newPasswordController.text;
     setState(() {
@@ -48,6 +51,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
     });
   }
 
+  // Activa el aviso de no coincidencia solo cuando el campo de confirmación no está vacío
   void _checkMatch() {
     final confirm = _confirmPasswordController.text;
     setState(() {
@@ -191,6 +195,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
   }
 }
 
+// Campo de contraseña con etiqueta y botón de visibilidad; sin sugerencias de autocompletar
 class _LabeledPasswordField extends StatefulWidget {
   final String label;
   final TextEditingController controller;
@@ -266,6 +271,7 @@ class _LabeledPasswordFieldState extends State<_LabeledPasswordField> {
   }
 }
 
+// Indicador visual de requisito de contraseña: círculo vacío → relleno con ✓ cuando se cumple
 class _ValidationRow extends StatelessWidget {
   final String label;
   final bool isValid;

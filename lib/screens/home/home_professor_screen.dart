@@ -11,6 +11,7 @@ import 'package:proyecto_final_synquid/models/teacher_group.dart';
 import 'package:proyecto_final_synquid/services/api_client.dart';
 import 'package:proyecto_final_synquid/services/teacher_service.dart';
 
+// Pantalla principal del profesor: muestra la lista de grupos asignados con acceso a sus faltas
 class HomeProfessorScreen extends StatefulWidget {
   const HomeProfessorScreen({super.key});
 
@@ -28,6 +29,7 @@ class _HomeProfessorScreenState extends State<HomeProfessorScreen> {
     _loadIfNeeded();
   }
 
+  // Carga los grupos del profesor solo si aún no están cacheados en UserProvider
   Future<void> _loadIfNeeded() async {
     final provider = context.read<UserProvider>();
     if (provider.teacherGroups != null) return;
@@ -164,6 +166,7 @@ class _HeaderSection extends StatelessWidget {
   }
 }
 
+// Tarjeta de clase para la vista del profesor: nombre del grupo, nivel y enlace a sus faltas
 class _ClassCard extends StatelessWidget {
   final TeacherGroup group;
   final Color cardBgColor;

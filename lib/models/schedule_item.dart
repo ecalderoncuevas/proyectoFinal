@@ -1,3 +1,5 @@
+// Franja horaria del horario del alumno; devuelto por /student/schedule
+// dayOfWeek usa la convención de la API: 0=domingo, 1=lunes … 6=sábado
 class ScheduleItem {
   final String scheduleId;
   final String groupId;
@@ -28,6 +30,8 @@ class ScheduleItem {
       );
 }
 
+// Franja horaria del horario del profesor; devuelto por /teacher/schedule
+// Incluye el nivel del grupo en lugar del nombre del profesor (ya es el propio profesor)
 class TeacherScheduleItem {
   final String scheduleId;
   final String groupId;

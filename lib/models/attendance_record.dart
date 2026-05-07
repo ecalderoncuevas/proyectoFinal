@@ -1,3 +1,5 @@
+// Registro simplificado de asistencia usado en HomeStudentScreen para el resumen de faltas
+// status: 0=presente, 1=ausente, 2=justificado, 3=tarde
 class AttendanceRecord {
   final String groupId;
   final String groupName;
@@ -20,6 +22,8 @@ class AttendanceRecord {
       );
 }
 
+// Registro detallado de asistencia; devuelto por /Attendance/history y /Attendance/myHistory
+// Incluye la franja horaria de la clase y el userId para poder cruzar datos por alumno
 class Attendance {
   final String id;
   final String date;
@@ -45,6 +49,7 @@ class Attendance {
     required this.userId,
   });
 
+  // Devuelve la hora de inicio como alias legible en FaltasAsignaturaScreen
   String get hora => startTime;
 
   String get fecha {
@@ -75,11 +80,12 @@ class Attendance {
   }
 }
 
+// Ítem del historial de asistencia con timestamp local; usado para calcular la hora exacta
 class AttendanceHistoryItem {
   final String id;
   final String date;
   final int status;
-  final String timestampLocal;
+  final String timestampLocal; // ISO 8601 en hora local del dispositivo
 
   AttendanceHistoryItem({
     required this.id,
@@ -122,6 +128,7 @@ class AttendanceHistoryItem {
       );
 }
 
+// Resultado del endpoint /Attendance/today: par userId-status para el día actual
 class TodayAttendance {
   final String userId;
   final int status;
@@ -135,13 +142,14 @@ class TodayAttendance {
       );
 }
 
+// Wrapper paginado que devuelve /Attendance/history; contiene metadatos + lista de registros
 class AttendanceResponse {
   final int codigoError;
-  final String from;
-  final String to;
+  final String from;    // Fecha inicio del rango consultado
+  final String to;      // Fecha fin del rango consultado
   final int page;
   final int limit;
-  final int total;
+  final int total;      // Total de registros en el servidor (para saber si hay más páginas)
   final List<Attendance> attendances;
   final String timestamp;
 

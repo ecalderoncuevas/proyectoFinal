@@ -9,6 +9,8 @@ import 'package:proyecto_final_synquid/models/attendance_record.dart';
 import 'package:proyecto_final_synquid/services/api_client.dart';
 import 'package:proyecto_final_synquid/services/attendance_service.dart';
 
+// Detalle de faltas de una asignatura concreta: lista cada falta con fecha y hora
+// Se refresca en segundo plano cada 3 segundos para reflejar cambios del profesor en tiempo real
 class FaltasAsignaturaScreen extends StatefulWidget {
   final String groupId;
   final String subject;
@@ -46,9 +48,11 @@ class _FaltasAsignaturaScreenState extends State<FaltasAsignaturaScreen> {
     _faltas = widget.faltas;
     _total = widget.total;
     _currentTagColor = widget.tagColor;
-    
+
+    // Carga inicial de las faltas detalladas del grupo
     _fetchAbsences();
 
+    // Polling silencioso cada 3 segundos para sincronizar con cambios del profesor sin parpadeos
     _timer = Timer.periodic(const Duration(seconds: 3), (timer) {
       if (mounted) {
         _fetchAbsences(isSilent: true);
@@ -62,6 +66,7 @@ class _FaltasAsignaturaScreenState extends State<FaltasAsignaturaScreen> {
     super.dispose();
   }
 
+  // Recalcula el color del tag de estado tras actualizar los contadores
   void _updateColors() {
     if (_total == 0) {
       _currentTagColor = AppColors.tagGreen;
@@ -77,6 +82,8 @@ class _FaltasAsignaturaScreenState extends State<FaltasAsignaturaScreen> {
     }
   }
 
+  // Descarga el historial del alumno para el grupo y actualiza los contadores
+  // isSilent=true omite el indicador de carga para no interrumpir la vista durante el polling
   Future<void> _fetchAbsences({bool isSilent = false}) async {
     if (!isSilent) {
       setState(() {
@@ -252,6 +259,7 @@ class _FaltasAsignaturaScreenState extends State<FaltasAsignaturaScreen> {
   }
 }
 
+// Fila individual de una falta: muestra hora a la izquierda y fecha a la derecha
 class _FaltaDetalleRow extends StatelessWidget {
   final String hora;
   final String fecha;
